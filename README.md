@@ -21,6 +21,6 @@ Section 7.3 of [1] outlines the main algorithm.
 
 # References
 
-[1] [Ross Selinger paper](https://arxiv.org/abs/1403.2975v3).
-[2] [Original Haskell code](https://hackage.haskell.org/package/newsynth)
-[3] [Seyon's haunted code](https://github.com/CQCL/QCompiler/blob/master/singleqb)
+- [1] [Ross Selinger paper](https://arxiv.org/abs/1403.2975v3).
+- [2] [Original Haskell code](https://hackage.haskell.org/package/newsynth)
+- [3] [Seyon's haunted code](https://github.com/CQCL/QCompiler/blob/master/singleqb)
