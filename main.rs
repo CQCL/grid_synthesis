@@ -5,8 +5,10 @@
 type Angle = f64;
 type Error = f64;
 
+// Obviously false code
 fn grid_synth(theta: Angle,epsilon: Error) -> i32 {
     return 0
+  
 }
 
 
