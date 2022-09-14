@@ -2,6 +2,8 @@
 // First few lines of code
 
 
+mod structs;
+
 type Angle = f64;
 type Error = f64;
 

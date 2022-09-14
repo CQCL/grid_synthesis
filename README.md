@@ -26,6 +26,7 @@ Section 7.3 of [1] outlines the main algorithm.
 
 - Don't use unsigned integer
 - Keep floating point errors as custom types that can be changed later
+- Don't optimize prematurely
 
 # References
 
