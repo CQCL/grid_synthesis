@@ -44,7 +44,7 @@ impl Mul for UniMat {
 
     fn mul(self, other: UniMat) -> UniMat {
         UniMat{
-            u: self.u*other.u - self.t.conj()*other.t,
+            u: self.u*other.u-self.t.conj()*other.t,
             t: self.t*other.u+self.u.conj()*other.t
         }
     }

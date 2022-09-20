@@ -2,6 +2,7 @@
 // Rust must learn how to do arithmetics in our rings
 use std::ops::Neg; 
 use std::ops::Add; 
+use std::ops::Sub; 
 use std::ops::Mul; 
 
 // use std::fmt; // To teach rust how to display our ring elements
@@ -23,8 +24,9 @@ impl Dyad {
         while self.num%2==0
         {
             self.num=self.num/2;
-            log_den=log_den+1;
+            self.log_den=self.log_den+1;
         }
+        return self
     }
 }
 
@@ -47,18 +49,18 @@ impl Add for Dyad {
     fn add(self, other: Dyad) -> Dyad {
         if self.log_den>other.log_den 
         {
-            temp = Dyad{
+            let temp = Dyad{
                 num: self.num + other.num*2^(self.log_den-other.log_den),
-                log_den = self.log_den
+                log_den: self.log_den
             };
 
             return temp.fix()
         }
         else
         {
-            temp = Dyad{
+            let temp = Dyad{
                 num: other.num + self.num*2^(other.log_den-self.log_den),
-                log_den = other.log_den
+                log_den: other.log_den
             };
 
             return temp.fix()
@@ -66,4 +68,27 @@ impl Add for Dyad {
     }
 }
 
+
+// Teaching rust how to multiply Dyad elements
+impl Mul for Dyad {
+    type Output = Dyad;
+
+    fn mul(self, other: Dyad) -> Dyad {
+        let temp = Dyad{
+            num: self.num*other.num,
+            log_den: self.log_den+other.log_den
+        };
+        return temp.fix()
+    }
+}
+
+
+// Teaching rust how to subtract Dyad elements
+impl Sub for Dyad {
+    type Output = Dyad;
+
+    fn sub(self, other: Dyad) -> Dyad {
+        self+(-other) //subtraction is just adding the additive inverse
+    }
+}
 

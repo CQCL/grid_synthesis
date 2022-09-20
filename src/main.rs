@@ -9,8 +9,9 @@ type Angle = f64;
 type Error = f64;
 
 //the compiler suggested this (and wouldn't compile otherwise)
-// use crate::structs::rings::Dyad; 
+use crate::structs::rings::dyad::Dyad; 
 use crate::structs::rings::unimat::UniMat; 
+use crate::structs::rings::domega::DOmega; 
 
 // Obviously false code
 fn grid_synth(theta: Angle,epsilon: Error) -> f64 {
@@ -20,16 +21,25 @@ fn grid_synth(theta: Angle,epsilon: Error) -> f64 {
 
 fn main() {
 
-    println!("{:?}",d.conj());
     // Print text to the console
     println!("------------------------------------------");
     println!("-------------CODE IS RUNNING--------------");
     println!("------------------------------------------");
 
 
-    let mut u=UniMat{
-        u: 1,
-        t: 0
+    let u=UniMat{
+        u: DOmega(
+               Dyad{num: 1, log_den: 0},
+               Dyad{num: 1, log_den: 0},
+               Dyad{num: 1, log_den: 0},
+               Dyad{num: 1, log_den: 0},
+               ),
+        t: DOmega(
+               Dyad{num: 1, log_den: 0},
+               Dyad{num: 1, log_den: 0},
+               Dyad{num: 1, log_den: 0},
+               Dyad{num: 1, log_den: 0},
+               )
     };
 
 

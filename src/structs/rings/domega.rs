@@ -14,6 +14,7 @@
 // Rust must learn how to do arithmetics in our rings
 use std::ops::Neg; 
 use std::ops::Add; 
+use std::ops::Sub; 
 use std::ops::Mul; 
 
 // use std::fmt; // To teach rust how to display our ring elements
@@ -59,6 +60,14 @@ impl Add for DOmega {
     }
 }
 
+// Teaching rust how to subtract DOmega elements
+impl Sub for DOmega {
+    type Output = DOmega;
+
+    fn sub(self, other: DOmega) -> DOmega {
+        self+(-other) //subtraction is just adding the additive inverse
+    }
+}
 
 
 // Teaching rust how to multiply DOmega elements
