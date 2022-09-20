@@ -12,9 +12,12 @@ WARNING: Nihar is an amatuer coder. You have been warned.
 
 Section 7.3 of [1] outlines the main algorithm.
 
-- [ ] Write a struct to store gates with entries in $\mathbb{D}[\omega]$.
-	- [ ] Write a struct for $\mathbb{D}$ (uses only two integers)
-	- [ ] Write a struct for $\mathbb{D}[\omega]$
+- [o] Write a struct to store gates with entries in $\mathbb{D}[\omega]$.
+	- [X] Write a struct for $\mathbb{Z}[\sqrt{2}]$
+		- [ ] Write a display method for Debug
+	- [X] Write a struct for $\mathbb{D}$ (uses only two integers)
+	- [X] Write a struct for $\mathbb{D}[\omega]$
+		- [ ] Write a conjugation method
 	- [ ] Write a struct for unitary operators
 - [ ] Write an exact synthesis library (to do Step 3 as in the outline)
 - [ ] Figure out prime factorization (implement or include)

@@ -1,8 +1,3 @@
-// Just loads all the modules at the same time
-//
-//
-//
-//
+pub mod rings;
+// pub mod zroot2;
 
-
-mod Dyad;
