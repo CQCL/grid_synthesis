@@ -25,7 +25,8 @@ use crate::structs::rings::dyad::Dyad; //Dyads form DOmega ring elements. This m
 // where \omega is the eighth root of unity
 // It should be possible to save memory here by just remembering one denominator of 2 for the
 // entire tuple of Dyads. 
-// TODO: Thing about that
+// TODO: Think about that
+#[derive(Copy, Clone)]
 pub struct DOmega(pub Dyad, pub Dyad, pub Dyad, pub Dyad); 
 // The Dyads can be called as 
 // variable.0, variable.1 and so on

@@ -11,6 +11,7 @@ use std::ops::Mul;
 // Ring of numbers of the form a/2^n for integers a and n
 // These are dyadic integers
 // Each integer looks something like
+#[derive(Copy, Clone)]
 pub struct Dyad {
     pub num: i64, // The integer a above
     pub log_den: i64, // The integer n above 
@@ -21,12 +22,15 @@ pub struct Dyad {
 // Used to make the numerator odd
 impl Dyad {
     fn fix(self) -> Dyad {
-        while self.num%2==0
+        let mut num_temp = self.num;
+        let mut log_temp = self.log_den;
+
+        while num_temp%2==0
         {
-            self.num=self.num/2;
-            self.log_den=self.log_den+1;
+            num_temp=num_temp/2;
+            log_temp=log_temp+1;
         }
-        return self
+        return Dyad{ num: num_temp, log_den: log_temp}
     }
 }
 
