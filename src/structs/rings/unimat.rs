@@ -14,9 +14,10 @@ use std::ops::Add;
 use std::ops::Sub; 
 use std::ops::Mul; 
 
-
-// use crate::structs::rings::domega::DOmega; //Dyads form DOmega ring elements. This might change.
-// use crate::structs::rings::complex::Complex; //Dyads form DOmega ring elements. This might change.
+// For display
+use std::fmt::Result;
+use std::fmt::Display;
+use std::fmt::Formatter;
 
 
 // Unitary matrices. They are of the form
@@ -26,11 +27,23 @@ use std::ops::Mul;
 // \         /
 // where u and t are in giventype
 // It is required that giventype has implementations of Add,Sub,Mult,Neg,conj
+#[derive(Debug,Copy,Clone)]
 pub struct UniMat<T>{
     pub u: T,
     pub t: T,
 }
 
+
+// Nicely display Unitary Matrices
+impl<T> Display for UniMat<T>
+where T:Neg<Output=T>+Conj<T>+Display+Copy
+{
+    fn fmt(&self, f: &mut Formatter) -> Result{
+        // write!(f,"/       \\");
+        // write!(f,"| {} {} |", self.u,-self.t.conj());
+        write!(f,"|\t{}\t{}\t|\n|\t{}\t{}\t|\n",self.u, -self.t.conj() , self.t,self.u.conj())
+    }
+}
 
 // Conjugate-transpose UniMat<T> elements
 // Same as taking an inverse

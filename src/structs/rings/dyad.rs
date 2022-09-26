@@ -5,13 +5,16 @@ use std::ops::Add;
 use std::ops::Sub; 
 use std::ops::Mul; 
 
-// use std::fmt; // To teach rust how to display our ring elements
+// For display
+use std::fmt::Result;
+use std::fmt::Display;
+use std::fmt::Formatter;
 
 
 // Ring of numbers of the form a/2^n for integers a and n
 // These are dyadic integers
 // Each integer looks something like
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Dyad {
     pub num: i64, // The integer a above
     pub log_den: i64, // The integer n above 
@@ -94,5 +97,15 @@ impl Sub for Dyad {
     fn sub(self, other: Dyad) -> Dyad {
         self+(-other) //subtraction is just adding the additive inverse
     }
+
 }
 
+
+
+// Nicely display Dyad Matrices
+impl Display for Dyad
+{
+    fn fmt(&self, f: &mut Formatter) -> Result{
+        write!(f,"{}*2^(-{})",self.num, self.log_den)
+    }
+}

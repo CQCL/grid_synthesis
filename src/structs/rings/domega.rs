@@ -18,7 +18,10 @@ use std::ops::Add;
 use std::ops::Sub; 
 use std::ops::Mul; 
 
-// use std::fmt; // To teach rust how to display our ring elements
+// For display
+use std::fmt::Result;
+use std::fmt::Display;
+use std::fmt::Formatter;
 
 use crate::structs::rings::dyad::Dyad; //Dyads form DOmega ring elements. This might change.
 
@@ -27,7 +30,7 @@ use crate::structs::rings::dyad::Dyad; //Dyads form DOmega ring elements. This m
 // It should be possible to save memory here by just remembering one denominator of 2 for the
 // entire tuple of Dyads. 
 // TODO: Think about that
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct DOmega(pub Dyad, pub Dyad, pub Dyad, pub Dyad); 
 // The Dyads can be called as 
 // variable.0, variable.1 and so on
@@ -41,6 +44,13 @@ impl<T> Conj<T> for DOmega {
     }
 }
 
+// Nicely display DOmega Matrices
+impl Display for DOmega
+{
+    fn fmt(&self, f: &mut Formatter) -> Result{
+        write!(f,"{}+{}w+{}w^2+{}w^3",self.0, self.1, self.2,self.3)
+    }
+}
 
 // Negatation on DOmega
 impl Neg for DOmega{
