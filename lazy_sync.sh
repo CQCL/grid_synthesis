@@ -3,5 +3,5 @@
 
 git pull
 git add .
-git commit -m "Nihar is syncing lazily"
+git commit -m "Nihar has commited"
 git push

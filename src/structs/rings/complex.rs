@@ -88,8 +88,9 @@ impl Display for Complex
     }
 }
 
+
 // Get zero and one as Complex numbers
-impl Constructs for Complex
+impl<T> Constructs<T> for Complex
 {
     fn zero() -> Self {
         return Complex(0.0,0.0);

@@ -6,6 +6,7 @@
 
 
 use crate::structs::rings::Conj; //Conjugation trait
+use crate::structs::rings::Constructs; //Conjugation trait
 
 // We bring them in so that we can overload the operators
 // Rust must learn how to do arithmetics in our rings
@@ -79,15 +80,18 @@ where T: Copy+Mul<Output=T>+Conj<T>+Neg+Add<Output=T>+Sub<Output=T>
 
 
 // Get zero and one as Unitary matrices
-// WARNING: zero is possible to construct, but avoid using it
-// It is not a unitary matrix
-impl Constructs for Complex
+impl<T> Constructs<T> for UniMat<T>
+where T: Constructs<T>
 {
-    fn zero() -> Self {
-        return Complex(0.0,0.0);
-    }
     
+    // WARNING: zero is possible to construct, but avoid using it
+    // It is not a unitary matrix
+    fn zero() -> Self {
+        return Self{ u: T::zero(), t:T::zero()}
+
+    }
+
     fn one() -> Self {
-        return Complex(1.0,0.0);
+        return Self{ u: T::one(), t:T::zero()}
     }
 }

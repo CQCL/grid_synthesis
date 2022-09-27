@@ -4,6 +4,7 @@
 
 
 pub mod structs;
+
 pub mod tests;
 
 // type Angle = f64;
@@ -21,9 +22,6 @@ pub mod tests;
 //     return 0.0*theta*epsilon
 // }
   
-
-
-
 use crate::tests::basic_identities;
 
 fn main() {
@@ -32,7 +30,6 @@ fn main() {
     println!("------------------------------------------");
     println!("-------------CODE IS RUNNING--------------");
     println!("------------------------------------------");
-
 
     basic_identities();
 

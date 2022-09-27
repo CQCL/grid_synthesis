@@ -1,8 +1,12 @@
+
+
 // Importing some ring elements
 use crate::structs::rings::unimat::UniMat; 
 use crate::structs::rings::complex::Complex; 
 use crate::structs::rings::dyad::Dyad; 
 use crate::structs::rings::domega::DOmega; 
+
+use crate::structs::rings::Constructs;
 
 pub fn basic_identities()-> () {
     
@@ -21,11 +25,8 @@ pub fn basic_identities()-> () {
                )
     };
 
-    let unimat_id=UniMat{
-        u: Complex(1.0,0.0),
-        t: Complex(0.0,0.0)
-    };
-    
+    let unimat_id: UniMat<Complex> = UniMat::one();
+
     println!("{}",unimat_id);
     println!("{}",dyad_id);
 
