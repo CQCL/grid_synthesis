@@ -4,21 +4,27 @@
 
 
 pub mod structs;
+pub mod tests;
 
 // type Angle = f64;
 // type Error = f64;
 
 //the compiler suggested this (and wouldn't compile otherwise)
-use crate::structs::rings::dyad::Dyad; 
-use crate::structs::rings::domega::DOmega; 
-use crate::structs::rings::unimat::UniMat; 
+// use crate::structs::rings::dyad::Dyad; 
+// use crate::structs::rings::domega::DOmega; 
+// use crate::structs::rings::unimat::UniMat; 
 // use crate::structs::rings::complex::Complex; 
-
+  
+  
 // Obviously false code
 // fn grid_synth(theta: Angle,epsilon: Error) -> f64 {
 //     return 0.0*theta*epsilon
 // }
+  
 
+
+
+use crate::tests::basic_identities;
 
 fn main() {
 
@@ -28,24 +34,7 @@ fn main() {
     println!("------------------------------------------");
 
 
-    let u=UniMat{
-        u: DOmega(
-               Dyad{num: 1, log_den: 0},
-               Dyad{num: 1, log_den: 0},
-               Dyad{num: 1, log_den: 0},
-               Dyad{num: 1, log_den: 0},
-               ),
-        t: DOmega(
-               Dyad{num: 1, log_den: 0},
-               Dyad{num: 1, log_den: 0},
-               Dyad{num: 1, log_den: 0},
-               Dyad{num: 1, log_den: 0},
-               )
-    };
-
-    ;
-    println!("{}",u);
-
+    basic_identities();
 
 }
 

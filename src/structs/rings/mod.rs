@@ -3,10 +3,18 @@
 // The DOmega ring can be stored directly without any underlying Dyad implentation, I feel
 //
 
+
+// They become various conjugation operators on our rings
 pub trait Conj<T>{
     fn conj(self) -> Self;
 }
 
+
+// They return zero and one elements of our rings
+pub trait Constructs{
+    fn zero() -> Self;
+    fn one() -> Self;
+}
 
 pub mod zroot2;
 pub mod domega;

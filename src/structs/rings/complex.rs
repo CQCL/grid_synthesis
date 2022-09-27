@@ -7,6 +7,7 @@ type Float = f64;
 
 
 use crate::structs::rings::Conj; //Conjugation trait
+use crate::structs::rings::Constructs; //Conjugation trait
 
 // We bring them in so that we can overload the operators
 // Rust must learn how to do arithmetics in our rings
@@ -14,6 +15,12 @@ use std::ops::Neg;
 use std::ops::Add; 
 use std::ops::Sub; 
 use std::ops::Mul; 
+
+
+// For display
+use std::fmt::Result;
+use std::fmt::Display;
+use std::fmt::Formatter;
 
 #[derive(Copy, Clone)]
 pub struct Complex(pub Float,pub Float);
@@ -73,3 +80,22 @@ impl Mul for Complex {
     }
 }
 
+// Nicely display Complex Matrices
+impl Display for Complex
+{
+    fn fmt(&self, f: &mut Formatter) -> Result{
+        write!(f,"{}+{}i",self.0, self.1)
+    }
+}
+
+// Get zero and one as Complex numbers
+impl Constructs for Complex
+{
+    fn zero() -> Self {
+        return Complex(0.0,0.0);
+    }
+    
+    fn one() -> Self {
+        return Complex(1.0,0.0);
+    }
+}

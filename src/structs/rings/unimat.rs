@@ -76,3 +76,18 @@ where T: Copy+Mul<Output=T>+Conj<T>+Neg+Add<Output=T>+Sub<Output=T>
     }
 }
 
+
+
+// Get zero and one as Unitary matrices
+// WARNING: zero is possible to construct, but avoid using it
+// It is not a unitary matrix
+impl Constructs for Complex
+{
+    fn zero() -> Self {
+        return Complex(0.0,0.0);
+    }
+    
+    fn one() -> Self {
+        return Complex(1.0,0.0);
+    }
+}
