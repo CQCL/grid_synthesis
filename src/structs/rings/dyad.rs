@@ -4,6 +4,7 @@ use std::ops::Neg;
 use std::ops::Add; 
 use std::ops::Sub; 
 use std::ops::Mul; 
+use std::cmp::PartialEq; 
 
 // For display
 use std::fmt::Result;
@@ -24,7 +25,7 @@ pub struct Dyad {
 // Internal function
 // Used to make the numerator odd
 impl Dyad {
-    fn fix(self) -> Dyad {
+    fn fix(&self) -> &Dyad {
         let mut num_temp = self.num;
         let mut log_temp = self.log_den;
 
@@ -33,7 +34,9 @@ impl Dyad {
             num_temp=num_temp/2;
             log_temp=log_temp+1;
         }
-        return Dyad{ num: num_temp, log_den: log_temp}
+        let out = Dyad{ num: num_temp, log_den: log_temp};
+        self=out;
+        return out;
     }
 }
 
@@ -70,7 +73,7 @@ impl Add for Dyad {
                 log_den: other.log_den
             };
 
-            return temp.fix()
+            return *temp.fix()
         }
     }
 }
@@ -107,5 +110,21 @@ impl Display for Dyad
 {
     fn fmt(&self, f: &mut Formatter) -> Result{
         write!(f,"{}*2^(-{})",self.num, self.log_den)
+    }
+}
+
+
+// Teaching rust how to compare these ring elements
+impl PartialEq for Dyad {
+    fn eq(&self, other: &Self) -> bool {
+        if self.num%2==0 
+        {
+            self=self.fix();
+        }
+        if other.num%2==0
+        {
+            other=other.fix();
+        }
+        return self.num==other.num && self.log_den==other.log_den;
     }
 }

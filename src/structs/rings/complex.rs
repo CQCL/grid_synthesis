@@ -15,6 +15,7 @@ use std::ops::Neg;
 use std::ops::Add; 
 use std::ops::Sub; 
 use std::ops::Mul; 
+use std::cmp::PartialEq; 
 
 
 // For display
@@ -22,7 +23,7 @@ use std::fmt::Result;
 use std::fmt::Display;
 use std::fmt::Formatter;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct Complex(pub Float,pub Float);
 // the real part is variable.0
 // the imaginary part is variable.1
@@ -98,5 +99,14 @@ impl<T> Constructs<T> for Complex
     
     fn one() -> Self {
         return Complex(1.0,0.0);
+    }
+}
+
+
+// Teaching rust how to compare these ring elements
+impl PartialEq for Complex
+{
+    fn eq(&self, other: &Self) -> bool {
+        return self.0==other.0 && self.1==other.1;
     }
 }

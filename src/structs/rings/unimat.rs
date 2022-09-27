@@ -6,7 +6,7 @@
 
 
 use crate::structs::rings::Conj; //Conjugation trait
-use crate::structs::rings::Constructs; //Conjugation trait
+use crate::structs::rings::Constructs; //Construction trait
 
 // We bring them in so that we can overload the operators
 // Rust must learn how to do arithmetics in our rings
@@ -14,6 +14,7 @@ use std::ops::Neg;
 use std::ops::Add; 
 use std::ops::Sub; 
 use std::ops::Mul; 
+use std::cmp::PartialEq; 
 
 // For display
 use std::fmt::Result;
@@ -93,5 +94,15 @@ where T: Constructs<T>
 
     fn one() -> Self {
         return Self{ u: T::one(), t:T::zero()}
+    }
+}
+
+
+// Teaching rust how to compare these ring elements
+impl<T> PartialEq for UniMat<T> 
+where T: PartialEq
+{
+    fn eq(&self, other: &Self) -> bool {
+        return self.u==other.u && self.t==other.t;
     }
 }

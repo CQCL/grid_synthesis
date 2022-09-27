@@ -10,24 +10,16 @@ use crate::structs::rings::Constructs;
 
 pub fn basic_identities()-> () {
     
-    let dyad_id=UniMat{
-        u: DOmega(
-               Dyad{num: 1, log_den: 0},
-               Dyad{num: 0, log_den: 0},
-               Dyad{num: 0, log_den: 0},
-               Dyad{num: 0, log_den: 0},
-               ),
-        t: DOmega(
-               Dyad{num: 1, log_den: 0},
-               Dyad{num: 0, log_den: 0},
-               Dyad{num: 0, log_den: 0},
-               Dyad{num: 0, log_den: 0},
-               )
-    };
 
-    let unimat_id: UniMat<Complex> = UniMat::one();
+    let u: UniMat<Complex> = UniMat::one();
 
-    println!("{}",unimat_id);
-    println!("{}",dyad_id);
+    println!("Check that {} =\n {}\n*\n{}",u,u,u);
+    assert_eq!(u,u*u);
+
+    
+    
+    let unimat_domega_id: UniMat<DOmega> = UniMat::one();
+    println!("Check that {} = {}*{}",unimat_domega_id,unimat_domega_id,unimat_domega_id);
+    // assert_eq!(unimat_domega_id, unimat_domega_id*unimat_domega_id);
 
 }

@@ -9,6 +9,7 @@
 
 
 use crate::structs::rings::Conj; //Conjugation trait
+use crate::structs::rings::Constructs; // Construction trait
 
 
 // We bring them in so that we can overload the operators
@@ -92,5 +93,29 @@ impl Mul for DOmega {
             other.0*self.2 + other.1*self.1 + other.2*self.0 - other.3*self.3,
             other.0*self.3 + other.1*self.2 + other.2*self.1 + other.3*self.0
             )
+    }
+}
+
+
+
+// Get zero and one as DOmega numbers
+impl<T> Constructs<T> for DOmega
+{
+    fn zero() -> Self {
+        return DOmega(
+            Dyad{ num: 0, log_den: 0 },
+            Dyad{ num: 0, log_den: 0 },
+            Dyad{ num: 0, log_den: 0 },
+            Dyad{ num: 0, log_den: 0 }
+            );
+    }
+    
+    fn one() -> Self {
+        return DOmega(
+            Dyad{ num: 1, log_den: 0 },
+            Dyad{ num: 0, log_den: 0 },
+            Dyad{ num: 0, log_den: 0 },
+            Dyad{ num: 0, log_den: 0 }
+            );
     }
 }
