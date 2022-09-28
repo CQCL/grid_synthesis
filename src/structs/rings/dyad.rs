@@ -18,9 +18,12 @@ use crate::structs::rings::Constructs; // Construction trait
 // Each integer looks something like
 #[derive(Debug, Copy, Clone)]
 pub struct Dyad {
-    pub num: i64, // The integer a above
-    pub log_den: i64, // The integer n above 
-                      // log_den could be made i8 or something, since 2^(2^8) >2^64
+    pub num: i64,
+    // The integer a above
+    
+    // log_den could be made i8 or something, since 2^(2^8) >2^64
+    // It does not need to be signed?
+    pub log_den: u32
 }
 
 // Internal function
@@ -32,12 +35,16 @@ impl Dyad {
 
         if num_temp!=0
         {
-            while num_temp%2==0
+            while num_temp%2==0 && log_temp>=0
             {
                 num_temp=num_temp/2;
-                log_temp=log_temp+1;
+                log_temp=log_temp-1;
                 // println!("{},{}",num_temp,log_temp);
             }
+        }
+        else
+        {
+            log_temp=0;
         }
         let out = Dyad{ num: num_temp, log_den: log_temp};
         self=out;
@@ -65,19 +72,23 @@ impl Add for Dyad {
         if self.log_den>other.log_den 
         {
             let temp = Dyad{
-                num: self.num + other.num*2^(self.log_den-other.log_den),
+                num: self.num + other.num*(2_i64.pow(self.log_den-other.log_den)),
                 log_den: self.log_den
             };
 
+            // println!("Panicking with");
+            // println!("{}-{}",self.log_den,other.log_den);
             return temp.fix()
         }
         else
         {
             let temp = Dyad{
-                num: other.num + self.num*2^(other.log_den-self.log_den),
+                num: other.num + self.num*( 2_i64.pow(other.log_den-self.log_den) ),
                 log_den: other.log_den
             };
 
+            // println!("Panicking with");
+            // println!("{}-{}",self.log_den,other.log_den);
             return temp.fix()
         }
     }
