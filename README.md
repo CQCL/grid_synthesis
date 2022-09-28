@@ -25,13 +25,14 @@ Do `cargo run` in the repository. That's it really (for now)
 
 Section 7.3 of [1] outlines the main algorithm.
 
-- [o] Write a struct to store gates with entries in $\mathbb{D}[\omega]$.
+- [O] Write a struct to store gates with entries in $\mathbb{D}[\omega]$.
 	- [X] Write a struct for $\mathbb{Z}[\sqrt{2}]$
-		- [ ] Write a display method for Debug
 	- [X] Write a struct for $\mathbb{D}$ (uses only two integers)
 	- [X] Write a struct for $\mathbb{D}[\omega]$
-		- [ ] Write a conjugation method
-	- [ ] Write a struct for unitary operators
+	- [X] Write a struct for unitary operators
+	- [ ] Plan additional functionality
+- [ ] Write some ring tests
+	- [ ] DEBUG!
 - [ ] Write an exact synthesis library (to do Step 3 as in the outline)
 - [ ] Figure out prime factorization (implement or include)
 - [ ] Write a Step 2 to extend to floating point gate synthesis
