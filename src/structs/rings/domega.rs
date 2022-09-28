@@ -98,24 +98,29 @@ impl Mul for DOmega {
 
 
 
+
 // Get zero and one as DOmega numbers
 impl<T> Constructs<T> for DOmega
 {
-    fn zero() -> Self {
-        return DOmega(
-            Dyad{ num: 0, log_den: 0 },
-            Dyad{ num: 0, log_den: 0 },
-            Dyad{ num: 0, log_den: 0 },
-            Dyad{ num: 0, log_den: 0 }
-            );
+    fn one() -> Self {
+        let a0=Constructs::<Dyad>::zero();
+        let a1=Constructs::<Dyad>::one();
+        return DOmega(a1,a0,a0,a0);
     }
     
-    fn one() -> Self {
-        return DOmega(
-            Dyad{ num: 1, log_den: 0 },
-            Dyad{ num: 0, log_den: 0 },
-            Dyad{ num: 0, log_den: 0 },
-            Dyad{ num: 0, log_den: 0 }
-            );
+    fn zero() -> Self {
+        let a0=Constructs::<Dyad>::zero();
+        return DOmega(a0,a0,a0,a0);
+    }
+}
+
+
+// Teaching rust how to compare these ring elements
+impl PartialEq for DOmega
+{
+    fn eq(&self, other: &Self) -> bool {
+        println!("{},{},{},{}",self.0,self.1,self.2,self.3);
+        println!("{},{},{},{}",other.0,other.1,other.2,other.3);
+        return self.0==other.0 && self.1==other.1 && self.2==other.2 && self.3==other.3;
     }
 }

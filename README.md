@@ -8,6 +8,19 @@ Implementing Ross/Selinger's z-rotation synthesis (1403.2975v3) in Rust for real
 WARNING: Nihar is an amatuer coder. You have been warned.
 
 
+# Organization 
+
+`src` contains the codes.
+
+`src/structs` contains the rings 
+
+`src/tests` contain some tests
+
+# Running
+
+Do `cargo run` in the repository. That's it really (for now)
+
+
 # Plan of implementation
 
 Section 7.3 of [1] outlines the main algorithm.

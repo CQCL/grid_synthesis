@@ -10,16 +10,47 @@ use crate::structs::rings::Constructs;
 
 pub fn basic_identities()-> () {
     
+    println!("Running some tests. Results are below!");
+    println!("--------------------------------------");
 
-    let u: UniMat<Complex> = UniMat::one();
-
-    println!("Check that {} =\n {}\n*\n{}",u,u,u);
-    assert_eq!(u,u*u);
-
+    // println!("Test 1:");
+    // let u: UniMat<Complex> = UniMat::one();
+    // assert_eq!(u,u*u,"Failed to check that {} =\n {}\n*\n{}",u,u,u);
     
-    
-    let unimat_domega_id: UniMat<DOmega> = UniMat::one();
-    println!("Check that {} = {}*{}",unimat_domega_id,unimat_domega_id,unimat_domega_id);
-    // assert_eq!(unimat_domega_id, unimat_domega_id*unimat_domega_id);
+    // println!("Test 2:");
+    // let u: UniMat<Complex> = UniMat::one();
+    // assert_eq!(u,u.inv(),"Failed to check that {} =\n {}",u,u);
 
+    // println!("Test 3:");
+    // let u: DOmega = Constructs::<DOmega>::one();
+    // // println!("{}",u);
+    // // println!("{}",u+u);
+    // assert_eq!(u,u+u,"Failed to check that {} =\n {}\n+\n{}",u,u,u);
+    
+    // println!("test 4:");
+    // let u: UniMat<DOmega> = UniMat::one();
+    // // println!("{}",u*u);
+    // assert_eq!(u,u*u," \n--------------\n Failed to check that \n{} \n= \n{} X \n{}",u,u,u);
+
+    // println!("test 5:");
+    // let u: UniMat<Complex> = UniMat::one();
+    // assert_eq!(u,u*u," \n--------------\n Failed to check that \n{} \n= \n{} X \n{}",u,u,u);
+    
+    // println!("test 6:");
+    // let u: DOmega = Constructs::<DOmega>::one();
+    // println!("{}",u*u);
+    // println!("{}",u);
+    // assert_eq!(u,u*u," \n--------------\n Failed to check that \n{} \n= \n{} X \n{}",u,u,u);
+    
+    println!("test 7:");
+    let u: DOmega = Constructs::<DOmega>::one();
+    println!("{}",u*u);
+    println!("{}",u);
+    assert_eq!(u,u*u," \n--------------\n Failed to check that \n{} \n= \n{} X \n{}",u,u,u);
+    
+    println!("test 8:");
+    let u: DOmega = Constructs::<DOmega>::one();
+    println!("{}",u*u);
+    println!("{}",u);
+    assert_eq!(u,u*u," \n--------------\n Failed to check that \n{} \n= \n{} X \n{}",u,u,u);
 }

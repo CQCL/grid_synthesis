@@ -11,6 +11,7 @@ use std::fmt::Result;
 use std::fmt::Display;
 use std::fmt::Formatter;
 
+use crate::structs::rings::Constructs; // Construction trait
 
 // Ring of numbers of the form a/2^n for integers a and n
 // These are dyadic integers
@@ -25,14 +26,18 @@ pub struct Dyad {
 // Internal function
 // Used to make the numerator odd
 impl Dyad {
-    fn fix(&self) -> &Dyad {
+    fn fix(mut self) -> Dyad {
         let mut num_temp = self.num;
         let mut log_temp = self.log_den;
 
-        while num_temp%2==0
+        if num_temp!=0
         {
-            num_temp=num_temp/2;
-            log_temp=log_temp+1;
+            while num_temp%2==0
+            {
+                num_temp=num_temp/2;
+                log_temp=log_temp+1;
+                // println!("{},{}",num_temp,log_temp);
+            }
         }
         let out = Dyad{ num: num_temp, log_den: log_temp};
         self=out;
@@ -73,7 +78,7 @@ impl Add for Dyad {
                 log_den: other.log_den
             };
 
-            return *temp.fix()
+            return temp.fix()
         }
     }
 }
@@ -117,14 +122,33 @@ impl Display for Dyad
 // Teaching rust how to compare these ring elements
 impl PartialEq for Dyad {
     fn eq(&self, other: &Self) -> bool {
-        if self.num%2==0 
+        if self.num%2==0 && self.num!=0
         {
-            self=self.fix();
+            self.fix();
         }
-        if other.num%2==0
+        if other.num%2==0 && other.num!=0
         {
-            other=other.fix();
+            other.fix();
         }
         return self.num==other.num && self.log_den==other.log_den;
+    }
+}
+
+
+// Get zero and one as Complex numbers
+impl<T> Constructs<T> for Dyad
+{
+    fn zero() -> Self {
+        return Dyad{
+            num: 0,
+            log_den: 0
+        };
+    }
+    
+    fn one() -> Self {
+        return Dyad{
+            num: 1,
+            log_den: 0
+        };
     }
 }
