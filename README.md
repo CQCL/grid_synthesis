@@ -25,7 +25,7 @@ Do `cargo run` in the repository. That's it really (for now)
 
 Section 7.3 of [1] outlines the main algorithm.
 
-- [O] Write a struct to store gates with entries in $\mathbb{D}[\omega]$.
+- [.] Write a struct to store gates with entries in $\mathbb{D}[\omega]$.
 	- [X] Write a struct for $\mathbb{Z}[\sqrt{2}]$
 	- [X] Write a struct for $\mathbb{D}$ (uses only two integers)
 	- [X] Write a struct for $\mathbb{D}[\omega]$
