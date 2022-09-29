@@ -33,9 +33,12 @@ impl Dyad {
         let mut num_temp = self.num;
         let mut log_temp = self.log_den;
 
-        if num_temp!=0
+        // println!("Panicking here?");
+        // println!("{}",log_temp);
+        // println!("{}",num_temp);
+        if num_temp!=0 && log_temp>0
         {
-            while num_temp%2==0 && log_temp>=0
+            while num_temp%2==0
             {
                 num_temp=num_temp/2;
                 log_temp=log_temp-1;
@@ -46,9 +49,8 @@ impl Dyad {
         {
             log_temp=0;
         }
-        let out = Dyad{ num: num_temp, log_den: log_temp};
-        self=out;
-        return out;
+        self= Dyad{ num: num_temp, log_den: log_temp};
+        return self;
     }
 }
 
@@ -76,8 +78,6 @@ impl Add for Dyad {
                 log_den: self.log_den
             };
 
-            // println!("Panicking with");
-            // println!("{}-{}",self.log_den,other.log_den);
             return temp.fix()
         }
         else
@@ -161,5 +161,15 @@ impl<T> Constructs<T> for Dyad
             num: 1,
             log_den: 0
         };
+    }
+}
+
+// To construct Dyads directly from integers
+impl From<u32> for Dyad {
+    fn from(int: u32) -> Self {
+        Dyad{
+            num: int as i64,
+            log_den: 0
+        }
     }
 }

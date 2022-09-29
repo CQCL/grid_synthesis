@@ -119,8 +119,18 @@ impl<T> Constructs<T> for DOmega
 impl PartialEq for DOmega
 {
     fn eq(&self, other: &Self) -> bool {
-        println!("{},{},{},{}",self.0,self.1,self.2,self.3);
-        println!("{},{},{},{}",other.0,other.1,other.2,other.3);
+        // println!("{},{},{},{}",self.0,self.1,self.2,self.3);
+        // println!("{},{},{},{}",other.0,other.1,other.2,other.3);
         return self.0==other.0 && self.1==other.1 && self.2==other.2 && self.3==other.3;
+    }
+}
+
+
+
+
+// To construct DOmega directly from integers
+impl From<u32> for DOmega {
+    fn from(int: u32) -> Self {
+        DOmega(Dyad::from(int), Dyad::from(0), Dyad::from(0), Dyad::from(0))
     }
 }
