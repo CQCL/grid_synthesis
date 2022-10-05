@@ -37,3 +37,37 @@ impl Zroot2 {
         Zroot2(self.0,-self.1)
     }
 }
+
+// Allows localization
+// Hence, we can have numbers like a+bsqrt(2)/sqrt(2)^k
+// See code in local_ring.rs
+impl Localizable for Zroot2
+{
+    fn is_divisible(self) -> bool{
+        if self.0%2==0:
+            return true
+    }
+    fn perform_one_division(self) -> bool{
+        // divide by sqrt2 if it is indeed divisible by sqrt2
+
+    }
+
+}
+
+
+// Get zero and one as ring elements
+impl Constructs for Zroot2
+where T: Constructs<T>
+{
+    
+    // WARNING: zero is possible to construct, but avoid using it
+    // It is not a unitary matrix
+    fn zero() -> Self {
+        return Self{ u: T::zero(), t:T::zero()}
+
+    }
+
+    fn one() -> Self {
+        return Self{ u: T::one(), t:T::zero()}
+    }
+}

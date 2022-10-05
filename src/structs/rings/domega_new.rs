@@ -6,6 +6,14 @@
 //
 // Thanks to Kliuchnikov-Maslov-Mosca, we know that all Clifford+T generated gates
 // are unitary matrices of elements of this ring
+//
+// This current DOmega_new struct is a variant of the previos DOmega struct defined over Dyads
+//
+// I am using a p-adic valuation with resepct to 1+\omega in the eight-ring of integers and storing
+// it as a precomputed number. This is roughly twice of the value of the 
+// sde function defined in the KMM paper
+//
+// I belive that this should make the computations faster. We will see.
 
 
 use crate::structs::rings::Conj; //Conjugation trait
@@ -42,7 +50,6 @@ pub struct DOmega_new{
 // variable.0, variable.1 and so on are intgers
 
 
-
 // Conjugate DOmega_new elements
 impl<T> Conj<T> for DOmega_new {
     fn conj(self) -> DOmega_new{
@@ -51,7 +58,7 @@ impl<T> Conj<T> for DOmega_new {
             1: -self.3,
             2: -self.2,
             3: -self.1,
-            den_sqrt_2: u32
+            height: u32
         }
     }
 }
@@ -60,7 +67,7 @@ impl<T> Conj<T> for DOmega_new {
 impl Display for DOmega_new
 {
     fn fmt(&self, f: &mut Formatter) -> Result{
-        write!(f,"({}+{}w+{}w^2+{}w^3)/sqrt(2)^{}",self.0, self.1, self.2,self.3,self.den_sqrt_2)
+        write!(f,"({}+{}w+{}w^2+{}w^3)/(1+w)^{}",self.0, self.1, self.2,self.3,self.height)
     }
 }
 
@@ -74,7 +81,7 @@ impl Neg for DOmega_new{
             1: -self.1,
             2: -self.2,
             3: -self.3,
-            den_sqrt_2: u32
+            height: u32
         }
     }
 }
@@ -85,13 +92,17 @@ impl Add for DOmega_new {
     type Output = DOmega_new;
 
     fn add(self, other: DOmega_new) -> DOmega_new {
-        DOmega_new(self.0+other.0,self.1+other.1,self.2+other.2,self.3+other.3)
-        DOmega_new{ 
+        // WRONG CODE!!!! 
+        // NEED TO WORK ON THIS
+        if self.height ==0 && other.height==0
+        {
+            DOmega_new{ 
             0: other.0+self.0,
             1: other.1+self.1,
             2: other.2+self.2,
             3: other.3+self.3,
-            den_sqrt_2: u32
+            height: 0
+            }
         }
     }
 }
@@ -148,7 +159,6 @@ impl PartialEq for DOmega_new
         return self.0==other.0 && self.1==other.1 && self.2==other.2 && self.3==other.3;
     }
 }
-
 
 
 
