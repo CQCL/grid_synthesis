@@ -2,12 +2,10 @@
 // localization with respect to a prime ideal in a number field
 //
 //
-//
 // For non-mathematicians, what I want to really use it for is
 // To define numbers of the form (a+sqrt(2)b)/sqrt(2)^k for integers a,b,k
 // However, I will do a very general version which involves no 
 // description of sqrt(2)
-
 
 
 // We bring them in so that we can overload the operators
@@ -34,7 +32,12 @@ pub struct Local<T>
     pub num: T,
     // The integer a above
     pub log_den: u32,
-    pub is_reduced: bool
+    
+    // Perhaps I could save an bool
+    // That remembers weather or not a+bsqrt(2)/sqrt(2)^k i
+    // is in the simplest form
+    //
+    // pub is_reduced: bool
 }
 
 // Internal function
@@ -42,45 +45,41 @@ pub struct Local<T>
 impl Local<T> 
 where T: Localizable
 {
-    fn fix(mut self) -> Dyad {
-        let mut num_temp = self.num;
-        let mut log_temp = self.log_den;
+    fn fix(mut self) -> T {
 
-        // println!("Panicking here?");
-        // println!("{}",log_temp);
-        // println!("{}",num_temp);
-        if num_temp!=0 && log_temp>0
-        {
-            while num_temp%2==0
+        if self.num != T::zero(){ 
+
+            while self.is_divisible
             {
-                num_temp=num_temp/2;
-                log_temp=log_temp-1;
-                // println!("{},{}",num_temp,log_temp);
+                self.perform_one_division();
+                self.log_den= self.log_den-1;
             }
+
+
         }
         else
         {
-            log_temp=0;
+            self.log_den=0;
         }
-        self= Dyad{ num: num_temp, log_den: log_temp};
-        return self;
     }
 }
 
-impl Neg for Dyad{
-    type Output = Dyad;
-
-    fn neg(self) -> Dyad {
-        Dyad{
-            num: -self.num, log_den: self.log_den
+impl Neg for Local<T>{
+    // type Output = T;
+    fn neg(self) -> Self {
+        Self{
+            num: -self.num, 
+            log_den: self.log_den,
         }
     }
 
 }
 
 
-// Teaching rust how to add Dyad elements
-impl Add for Dyad {
+// Teaching rust how to add Local<T> elements
+impl Add for Local<T> 
+where 
+{
     type Output = Dyad;
 
     fn add(self, other: Dyad) -> Dyad {
@@ -134,7 +133,7 @@ impl Sub for Dyad {
 
 
 
-// Nicely display Dyad Matrices
+// Nicely display Local<T> elements
 impl Display for Dyad
 {
     fn fmt(&self, f: &mut Formatter) -> Result{
@@ -177,7 +176,7 @@ impl<T> Constructs<T> for Dyad
     }
 }
 
-// To construct Dyads directly from integers
+// To construct Local<T> directly from integers
 impl From<u32> for Dyad {
     fn from(int: u32) -> Self {
         Dyad{

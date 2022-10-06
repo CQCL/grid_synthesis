@@ -18,7 +18,20 @@ pub trait Constructs<T>{
     fn one() -> Self;
 }
 
+// Supertrait
+// Allows you to define a possible prime ideal for localization
+pub trait Localizable{
+    // one should be able to check if the divisibility by ideal exists
+    fn is_divisible(self) -> bool;
+    
+    // if it is divisible, we perform the division
+    fn perform_one_division(self) -> ();
+
+    // Multiply the ideal generator once
+    fn perform_n_multiplications(self,u32 n) -> ();
+}
 pub mod zroot2;
+pub mod local_ring;
 pub mod domega;
 pub mod dyad;
 pub mod unimat;

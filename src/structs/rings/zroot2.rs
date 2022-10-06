@@ -1,16 +1,30 @@
 // Quadratic number field with root 2
+// This struct assumes that you are going to localize it 
+// at sqrt(2)
 pub struct Zroot2(pub i64,pub i64); //a+b\sqrt(2)
 
-// use std::ops::Neg; 
-use std::ops::Add; // We bring them in so that we can overload the operators
-                   // Rust must learn how to do arithmetics in our rings
-
-use std::fmt; // To teach rust how to display our ring elements
                 
+// use crate::structs::rings::Conj; //Conjugation trait
+use crate::structs::rings::Constructs; //Conjugation trait
+use crate::structs::rings::Localizable; //Conjugation trait
+
+
+// We bring them in so that we can overload the operators
+// Rust must learn how to do arithmetics in our rings
+// use std::ops::Neg; 
+use std::ops::Add; 
+// use std::ops::Sub; 
+// use std::ops::Mul; 
+// use std::cmp::PartialEq; 
+
+// For display
+use std::fmt::Result;
+use std::fmt::Display;
+use std::fmt::Formatter;
                 
 // Rust must know how to diplay elements of this ring
-impl fmt::Debug for Zroot2 {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for Zroot2{
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         if self.1<0 {
             write!(f, "{}{}\\sqrt{{2}}", self.0, self.1)
         }
@@ -44,30 +58,29 @@ impl Zroot2 {
 impl Localizable for Zroot2
 {
     fn is_divisible(self) -> bool{
-        if self.0%2==0:
-            return true
+        if self.0%2==0 { true }
+        else { false }
     }
-    fn perform_one_division(self) -> bool{
-        // divide by sqrt2 if it is indeed divisible by sqrt2
-
+    fn perform_one_division(mut self) -> () 
+    {
+        let temp0 = self.0;
+        let temp1 = self.1;
+        self.0 = temp1;
+        self.1 = temp0/2;
     }
 
 }
 
 
 // Get zero and one as ring elements
-impl Constructs for Zroot2
-where T: Constructs<T>
+impl<T> Constructs<T> for Zroot2
 {
-    
-    // WARNING: zero is possible to construct, but avoid using it
-    // It is not a unitary matrix
     fn zero() -> Self {
-        return Self{ u: T::zero(), t:T::zero()}
+        return Self(0,0);
 
     }
 
     fn one() -> Self {
-        return Self{ u: T::one(), t:T::zero()}
+        return Self(1,0);
     }
 }
