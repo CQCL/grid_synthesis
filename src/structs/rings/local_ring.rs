@@ -80,9 +80,9 @@ impl Neg for Local<T>{
 impl Add for Local<T> 
 where 
 {
-    type Output = Dyad;
+    type Output = Self;
 
-    fn add(self, other: Dyad) -> Dyad {
+    fn add(self, other: Self) -> Self {
         if self.log_den>other.log_den 
         {
             let temp = Dyad{
