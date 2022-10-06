@@ -7,7 +7,7 @@ type Float = f64;
 
 
 use crate::structs::rings::Conj; //Conjugation trait
-use crate::structs::rings::Constructs; //Conjugation trait
+// use crate::structs::rings::Constructs; //Conjugation trait
 
 // We bring them in so that we can overload the operators
 // Rust must learn how to do arithmetics in our rings
@@ -91,16 +91,17 @@ impl Display for Complex
 
 
 // Get zero and one as Complex numbers
-impl<T> Constructs<T> for Complex
-{
-    fn zero() -> Self {
-        return Complex(0.0,0.0);
-    }
+// NOW DEPRECATED
+// impl<T> Constructs<T> for Complex
+// {
+//     fn zero() -> Self {
+//         return Complex(0.0,0.0);
+//     }
     
-    fn one() -> Self {
-        return Complex(1.0,0.0);
-    }
-}
+//     fn one() -> Self {
+//         return Complex(1.0,0.0);
+//     }
+// }
 
 
 // Teaching rust how to compare these ring elements
@@ -108,5 +109,18 @@ impl PartialEq for Complex
 {
     fn eq(&self, other: &Self) -> bool {
         return self.0==other.0 && self.1==other.1;
+    }
+}
+
+
+impl From<i32> for Complex {
+    fn from(int: i32) -> Self {
+        Complex(int.try_into().unwrap(),0.0)
+    }
+}
+
+impl From<Float> for Complex {
+    fn from(int: Float) -> Self {
+        Complex(int,0.0)
     }
 }

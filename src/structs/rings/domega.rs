@@ -9,7 +9,7 @@
 
 
 use crate::structs::rings::Conj; //Conjugation trait
-use crate::structs::rings::Constructs; // Construction trait
+// use crate::structs::rings::Constructs; // Construction trait
 
 
 // We bring them in so that we can overload the operators
@@ -97,22 +97,20 @@ impl Mul for DOmega {
 }
 
 
-
-
 // Get zero and one as DOmega numbers
-impl<T> Constructs<T> for DOmega
-{
-    fn one() -> Self {
-        let a0=Constructs::<Dyad>::zero();
-        let a1=Constructs::<Dyad>::one();
-        return DOmega(a1,a0,a0,a0);
-    }
+// impl<T> Constructs<T> for DOmega
+// {
+//     fn one() -> Self {
+//         let a0=Constructs::<Dyad>::zero();
+//         let a1=Constructs::<Dyad>::one();
+//         return DOmega(a1,a0,a0,a0);
+//     }
     
-    fn zero() -> Self {
-        let a0=Constructs::<Dyad>::zero();
-        return DOmega(a0,a0,a0,a0);
-    }
-}
+//     fn zero() -> Self {
+//         let a0=Constructs::<Dyad>::zero();
+//         return DOmega(a0,a0,a0,a0);
+//     }
+// }
 
 
 // Teaching rust how to compare these ring elements

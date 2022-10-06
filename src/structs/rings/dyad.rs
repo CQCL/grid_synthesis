@@ -11,8 +11,7 @@ use std::fmt::Result;
 use std::fmt::Display;
 use std::fmt::Formatter;
 
-use crate::structs::rings::Constructs; // Construction trait
-
+// use crate::structs::rings::Constructs; // Construction trait
 // Ring of numbers of the form a/2^n for integers a and n
 // These are dyadic integers
 // Each integer looks something like
@@ -147,22 +146,22 @@ impl PartialEq for Dyad {
 
 
 // Get zero and one as Complex numbers
-impl<T> Constructs<T> for Dyad
-{
-    fn zero() -> Self {
-        return Dyad{
-            num: 0,
-            log_den: 0
-        };
-    }
+// impl<T> Constructs<T> for Dyad
+// {
+//     fn zero() -> Self {
+//         return Dyad{
+//             num: 0,
+//             log_den: 0
+//         };
+//     }
     
-    fn one() -> Self {
-        return Dyad{
-            num: 1,
-            log_den: 0
-        };
-    }
-}
+//     fn one() -> Self {
+//         return Dyad{
+//             num: 1,
+//             log_den: 0
+//         };
+//     }
+// }
 
 // To construct Dyads directly from integers
 impl From<u32> for Dyad {
