@@ -11,25 +11,31 @@ pub trait Conj<T>{
 }
 
 
-// Supertrait
+// Supertrait (deprecated now, use from::(0) etc instead)
 // They return zero and one elements of our rings
-pub trait Constructs<T>{
-    fn zero() -> Self;
-    fn one() -> Self;
-}
+// pub trait Constructs<T>{
+//     fn zero() -> Self;
+//     fn one() -> Self;
+// }
 
 // Supertrait
 // Allows you to define a possible prime ideal for localization
+// See Zroot2 for an implementation
 pub trait Localizable{
     // one should be able to check if the divisibility by ideal exists
     fn is_divisible(self) -> bool;
     
     // if it is divisible, we perform the division
-    fn perform_one_division(self) -> ();
+    // We return the number of times we divided
+    fn reduce_by_dividing(self) -> u32;
 
-    // Multiply the ideal generator once
-    fn perform_n_multiplications(self,u32 n) -> ();
+    // Multiply the ideal generator by the number of times given by n
+    // WARNING: Bit Overflow may occur here
+    fn perform_n_multiplications(self,_:u32) -> ();
 }
+
+
+
 pub mod zroot2;
 pub mod local_ring;
 pub mod domega;

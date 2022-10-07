@@ -5,7 +5,7 @@ pub struct Zroot2(pub i64,pub i64); //a+b\sqrt(2)
 
                 
 // use crate::structs::rings::Conj; //Conjugation trait
-use crate::structs::rings::Constructs; //Conjugation trait
+// use crate::structs::rings::Constructs; //Conjugation trait
 use crate::structs::rings::Localizable; //Conjugation trait
 
 
@@ -55,32 +55,61 @@ impl Zroot2 {
 // Allows localization
 // Hence, we can have numbers like a+bsqrt(2)/sqrt(2)^k
 // See code in local_ring.rs
+// And the comments in mod.rs
 impl Localizable for Zroot2
 {
     fn is_divisible(self) -> bool{
         if self.0%2==0 { true }
         else { false }
     }
-    fn perform_one_division(mut self) -> () 
+    fn reduce_by_dividing(mut self) -> u32
     {
-        let temp0 = self.0;
-        let temp1 = self.1;
-        self.0 = temp1;
-        self.1 = temp0/2;
+        let trail0 = self.0.trailing_zeros();
+        let trail1 = self.1.trailing_zeros();
+
+        if trail0<=trail1
+        {
+            // a*2^t0 + b*2^(t1+1/2) =  2^t0( a +b*2^(t1-t0+1/2))
+            // if t0=t1 then
+            // a*2^t0 + b*2^(t1+1/2) =  2^(t0)( a +b*sqrt(2))
+            self.0 << (trail0);
+            self.1 << (trail0);
+            return 2*trail0;
+        }
+        else 
+        {
+            // a*2^t0 + b*2^(t1+1/2) =  2^(t1+1/2)( a*2^(t0-t1-1+1/2) +b)
+            self.0 >> (trail1+1);
+            self.1 >> (trail1);
+            (self.0,self.1) = (self.1,self.0);
+            return 2*trail1+1;
+        }
     }
 
-}
 
+    fn perform_n_multiplications(self, n: u32) -> ()
+    {
+        // (  a+bsqrt(2) )*2^(n/2) = (a*2^(n/2) +b*( k/2 + 1/2) ) 
+        let ntemp=n >> 1;
+        self.0 << ntemp;
+        self.1 << ntemp;
+        
+        if n%2==1
+        {
+            (self.0,self.1) = (self.1 << 1,self.0);
+        }
+    }
+}
 
 // Get zero and one as ring elements
-impl<T> Constructs<T> for Zroot2
-{
-    fn zero() -> Self {
-        return Self(0,0);
+// impl<T> Constructs<T> for Zroot2
+// {
+//     fn zero() -> Self {
+//         return Self(0,0);
 
-    }
+//     }
 
-    fn one() -> Self {
-        return Self(1,0);
-    }
-}
+//     fn one() -> Self {
+//         return Self(1,0);
+//     }
+// }

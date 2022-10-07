@@ -21,7 +21,10 @@ use std::fmt::Result;
 use std::fmt::Display;
 use std::fmt::Formatter;
 
-use crate::structs::rings::Constructs; // Construction trait
+// // Localization trait. 
+// See mod.rs for some info
+// Or Zroot2
+use crate::structs::rings::Localizable; 
 
 // Ring of numbers of the form a/2^n for integers a and n
 // These are dyadic integers
@@ -31,8 +34,8 @@ pub struct Local<T>
 {
     pub num: T,
     // The integer a above
-    pub log_den: u32,
-    
+    pub log_den: i64,
+
     // Perhaps I could save an bool
     // That remembers weather or not a+bsqrt(2)/sqrt(2)^k i
     // is in the simplest form
@@ -42,20 +45,19 @@ pub struct Local<T>
 
 // Internal function
 // Used to make the numerator independent of denominator
-impl Local<T> 
-where T: Localizable
+impl<T> Local<T> 
+where T: Localizable+PartialEq+From<i8>
 {
-    fn fix(mut self) -> T {
+    fn fix(mut self) -> ()
+    {
 
-        if self.num != T::zero(){ 
-
-            while self.is_divisible
+        if self.num != T::from(0)
+        { 
+            if self.num.is_divisible()
             {
-                self.perform_one_division();
-                self.log_den= self.log_den-1;
+                let pow = self.num.reduce_by_dividing();
+                self.log_den = self.log_den - pow as i64;
             }
-
-
         }
         else
         {
@@ -64,8 +66,10 @@ where T: Localizable
     }
 }
 
-impl Neg for Local<T>{
-    // type Output = T;
+impl<T> Neg for Local<T>
+where T:Neg<Output=T>
+{
+    type Output = Self;
     fn neg(self) -> Self {
         Self{
             num: -self.num, 
@@ -77,111 +81,113 @@ impl Neg for Local<T>{
 
 
 // Teaching rust how to add Local<T> elements
-impl Add for Local<T> 
-where 
+impl<T> Add for Local<T> 
+where T:Localizable+Add<Output=T>+PartialEq+From<i8>
 {
     type Output = Self;
-
     fn add(self, other: Self) -> Self {
         if self.log_den>other.log_den 
         {
-            let temp = Dyad{
-                num: self.num + other.num*(2_i64.pow(self.log_den-other.log_den)),
-                log_den: self.log_den
-            };
+            let temp = 
+                Self{
+                    num: self.num + other.num.perform_n_multiplications(self.log_den-other.log_den),
+                    log_den: self.log_den
+                };
 
-            return temp.fix()
+            // return temp; // Possible speedup?
+            temp.fix();
+            return temp;
         }
         else
         {
-            let temp = Dyad{
-                num: other.num + self.num*( 2_i64.pow(other.log_den-self.log_den) ),
+            let temp = Self{
+                num: other.num + self.num.perform_n_multiplications(other.log_den-self.log_den),
                 log_den: other.log_den
             };
 
-            // println!("Panicking with");
-            // println!("{}-{}",self.log_den,other.log_den);
-            return temp.fix()
+            // return temp; // Possible speedup by returning without fixing??
+            temp.fix();
+            return temp;
         }
     }
 }
 
 
 // Teaching rust how to multiply Dyad elements
-impl Mul for Dyad {
-    type Output = Dyad;
+impl<T> Mul for Local<T> 
+where T:Mul<Output=T>+Localizable+PartialEq+From<i8>
+{
+    type Output = Self;
 
-    fn mul(self, other: Dyad) -> Dyad {
-        let temp = Dyad{
+    fn mul(self, other: Self) -> Self 
+    {
+        let temp = Self
+        {
             num: self.num*other.num,
             log_den: self.log_den+other.log_den
         };
-        return temp.fix()
+        // return temp;
+        temp.fix();
+        return temp;
     }
 }
 
 
-// Teaching rust how to subtract Dyad elements
-impl Sub for Dyad {
-    type Output = Dyad;
 
-    fn sub(self, other: Dyad) -> Dyad {
+// Teaching rust how to subtract Dyad elements
+impl<T> Sub for Local<T> 
+where T:Neg<Output=T>+Localizable+PartialEq+Add<Output=T>+From<i8>
+{
+
+    type Output = Self;
+    fn sub(self, other: Self) -> Self {
         self+(-other) //subtraction is just adding the additive inverse
     }
 
 }
 
 
-
 // Nicely display Local<T> elements
-impl Display for Dyad
+impl<T> Display for Local<T>
+where T: Display
 {
     fn fmt(&self, f: &mut Formatter) -> Result{
-        write!(f,"{}*2^(-{})",self.num, self.log_den)
+        write!(f,"{}*sqrt(2)^(-{})",self.num, self.log_den)
     }
 }
 
 
 // Teaching rust how to compare these ring elements
-impl PartialEq for Dyad {
+impl<T> PartialEq for Local<T> 
+where T: Localizable+PartialEq+From<i8>
+{
     fn eq(&self, other: &Self) -> bool {
-        if self.num%2==0 && self.num!=0
-        {
-            self.fix();
-        }
-        if other.num%2==0 && other.num!=0
+        if other.num.is_divisible() && other.num != T::from(0)
         {
             other.fix();
+        }
+        if self.num.is_divisible() && self.num != T::from(0)
+        {
+            self.fix();
         }
         return self.num==other.num && self.log_den==other.log_den;
     }
 }
 
 
-// Get zero and one as Complex numbers
-impl<T> Constructs<T> for Dyad
-{
-    fn zero() -> Self {
-        return Dyad{
-            num: 0,
-            log_den: 0
-        };
-    }
-    
-    fn one() -> Self {
-        return Dyad{
-            num: 1,
-            log_den: 0
-        };
-    }
-}
 
 // To construct Local<T> directly from integers
-impl From<u32> for Dyad {
-    fn from(int: u32) -> Self {
-        Dyad{
-            num: int as i64,
-            log_den: 0
+impl<T> From<i8> for Local<T> 
+where T: From<i8>+Localizable+PartialEq
+{
+    fn from(int: i8) -> 
+        Self {
+            let out = Self{
+                num: T::from(int.try_into().unwrap()),
+                log_den: 0
+            };
+
+            out.fix();
+            return out;
         }
-    }
 }
