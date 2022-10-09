@@ -31,7 +31,7 @@ pub trait Localizable{
 
     // Multiply the ideal generator by the number of times given by n
     // WARNING: Bit Overflow may occur here
-    fn perform_n_multiplications(self,_:u32) -> ();
+    fn perform_n_multiplications(self,_:i64) -> ();
 }
 
 

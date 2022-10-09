@@ -4,6 +4,7 @@
 
 // type of floats
 type Float = f64;
+type Int = i32;
 
 
 use crate::structs::rings::Conj; //Conjugation trait
@@ -89,7 +90,6 @@ impl Display for Complex
     }
 }
 
-
 // Get zero and one as Complex numbers
 // NOW DEPRECATED
 // impl<T> Constructs<T> for Complex
@@ -113,8 +113,8 @@ impl PartialEq for Complex
 }
 
 
-impl From<i32> for Complex {
-    fn from(int: i32) -> Self {
+impl From<Int> for Complex {
+    fn from(int: Int) -> Self {
         Complex(int.try_into().unwrap(),0.0)
     }
 }

@@ -46,7 +46,7 @@ pub struct Local<T>
 // Internal function
 // Used to make the numerator independent of denominator
 impl<T> Local<T> 
-where T: Localizable+PartialEq+From<i8>
+where T: Localizable+PartialEq+From<i8>+Copy
 {
     fn fix(mut self) -> ()
     {
@@ -82,15 +82,17 @@ where T:Neg<Output=T>
 
 // Teaching rust how to add Local<T> elements
 impl<T> Add for Local<T> 
-where T:Localizable+Add<Output=T>+PartialEq+From<i8>
+where T:Localizable+Add<Output=T>+PartialEq+From<i8>+Copy
 {
     type Output = Self;
     fn add(self, other: Self) -> Self {
         if self.log_den>other.log_den 
         {
+            let other_temp = self.num;
+            other_temp.perform_n_multiplications(other.log_den-self.log_den);
             let temp = 
                 Self{
-                    num: self.num + other.num.perform_n_multiplications(self.log_den-other.log_den),
+                    num: self.num + other_temp,
                     log_den: self.log_den
                 };
 
@@ -100,8 +102,10 @@ where T:Localizable+Add<Output=T>+PartialEq+From<i8>
         }
         else
         {
+            let self_temp = self.num;
+            self_temp.perform_n_multiplications(other.log_den-self.log_den);
             let temp = Self{
-                num: other.num + self.num.perform_n_multiplications(other.log_den-self.log_den),
+                num: other.num + self_temp,
                 log_den: other.log_den
             };
 
@@ -115,7 +119,7 @@ where T:Localizable+Add<Output=T>+PartialEq+From<i8>
 
 // Teaching rust how to multiply Dyad elements
 impl<T> Mul for Local<T> 
-where T:Mul<Output=T>+Localizable+PartialEq+From<i8>
+where T:Mul<Output=T>+Localizable+PartialEq+From<i8>+Copy
 {
     type Output = Self;
 
@@ -136,7 +140,7 @@ where T:Mul<Output=T>+Localizable+PartialEq+From<i8>
 
 // Teaching rust how to subtract Dyad elements
 impl<T> Sub for Local<T> 
-where T:Neg<Output=T>+Localizable+PartialEq+Add<Output=T>+From<i8>
+where T:Neg<Output=T>+Localizable+PartialEq+Add<Output=T>+From<i8>+Copy
 {
 
     type Output = Self;
@@ -159,7 +163,7 @@ where T: Display
 
 // Teaching rust how to compare these ring elements
 impl<T> PartialEq for Local<T> 
-where T: Localizable+PartialEq+From<i8>
+where T: Localizable+PartialEq+From<i8>+Copy
 {
     fn eq(&self, other: &Self) -> bool {
         if other.num.is_divisible() && other.num != T::from(0)
@@ -178,10 +182,9 @@ where T: Localizable+PartialEq+From<i8>
 
 // To construct Local<T> directly from integers
 impl<T> From<i8> for Local<T> 
-where T: From<i8>+Localizable+PartialEq
+where T: From<i8>+Localizable+PartialEq+Copy
 {
-    fn from(int: i8) -> 
-        Self {
+    fn from(int: i8) -> Self {
             let out = Self{
                 num: T::from(int.try_into().unwrap()),
                 log_den: 0

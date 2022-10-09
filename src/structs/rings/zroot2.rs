@@ -1,7 +1,13 @@
+type Int = i64;
+
+
+
 // Quadratic number field with root 2
 // This struct assumes that you are going to localize it 
 // at sqrt(2)
-pub struct Zroot2(pub i64,pub i64); //a+b\sqrt(2)
+pub struct Zroot2(pub Int,pub Int); //a+b\sqrt(2)
+
+
 
                 
 // use crate::structs::rings::Conj; //Conjugation trait
@@ -72,27 +78,27 @@ impl Localizable for Zroot2
             // a*2^t0 + b*2^(t1+1/2) =  2^t0( a +b*2^(t1-t0+1/2))
             // if t0=t1 then
             // a*2^t0 + b*2^(t1+1/2) =  2^(t0)( a +b*sqrt(2))
-            self.0 << (trail0);
-            self.1 << (trail0);
+            self.0 = self.0 << (trail0);
+            self.1 = self.1  << (trail0);
             return 2*trail0;
         }
         else 
         {
             // a*2^t0 + b*2^(t1+1/2) =  2^(t1+1/2)( a*2^(t0-t1-1+1/2) +b)
-            self.0 >> (trail1+1);
-            self.1 >> (trail1);
+            self.0 = self.0 >> (trail1+1);
+            self.1 = self.1 >> (trail1);
             (self.0,self.1) = (self.1,self.0);
             return 2*trail1+1;
         }
     }
 
 
-    fn perform_n_multiplications(self, n: u32) -> ()
+    fn perform_n_multiplications(mut self, n: Int) -> ()
     {
         // (  a+bsqrt(2) )*2^(n/2) = (a*2^(n/2) +b*( k/2 + 1/2) ) 
         let ntemp=n >> 1;
-        self.0 << ntemp;
-        self.1 << ntemp;
+        self.0 = self.0 << ntemp;
+        self.1 = self.1 << ntemp;
         
         if n%2==1
         {
