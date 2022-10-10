@@ -1,6 +1,6 @@
 
 // Importing some ring elements
-// use crate::structs::rings::unimat::UniMat; 
+use crate::structs::unimat::UniMat; 
 // use crate::structs::rings::complex::Complex; 
 use std::ops::Neg; 
 use std::ops::Add; 
@@ -64,5 +64,21 @@ pub fn basic_identities_with_conj<T>() -> ()
     println!("        When u = 2");
     let u= T::from(2);
     assert_eq!(u,u.conj().conj(),"Failed to check that {} =\n {}",u,u);
+
+}
+
+
+
+pub fn basic_identities_with_unimat_over<T>() -> () 
+    where T: Copy+Debug+Display,
+          T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj<T>,
+          T: PartialEq+From<Int>
+{
+    
+    println!("Testing UniMat over {}", std::any::type_name::<T>());
+    println!("--------------------------------------");
+    println!("Test 1: Id.Id = Id");
+    let u = UniMat::<T>::one();
+    assert_eq!(u,u*u,"Failed to check that {} =\n {}\n*\n{}",u,u,u);
 
 }

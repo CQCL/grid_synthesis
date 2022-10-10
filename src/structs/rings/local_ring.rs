@@ -26,6 +26,7 @@ use std::fmt::Formatter;
 // See mod.rs for some info
 // Or Zroot2
 use crate::structs::rings::Localizable; 
+use crate::structs::rings::Conj; //Conjugation trait
 
 //Integer type is set globally
 use crate::structs::rings::Int; 
@@ -205,5 +206,21 @@ where T: From<Int>+Localizable+PartialEq+Copy
         }
 
         return out;
+    }
+}
+
+
+
+// Conjugate Complex elements
+impl<T> Conj<T> for Local<T> 
+where T: Conj<T>+Copy
+{
+    fn conj(self) -> Self {
+        let temp_num = self.num;
+        temp_num.conj();
+        Self{
+            num: temp_num,
+            log_den: self.log_den
+        }
     }
 }

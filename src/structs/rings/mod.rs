@@ -41,5 +41,5 @@ pub mod zroot2;
 pub mod local_ring;
 pub mod domega;
 pub mod dyad;
-pub mod unimat;
 pub mod complex;
+pub mod quaternion;

@@ -26,7 +26,7 @@ use crate::structs::rings::Int;
 // at sqrt(2)
 #[derive(Copy,Debug,Clone)]
 pub struct Zroot2(pub Int,pub Int); //a+b\sqrt(2)
-                
+
 // Rust must know how to diplay elements of this ring
 impl Display for Zroot2{
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
@@ -98,7 +98,7 @@ impl Localizable for Zroot2
         let ntemp=n >> 1;
         self.0 = self.0 << ntemp;
         self.1 = self.1 << ntemp;
-        
+
         if n%2==1
         {
             (self.0,self.1) = (self.1 << 1,self.0);

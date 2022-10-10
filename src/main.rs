@@ -17,6 +17,7 @@ pub mod tests;
 use crate::structs::rings::complex::Complex; 
 use crate::structs::rings::local_ring::Local; 
 use crate::structs::rings::zroot2::Zroot2; 
+// use crate::structs::rings::cyclotomic::Cyclotomic; 
   
   
 // Obviously false code
@@ -26,6 +27,7 @@ use crate::structs::rings::zroot2::Zroot2;
   
 use crate::tests::basic_identities;
 use crate::tests::basic_identities_with_conj;
+// use crate::tests::basic_identities_with_unimat_over;
 
 fn main() {
 
@@ -39,6 +41,8 @@ fn main() {
     basic_identities::<Local<Zroot2>>();
     basic_identities_with_conj::<Complex>();
     basic_identities_with_conj::<Zroot2>();
+    // basic_identities_with_unimat_over::<Complex>();
+    // basic_identities_with_unimat_over::<Local<Cyclotomic>>();
 
 }
 
