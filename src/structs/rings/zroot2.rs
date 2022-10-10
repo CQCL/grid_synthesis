@@ -1,16 +1,5 @@
-type Int = i32;
-
-
-
-// Quadratic number field with root 2
-// This struct assumes that you are going to localize it 
-// at sqrt(2)
-pub struct Zroot2(pub Int,pub Int); //a+b\sqrt(2)
-
-                
-// use crate::structs::rings::Conj; //Conjugation trait
-// use crate::structs::rings::Constructs; //Conjugation trait
-use crate::structs::rings::Localizable; //Conjugation trait
+use crate::structs::rings::Localizable; //Localizing trait
+use crate::structs::rings::Conj; //Conjugation trait
 
 
 // We bring them in so that we can overload the operators
@@ -25,6 +14,18 @@ use std::cmp::PartialEq;
 use std::fmt::Result;
 use std::fmt::Display;
 use std::fmt::Formatter;
+
+
+// Setting up my boundaries
+use crate::structs::rings::Int;
+
+
+
+// Quadratic number field with root 2
+// This struct assumes that you are going to localize it 
+// at sqrt(2)
+#[derive(Copy,Debug,Clone)]
+pub struct Zroot2(pub Int,pub Int); //a+b\sqrt(2)
                 
 // Rust must know how to diplay elements of this ring
 impl Display for Zroot2{
@@ -66,7 +67,7 @@ impl Localizable for Zroot2
         if self.0%2==0 { true }
         else { false }
     }
-    fn reduce_by_dividing(mut self) -> u32
+    fn reduce_by_dividing(mut self) -> Int
     {
         let trail0 = self.0.trailing_zeros();
         let trail1 = self.1.trailing_zeros();
@@ -78,7 +79,7 @@ impl Localizable for Zroot2
             // a*2^t0 + b*2^(t1+1/2) =  2^(t0)( a +b*sqrt(2))
             self.0 = self.0 << (trail0);
             self.1 = self.1  << (trail0);
-            return 2*trail0;
+            return (2*trail0).try_into().unwrap();
         }
         else 
         {
@@ -86,7 +87,7 @@ impl Localizable for Zroot2
             self.0 = self.0 >> (trail1+1);
             self.1 = self.1 >> (trail1);
             (self.0,self.1) = (self.1,self.0);
-            return 2*trail1+1;
+            return ( 2*trail1+1 ).try_into().unwrap();
         }
     }
 

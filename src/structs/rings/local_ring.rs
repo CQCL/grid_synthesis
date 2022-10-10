@@ -1,3 +1,4 @@
+
 // The main purpose of this is to define 
 // localization with respect to a prime ideal in a number field
 //
@@ -26,6 +27,9 @@ use std::fmt::Formatter;
 // Or Zroot2
 use crate::structs::rings::Localizable; 
 
+//Integer type is set globally
+use crate::structs::rings::Int; 
+
 // Ring of numbers of the form a/2^n for integers a and n
 // These are dyadic integers
 // Each integer looks something like
@@ -34,7 +38,7 @@ pub struct Local<T>
 {
     pub num: T,
     // The integer a above
-    pub log_den: i64,
+    pub log_den: Int,
 
     // Perhaps I could save an bool
     // That remembers weather or not a+bsqrt(2)/sqrt(2)^k i
@@ -46,7 +50,7 @@ pub struct Local<T>
 // Internal function
 // Used to make the numerator independent of denominator
 impl<T> Local<T> 
-where T: Localizable+PartialEq+From<i8>+Copy
+where T: Localizable+PartialEq+From<Int>+Copy
 {
     fn fix(mut self) -> ()
     {
@@ -56,7 +60,7 @@ where T: Localizable+PartialEq+From<i8>+Copy
             if self.num.is_divisible()
             {
                 let pow = self.num.reduce_by_dividing();
-                self.log_den = self.log_den - pow as i64;
+                self.log_den = self.log_den - pow;
             }
         }
         else
@@ -82,7 +86,7 @@ where T:Neg<Output=T>
 
 // Teaching rust how to add Local<T> elements
 impl<T> Add for Local<T> 
-where T:Localizable+Add<Output=T>+PartialEq+From<i8>+Copy
+where T:Localizable+Add<Output=T>+PartialEq+From<Int>+Copy
 {
     type Output = Self;
     fn add(self, other: Self) -> Self {
@@ -107,23 +111,23 @@ where T:Localizable+Add<Output=T>+PartialEq+From<i8>+Copy
             let temp = Self{
                 num: other.num + self_temp,
                 log_den: other.log_den
-                // Possible speedup by returning without fixing??
-                // p-adic valuation of unequal
-                if other.log_den == self.log_den
-                {
-                    temp.fix();
-                }
             };
-
+            // Possible speedup by returning without fixing??
+            // p-adic valuation of unequal
+            if other.log_den == self.log_den
+            {
+                temp.fix();
+            }
             return temp;
         }
+
     }
 }
 
 
 // Teaching rust how to multiply Dyad elements
 impl<T> Mul for Local<T> 
-where T:Mul<Output=T>+Localizable+PartialEq+From<i8>+Copy
+where T:Mul<Output=T>+Localizable+PartialEq+From<Int>+Copy
 {
     type Output = Self;
 
@@ -144,7 +148,7 @@ where T:Mul<Output=T>+Localizable+PartialEq+From<i8>+Copy
 
 // Teaching rust how to subtract Dyad elements
 impl<T> Sub for Local<T> 
-where T:Neg<Output=T>+Localizable+PartialEq+Add<Output=T>+From<i8>+Copy
+where T:Neg<Output=T>+Localizable+PartialEq+Add<Output=T>+From<Int>+Copy
 {
 
     type Output = Self;
@@ -167,7 +171,7 @@ where T: Display
 
 // Teaching rust how to compare these ring elements
 impl<T> PartialEq for Local<T> 
-where T: Localizable+PartialEq+From<i8>+Copy
+where T: Localizable+PartialEq+From<Int>+Copy
 {
     fn eq(&self, other: &Self) -> bool {
         if other.num.is_divisible() && other.num != T::from(0)
@@ -185,16 +189,21 @@ where T: Localizable+PartialEq+From<i8>+Copy
 
 
 // To construct Local<T> directly from integers
-impl<T> From<i8> for Local<T> 
-where T: From<i8>+Localizable+PartialEq+Copy
+impl<T> From<Int> for Local<T> 
+where T: From<Int>+Localizable+PartialEq+Copy
 {
-    fn from(int: i8) -> Self {
-            let out = Self{
-                num: T::from(int.try_into().unwrap()),
-                log_den: 0
-            };
+    fn from(input : Int) -> Self {
 
+        let out = Self{
+            num: T::from(input.try_into().unwrap()),
+            log_den: 0
+        };
+        
+        if input!=1 && input!=0
+        {
             out.fix();
-            return out;
         }
+
+        return out;
+    }
 }

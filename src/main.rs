@@ -15,7 +15,7 @@ pub mod tests;
 // use crate::structs::rings::domega::DOmega; 
 // use crate::structs::rings::unimat::UniMat; 
 use crate::structs::rings::complex::Complex; 
-// use crate::structs::rings::local_ring::Local; 
+use crate::structs::rings::local_ring::Local; 
 use crate::structs::rings::zroot2::Zroot2; 
   
   
@@ -33,7 +33,9 @@ fn main() {
     println!("-------------CODE IS RUNNING--------------");
     println!("------------------------------------------");
 
+    basic_identities::<Complex>();
     basic_identities::<Zroot2>();
+    basic_identities::<Local<Zroot2>>();
 
 }
 

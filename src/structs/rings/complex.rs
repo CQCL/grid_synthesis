@@ -8,7 +8,6 @@ type Int = i32;
 
 
 use crate::structs::rings::Conj; //Conjugation trait
-// use crate::structs::rings::Constructs; //Conjugation trait
 
 // We bring them in so that we can overload the operators
 // Rust must learn how to do arithmetics in our rings
