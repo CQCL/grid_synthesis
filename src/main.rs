@@ -25,6 +25,7 @@ use crate::structs::rings::zroot2::Zroot2;
 // }
   
 use crate::tests::basic_identities;
+use crate::tests::basic_identities_with_conj;
 
 fn main() {
 
@@ -36,6 +37,7 @@ fn main() {
     basic_identities::<Complex>();
     basic_identities::<Zroot2>();
     basic_identities::<Local<Zroot2>>();
+    basic_identities_with_conj::<Complex>();
 
 }
 
