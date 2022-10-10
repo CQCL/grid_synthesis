@@ -15,6 +15,8 @@ pub mod tests;
 // use crate::structs::rings::domega::DOmega; 
 // use crate::structs::rings::unimat::UniMat; 
 use crate::structs::rings::complex::Complex; 
+// use crate::structs::rings::local_ring::Local; 
+use crate::structs::rings::zroot2::Zroot2; 
   
   
 // Obviously false code
@@ -22,7 +24,7 @@ use crate::structs::rings::complex::Complex;
 //     return 0.0*theta*epsilon
 // }
   
-use crate::tests::CheckRingIdentities;
+use crate::tests::basic_identities;
 
 fn main() {
 
@@ -31,7 +33,7 @@ fn main() {
     println!("-------------CODE IS RUNNING--------------");
     println!("------------------------------------------");
 
-    CheckRingIdentities::<Complex>::basic_identities();
+    basic_identities::<Zroot2>();
 
 }
 

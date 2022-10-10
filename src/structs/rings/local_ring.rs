@@ -107,10 +107,14 @@ where T:Localizable+Add<Output=T>+PartialEq+From<i8>+Copy
             let temp = Self{
                 num: other.num + self_temp,
                 log_den: other.log_den
+                // Possible speedup by returning without fixing??
+                // p-adic valuation of unequal
+                if other.log_den == self.log_den
+                {
+                    temp.fix();
+                }
             };
 
-            // return temp; // Possible speedup by returning without fixing??
-            temp.fix();
             return temp;
         }
     }

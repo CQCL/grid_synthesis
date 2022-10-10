@@ -1,4 +1,4 @@
-type Int = i64;
+type Int = i32;
 
 
 
@@ -6,8 +6,6 @@ type Int = i64;
 // This struct assumes that you are going to localize it 
 // at sqrt(2)
 pub struct Zroot2(pub Int,pub Int); //a+b\sqrt(2)
-
-
 
                 
 // use crate::structs::rings::Conj; //Conjugation trait
@@ -17,11 +15,11 @@ use crate::structs::rings::Localizable; //Conjugation trait
 
 // We bring them in so that we can overload the operators
 // Rust must learn how to do arithmetics in our rings
-// use std::ops::Neg; 
+use std::ops::Neg; 
 use std::ops::Add; 
-// use std::ops::Sub; 
-// use std::ops::Mul; 
-// use std::cmp::PartialEq; 
+use std::ops::Sub; 
+use std::ops::Mul; 
+use std::cmp::PartialEq; 
 
 // For display
 use std::fmt::Result;
@@ -107,15 +105,57 @@ impl Localizable for Zroot2
     }
 }
 
-// Get zero and one as ring elements
-// impl<T> Constructs<T> for Zroot2
-// {
-//     fn zero() -> Self {
-//         return Self(0,0);
+impl From<Int> for Zroot2 {
+    fn from(int: Int) -> Self {
+        Zroot2(int.try_into().unwrap(),0)
+    }
+}
 
-//     }
 
-//     fn one() -> Self {
-//         return Self(1,0);
-//     }
-// }
+
+impl PartialEq for Zroot2
+{
+    fn eq(&self, other: &Self) -> bool {
+        return self.0==other.0 && self.1==other.1;
+    }
+}
+
+
+
+// Negatation on Zroot2
+impl Neg for Zroot2{
+    type Output = Zroot2;
+    fn neg(self) -> Zroot2 {
+        Zroot2(-self.0,-self.1)
+    }
+}
+
+// Teaching rust how to subtract Zroot2 elements
+impl Sub for Zroot2 {
+    type Output = Zroot2;
+
+    fn sub(self, other: Zroot2) -> Zroot2 {
+        self+(-other) //subtraction is just adding the additive inverse
+    }
+}
+
+
+
+// Teaching rust how to multiply Zroot2 elements
+impl Mul for Zroot2 {
+    type Output = Zroot2;
+
+    fn mul(self, other: Zroot2) -> Zroot2 {
+        Zroot2(
+            other.0*self.0 + 2*other.1*self.1,
+            other.0*self.1 + other.1*self.0 
+            )
+    }
+}
+
+// Conjugate Zroot2 elements
+impl<T> Conj<T> for Zroot2 {
+    fn conj(self) -> Zroot2 {
+        Zroot2(self.0,-self.1)
+    }
+}
