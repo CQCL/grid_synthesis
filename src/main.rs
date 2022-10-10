@@ -38,6 +38,7 @@ fn main() {
     basic_identities::<Zroot2>();
     basic_identities::<Local<Zroot2>>();
     basic_identities_with_conj::<Complex>();
+    basic_identities_with_conj::<Zroot2>();
 
 }
 

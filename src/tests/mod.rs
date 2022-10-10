@@ -20,7 +20,8 @@ pub fn basic_identities<T>() -> ()
           T: PartialEq+From<Int>
 {
 
-    println!("Running some tests. Results are below!");
+    println!("Testing basic identities");
+    println!("Type is {}", std::any::type_name::<T>());
     println!("--------------------------------------");
 
     println!("Test 1: 1*1 == 1");
@@ -47,34 +48,6 @@ pub fn basic_identities<T>() -> ()
     // // println!("{}",u-u);
     assert_eq!(z,u-u,"Failed to check that {} =\n {}\n-\n{}",z,u,u);
 
-    // println!("test 6:");
-    // let u: DOmega = DOmega::from(1);
-    // // println!("{}",u*u);
-    // // println!("{}",u);
-    // assert_eq!(u,u*u," \n--------------\n Failed to check that \n{} \n= \n{} X \n{}",u,u,u);
-
-    // println!("test 7:");
-    // let u: Dyad = Dyad::from(1);
-    // // println!("{}",u*u);
-    // // println!("{}",u);
-    // assert_eq!(u,u*u," \n--------------\n Failed to check that \n{} \n= \n{} X \n{}",u,u,u);
-
-    // println!("test 8:");
-    // let u: Dyad = Dyad::from(1);
-    // let v: Dyad = Dyad::from(2);
-    // // println!("{}",u+u);
-    // // println!("{}",u);
-    // assert_eq!(v,u+u," \n--------------\n Failed to check that \n{} \n= \n{} + \n{}",v,u,u);
-
-
-    // println!("Test 9:");
-    // let u: DOmega = DOmega::from(1);
-    // let z: DOmega = DOmega::from(0);
-    // // println!("{}",z);
-    // // println!("{}",u-u);
-    // assert_eq!(z,u-u,"Failed to check that {} =\n {}\n-\n{}",z,u,u);
-
-
 }
 
 
@@ -84,8 +57,8 @@ pub fn basic_identities_with_conj<T>() -> ()
           T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg+Conj<T>,
           T: PartialEq+From<Int>
 {
-
-    println!("Running some tests. Results are below!");
+    
+    println!("Testing conjugation on {}", std::any::type_name::<T>());
     println!("--------------------------------------");
     println!("Test 1: u.conj.conj = u");
     println!("        When u = 2");
