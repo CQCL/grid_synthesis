@@ -38,16 +38,15 @@ fn main() {
     println!("-------------CODE IS RUNNING--------------");
     println!("------------------------------------------");
 
-    // basic_identities::<Complex>();
-    // basic_identities::<Zroot2>();
-    // basic_identities::<Local<Zroot2>>();
-    // basic_identities_with_conj::<Complex>();
-    // basic_identities_with_conj::<Zroot2>();
-    // basic_identities_with_unimat_over::<Complex>();
-    // basic_identities_with_unimat_over::<Local<Cyclotomic>>();
-    basic_identities::<Quaternion<Local<Zroot2>>>();
-    basic_identities_with_conj::<Quaternion<Local<Zroot2>>>();
-
+    // Gotta make some tests
+    //
+    // basic_identities::<Quaternion<Local<Zroot2>>>();
+    // basic_identities_with_conj::<Quaternion<Local<Zroot2>>>();
+    //
+    // It seems to be going good with integers.
+    // Let's implement gates now
+    //
+    
 }
 
 

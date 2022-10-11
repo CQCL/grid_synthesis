@@ -154,3 +154,14 @@ where T: Sub<Output=T>
         }
     }
 }
+
+impl<T> Quaternion<T>
+{
+    // reduced square norm of our quaternion algebra
+    // Equal to whatever is the output here
+    pub fn rsqnorm(self) -> T
+    {
+        return self.0*self.0+self.1*self.1+self.2*self.2+self.3*self.3
+    }
+
+}
