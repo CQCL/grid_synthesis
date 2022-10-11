@@ -31,7 +31,7 @@ pub struct Zroot2(pub Int,pub Int); //a+b\sqrt(2)
 impl Display for Zroot2{
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         if self.1<0 {
-            write!(f, "{}{}\\sqrt{{2}}", self.0, self.1)
+            write!(f, "{}+{}\\sqrt{{2}}", self.0, self.1)
         }
         else
         {
@@ -67,19 +67,29 @@ impl Localizable for Zroot2
         if self.0%2==0 { true }
         else { false }
     }
-    fn reduce_by_dividing(mut self) -> Int
+    fn reduce_by_dividing(mut self) -> ( Self, Int )
     {
+        // println!("Hi, I'm reducing self");
+
+        // Remember, trailing zeroes can be size(Int)
+        // when Int==0
+        
         let trail0 = self.0.trailing_zeros();
         let trail1 = self.1.trailing_zeros();
+
+        // println!("Here are trailing zeroes: {} {}", trail0,trail1);
+        // println!("      of our variables  : {} {}", self.0,self.1);
 
         if trail0<=trail1
         {
             // a*2^t0 + b*2^(t1+1/2) =  2^t0( a +b*2^(t1-t0+1/2))
             // if t0=t1 then
             // a*2^t0 + b*2^(t1+1/2) =  2^(t0)( a +b*sqrt(2))
-            self.0 = self.0 << (trail0);
-            self.1 = self.1  << (trail0);
-            return (2*trail0).try_into().unwrap();
+            self.0 = self.0  >> (trail0);
+            self.1 = self.1  >> (trail0);
+            // println!("We modified them to be  : {} {}", self.0,self.1);
+            // println!("Returning self as {}",self);
+            return (self, (2*trail0).try_into().unwrap());
         }
         else 
         {
@@ -87,14 +97,17 @@ impl Localizable for Zroot2
             self.0 = self.0 >> (trail1+1);
             self.1 = self.1 >> (trail1);
             (self.0,self.1) = (self.1,self.0);
-            return ( 2*trail1+1 ).try_into().unwrap();
+            // println!("We modified them to be  : {} {}", self.0,self.1);
+            // println!("Returning self as {}",self);
+            return (self, ( 2*trail1+1 ).try_into().unwrap());
         }
     }
 
 
-    fn perform_n_multiplications(mut self, n: Int) -> ()
+    fn perform_n_multiplications(mut self, n: Int) -> Self 
     {
         // (  a+bsqrt(2) )*2^(n/2) = (a*2^(n/2) +b*( k/2 + 1/2) ) 
+        // println!("Will multiply {} times",n);
         let ntemp=n >> 1;
         self.0 = self.0 << ntemp;
         self.1 = self.1 << ntemp;
@@ -103,6 +116,8 @@ impl Localizable for Zroot2
         {
             (self.0,self.1) = (self.1 << 1,self.0);
         }
+
+        return self;
     }
 }
 

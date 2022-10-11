@@ -25,10 +25,12 @@ pub trait Localizable{
     fn is_divisible(self) -> bool;
     // if it is divisible, we perform the division
     // We return the number of times we divided
-    fn reduce_by_dividing(self) -> Int;
+    fn reduce_by_dividing(self) -> (Self,Int)
+    where Self: Sized;
+
     // Multiply the ideal generator by the number of times given by n
     // WARNING: Bit Overflow may occur here if we perform too much multiplication
-    fn perform_n_multiplications(self,_:Int) -> ();
+    fn perform_n_multiplications(self,_:Int) -> Self;
 }
 
 

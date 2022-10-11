@@ -32,7 +32,7 @@ use std::fmt::Formatter;
 // where u and t are in giventype
 // It is required that giventype has implementations of Add,Sub,Mult,Neg,conj
 #[derive(Debug,Copy,Clone)]
-pub struct Quaternion<T>(T,T,T,T);
+pub struct Quaternion<T>(pub T,pub T,pub T,pub T);
 
 
 // Nicely display Unitary Matrices
@@ -42,7 +42,7 @@ where T:Display
     fn fmt(&self, f: &mut Formatter) -> Result{
         // write!(f,"/       \\");
         // write!(f,"| {} {} |", self.u,-self.t.conj());
-        write!(f,"{}+{}*I+{}*J+{}*K", self.0, self.1 , self.2,self.3)
+        write!(f,"{}+\n{}*I+\n{}*J+\n{}*K", self.0, self.1 , self.2,self.3)
     }
 }
 

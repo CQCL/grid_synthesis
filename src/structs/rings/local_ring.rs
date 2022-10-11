@@ -53,20 +53,32 @@ pub struct Local<T>
 impl<T> Local<T> 
 where T: Localizable+PartialEq+From<Int>+Copy
 {
-    fn fix(mut self) -> ()
+    fn fix(mut self) -> Self 
     {
-
+        // println!("Fixing height {}",self.log_den);
         if self.num != T::from(0)
         { 
+            // println!("Number is non-zero");
             if self.num.is_divisible()
             {
-                let pow = self.num.reduce_by_dividing();
+                // println!("Number is divisible");
+                let pow: Int;
+                (self.num, pow) = self.num.reduce_by_dividing();
+                // println!("Self obtained after it performed {} divisions",pow);
+                // println!("log_den is {}",self.log_den);
                 self.log_den = self.log_den - pow;
+                // println!("log_den is {}",self.log_den);
+                //
             }
+            // Return ownership
+            return self;
         }
         else
         {
             self.log_den=0;
+            
+            // Return ownership
+            return self;
         }
     }
 }
@@ -91,10 +103,12 @@ where T:Localizable+Add<Output=T>+PartialEq+From<Int>+Copy
 {
     type Output = Self;
     fn add(self, other: Self) -> Self {
+        // println!("Want to add height {} and height {}",self.log_den,other.log_den);
         if self.log_den>other.log_den 
         {
             let other_temp = self.num;
-            other_temp.perform_n_multiplications(other.log_den-self.log_den);
+            // println!("Will invoke perform_n_multiplications with n={}",other.log_den-self.log_den);
+            other_temp.perform_n_multiplications(self.log_den-other.log_den);
             let temp = 
                 Self{
                     num: self.num + other_temp,
@@ -109,7 +123,8 @@ where T:Localizable+Add<Output=T>+PartialEq+From<Int>+Copy
         {
             let self_temp = self.num;
             self_temp.perform_n_multiplications(other.log_den-self.log_den);
-            let temp = Self{
+            let mut temp = Self
+            {
                 num: other.num + self_temp,
                 log_den: other.log_den
             };
@@ -117,7 +132,9 @@ where T:Localizable+Add<Output=T>+PartialEq+From<Int>+Copy
             // p-adic valuation of unequal
             if other.log_den == self.log_den
             {
-                temp.fix();
+                // println!("Fix routine");
+                temp= temp.fix();
+                // println!("Fixed");
             }
             return temp;
         }
@@ -165,7 +182,7 @@ impl<T> Display for Local<T>
 where T: Display
 {
     fn fmt(&self, f: &mut Formatter) -> Result{
-        write!(f,"{}*sqrt(2)^(-{})",self.num, self.log_den)
+        write!(f,"({})*sqrt(2)^(-{})",self.num, self.log_den)
     }
 }
 
@@ -199,7 +216,7 @@ where T: From<Int>+Localizable+PartialEq+Copy
             num: T::from(input.try_into().unwrap()),
             log_den: 0
         };
-        
+
         if input!=1 && input!=0
         {
             out.fix();
@@ -212,16 +229,16 @@ where T: From<Int>+Localizable+PartialEq+Copy
 
 // To construct Local<T> from T
 impl<T> From<T> for Local<T> 
-where T: From<T>+Localizable+PartialEq+Copy
+where T: Localizable+PartialEq+Copy+From<Int>
 {
     fn from(input : T) -> Self {
 
         let out = Self{
-            num: input
+            num: input,
             log_den: 0
         };
-        
-        if input!=1 && input!=0
+
+        if input!=T::from(1) && input!=T::from(0)
         {
             out.fix();
         }
