@@ -210,6 +210,26 @@ where T: From<Int>+Localizable+PartialEq+Copy
 }
 
 
+// To construct Local<T> from T
+impl<T> From<T> for Local<T> 
+where T: From<T>+Localizable+PartialEq+Copy
+{
+    fn from(input : T) -> Self {
+
+        let out = Self{
+            num: input
+            log_den: 0
+        };
+        
+        if input!=1 && input!=0
+        {
+            out.fix();
+        }
+
+        return out;
+    }
+}
+
 
 // Conjugate Complex elements
 impl<T> Conj<T> for Local<T> 
