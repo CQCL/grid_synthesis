@@ -14,7 +14,7 @@ pub mod tests;
 // use crate::structs::rings::dyad::Dyad; 
 // use crate::structs::rings::domega::DOmega; 
 // use crate::structs::rings::unimat::UniMat; 
-use crate::structs::rings::complex::Complex; 
+// use crate::structs::rings::complex::Complex; 
 use crate::structs::rings::local_ring::Local; 
 use crate::structs::rings::zroot2::Zroot2; 
 use crate::structs::rings::quaternion::Quaternion;
@@ -27,8 +27,8 @@ use crate::structs::rings::quaternion::Quaternion;
 //     return 0.0*theta*epsilon
 // }
   
-use crate::tests::basic_identities;
-use crate::tests::basic_identities_with_conj;
+// use crate::tests::basic_identities;
+// use crate::tests::basic_identities_with_conj;
 // use crate::tests::basic_identities_with_unimat_over;
 
 fn main() {
@@ -40,12 +40,14 @@ fn main() {
 
     // Gotta make some tests
     //
+    // basic_identities::<Complex>();
     // basic_identities::<Quaternion<Local<Zroot2>>>();
     // basic_identities_with_conj::<Quaternion<Local<Zroot2>>>();
     //
     // It seems to be going good with integers.
     // Let's implement gates now
-    //
+    let i = Quaternion::<Local<Zroot2>>::from(1);
+    println!("{}",i.rsqnorm());
     
 }
 
