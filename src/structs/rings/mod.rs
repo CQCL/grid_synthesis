@@ -1,7 +1,6 @@
 // This rust module contains all our rings etc.
 // Some of these O(1) operations about multiplication and addition can be optimized a little bit
 // The DOmega ring can be stored directly without any underlying Dyad implentation, I feel
-
 pub type Int = i32;
 pub type Float = f64;
 
@@ -10,7 +9,6 @@ pub type Float = f64;
 pub trait Conj<T>{
     fn conj(self) -> Self;
 }
-
 
 // Supertrait (deprecated now, use from::(0) etc instead)
 // They return zero and one elements of our rings
@@ -25,16 +23,13 @@ pub trait Conj<T>{
 pub trait Localizable{
     // one should be able to check if the divisibility by ideal exists
     fn is_divisible(self) -> bool;
-    
     // if it is divisible, we perform the division
     // We return the number of times we divided
     fn reduce_by_dividing(self) -> Int;
-
     // Multiply the ideal generator by the number of times given by n
-    // WARNING: Bit Overflow may occur here
+    // WARNING: Bit Overflow may occur here if we perform too much multiplication
     fn perform_n_multiplications(self,_:Int) -> ();
 }
-
 
 
 pub mod zroot2;

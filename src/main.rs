@@ -17,6 +17,8 @@ pub mod tests;
 use crate::structs::rings::complex::Complex; 
 use crate::structs::rings::local_ring::Local; 
 use crate::structs::rings::zroot2::Zroot2; 
+use crate::structs::rings::quaternion::Quaternion;
+// use crate::structs::rings::Int;
 // use crate::structs::rings::cyclotomic::Cyclotomic; 
   
   
@@ -36,13 +38,15 @@ fn main() {
     println!("-------------CODE IS RUNNING--------------");
     println!("------------------------------------------");
 
-    basic_identities::<Complex>();
-    basic_identities::<Zroot2>();
-    basic_identities::<Local<Zroot2>>();
-    basic_identities_with_conj::<Complex>();
-    basic_identities_with_conj::<Zroot2>();
+    // basic_identities::<Complex>();
+    // basic_identities::<Zroot2>();
+    // basic_identities::<Local<Zroot2>>();
+    // basic_identities_with_conj::<Complex>();
+    // basic_identities_with_conj::<Zroot2>();
     // basic_identities_with_unimat_over::<Complex>();
     // basic_identities_with_unimat_over::<Local<Cyclotomic>>();
+    basic_identities::<Quaternion<Local<Zroot2>>>();
+    basic_identities_with_conj::<Quaternion<Local<Zroot2>>>();
 
 }
 

@@ -16,7 +16,7 @@ use crate::structs::rings::Int;
 // use crate::structs::rings::Constructs;
 pub fn basic_identities<T>() -> () 
     where T: Copy+Debug+Display,
-          T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg,
+          T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>,
           T: PartialEq+From<Int>
 {
 
@@ -48,13 +48,29 @@ pub fn basic_identities<T>() -> ()
     // // println!("{}",u-u);
     assert_eq!(z,u-u,"Failed to check that {} =\n {}\n-\n{}",z,u,u);
 
+    println!("Test 5: 2-3 == -1");
+    let u=T::from(2);
+    let v=T::from(3);
+    let w=T::from(-1);
+    assert_eq!(w,u-v,"Failed to check that {} =\n {}\n-\n{}",w,u,v);
+    
+    println!("Test 6: -2*2 == -4");
+    let u=T::from(2);
+    let v=T::from(-2);
+    let w=T::from(-4);
+    assert_eq!(w,u*v,"Failed to check that {} =\n{}*\n{}",w,v,u);
+    
+    println!("Test 6: -3*-3*-3 == -27");
+    let u=T::from(-3);
+    let w=T::from(-27);
+    assert_eq!(w,u*u*u,"Failed to check that {} ={}*\n{}*\n{}",w,u,u,u);
 }
 
 
 // use crate::structs::rings::Constructs;
 pub fn basic_identities_with_conj<T>() -> () 
     where T: Copy+Debug+Display,
-          T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg+Conj<T>,
+          T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj<T>,
           T: PartialEq+From<Int>
 {
     

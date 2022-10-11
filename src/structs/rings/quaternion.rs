@@ -4,6 +4,9 @@
 
 use crate::structs::rings::Conj; //Conjugation trait
 
+
+use crate::structs::rings::Int; //Integer type standard
+
 // We bring them in so that we can overload the operators
 // Rust must learn how to do arithmetics in our rings
 use std::ops::Neg; 
@@ -28,47 +31,71 @@ use std::fmt::Formatter;
 // where u and t are in giventype
 // It is required that giventype has implementations of Add,Sub,Mult,Neg,conj
 #[derive(Debug,Copy,Clone)]
-pub struct Quaternion<T>(T,T,T,T)
+pub struct Quaternion<T>(T,T,T,T);
 
 
 // Nicely display Unitary Matrices
-impl<T> Display for UniMat<T>
-where T:Neg<Output=T>+Conj<T>+Display+Copy
+impl<T> Display for Quaternion<T>
+where T:Display
 {
     fn fmt(&self, f: &mut Formatter) -> Result{
         // write!(f,"/       \\");
         // write!(f,"| {} {} |", self.u,-self.t.conj());
-        write!(f,"|\t{}\t{}\t|\n|\t{}\t{}\t|\n",self.u, -self.t.conj() , self.t,self.u.conj())
+        write!(f,"{}+{}*I+{}*J+{}*K", self.0, self.1 , self.2,self.3)
     }
 }
 
-// Conjugate-transpose UniMat<T> elements
+// Conjugate-transpose Quaternion<T> elements
 // Same as taking an inverse
-impl<T> UniMat<T> 
-where T: Neg<Output=T>+Conj<T>
+impl<T> Neg for Quaternion<T> 
+where T: Neg<Output=T>
 {
-    pub fn inv(self) -> UniMat<T> {
+    type Output = Self;
+    fn neg(self) -> Self {
         Self{
-            u : self.u.conj(),
-            t : -self.t
+            0: -self.0,
+            1: -self.1,
+            2: -self.2,
+            3: -self.3
+        }
+    }
+}
+
+// Conjugate Complex elements
+impl<T,E> Conj<E> for Quaternion<T> 
+where T: Neg<Output=T>
+{
+    fn conj(self) -> Self {
+        Self{
+            0: self.0,
+            1: -self.1,
+            2: -self.2,
+            3: -self.3,
         }
     }
 }
 
 
-// Teaching rust how to multiply UniMat<T> elements
+
+
+// Teaching rust how to multiply Quaternion<T> elements
 // Also see this for why it looks so weird:
 // https://stackoverflow.com/questions/39169795/error-when-using-operators-with-a-generic-type
-impl<T> Mul for UniMat<T> 
-where T: Copy+Mul<Output=T>+Conj<T>+Neg+Add<Output=T>+Sub<Output=T>
+impl<T> Mul for Quaternion<T> 
+where T: Copy+Mul<Output=T>+Neg+Add<Output=T>+Sub<Output=T>
 {
-    type Output = UniMat<T>;
-    fn mul(self, other: UniMat<T>) 
-        -> UniMat<T>
+    type Output = Quaternion<T>;
+    fn mul(self, other: Quaternion<T>) -> Quaternion<T>
     {
+        // NAIVE ALGORITHM:
+        //
+        // One can reduce the number of multiplications:
+        // https://math.stackexchange.com/questions/1103399/alternative-quaternion-multiplication-method
         Self{
-            u: self.u*other.u-self.t.conj()*other.t,
-            t: self.t*other.u+self.u.conj()*other.t
+            0: self.0*other.0-self.1*other.1-self.2*other.0-self.3*other.2,
+            1: self.0*other.1+self.1*other.0+self.2*other.3-self.3*other.1,
+            2: self.0*other.2-self.1*other.3+self.2*other.2+self.3*other.0,
+            3: self.0*other.3+self.1*other.2-self.2*other.1+self.3*other.3,
         }
     }
 }
@@ -76,28 +103,54 @@ where T: Copy+Mul<Output=T>+Conj<T>+Neg+Add<Output=T>+Sub<Output=T>
 
 
 // Get zero and one as Unitary matrices
-impl<T> UniMat<T>
-where T: From<i32>
+impl<T> From<Int> for Quaternion<T> 
+where T: From<Int> 
 {
-    
-    // WARNING: zero is possible to construct, but avoid using it
-    // It is not a unitary matrix
-    pub fn zero() -> Self {
-        return Self{ u: T::from(0), t: T::from(0)}
-
-    }
-
-    pub fn one() -> Self {
-        return Self{ u: T::from(1), t: T::from(0)}
+    fn from(int: Int) -> Self 
+    {
+        Self
+        {
+            0: T::from(int),
+            1: T::from(0),
+            2: T::from(0),
+            3: T::from(0)
+        }
     }
 }
 
 
 // Teaching rust how to compare these ring elements
-impl<T> PartialEq for UniMat<T> 
+impl<T> PartialEq for Quaternion<T> 
 where T: PartialEq
 {
     fn eq(&self, other: &Self) -> bool {
-        return self.u==other.u && self.t==other.t;
+        return self.0==other.0 && self.1==other.1 && self.2==other.2 && self.3==other.3;
+    }
+}
+
+// Teaching rust how to add Quaternion elements
+impl<T> Add for Quaternion<T>
+where T: Add<Output=T>
+{
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Quaternion(self.0+other.0,self.1+other.1,self.2+other.2,self.3+other.3)
+    }
+}
+
+
+// Teaching rust how to subtract Quaternion elements
+impl<T> Sub for Quaternion<T> 
+where T: Sub<Output=T>
+{
+    type Output = Self;
+    fn sub(self, other: Self) -> Self {
+        Self{
+            0: self.0-other.0,
+            1: self.1-other.1,
+            2: self.2-other.2,
+            3: self.3-other.3,
+        }
     }
 }
