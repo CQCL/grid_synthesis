@@ -103,11 +103,19 @@ where T:Localizable+Add<Output=T>+PartialEq+From<Int>+Copy
 {
     type Output = Self;
     fn add(self, other: Self) -> Self {
+        if other.num==T::from(0)
+        {
+            return self;
+        }
+        if self.num==T::from(0)
+        {
+            return other;
+        }
         // println!("Want to add height {} and height {}",self.log_den,other.log_den);
         if self.log_den>other.log_den 
         {
             let mut other_temp = self.num;
-            // println!("Will invoke perform_n_multiplications with n={}",other.log_den-self.log_den);
+            // println!("Will invoke perform_n_multiplications with n={}",self.log_den-other.log_den);
             other_temp = other_temp.perform_n_multiplications(self.log_den-other.log_den);
             let temp = 
                 Self{
@@ -116,7 +124,7 @@ where T:Localizable+Add<Output=T>+PartialEq+From<Int>+Copy
                 };
 
             // return temp; // Possible speedup?
-            temp.fix();
+            // temp.fix();
             return temp;
         }
         else
@@ -182,7 +190,18 @@ impl<T> Display for Local<T>
 where T: Display
 {
     fn fmt(&self, f: &mut Formatter) -> Result{
-        write!(f,"({})*sqrt(2)^(-{})",self.num, self.log_den)
+        if self.log_den>0  
+        {   
+            write!(f,"({})*sqrt(2)^(-{})",self.num, self.log_den)
+        }        
+        else if self.log_den<0  
+        { 
+            write!(f,"({})*sqrt(2)^({})",self.num, self.log_den) 
+        }
+        else 
+        {   
+            write!(f,"{}",self.num) 
+        }
     }
 }
 

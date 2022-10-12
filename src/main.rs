@@ -64,25 +64,27 @@ fn main() {
                 log_den:1
             },
     };
-    println!("{}")
 
 
-    let h = Quaternion::<Local::<Zroot2>>
+    println!("{}", h.rsqnorm());
+
+
+    let t = Quaternion::<Local::<Zroot2>>
     {
-        0:  Local::<Zroot2>::from(0),
+        0:  Local::<Zroot2>
+            {
+                num: Zroot2(1,1),
+                log_den:1
+            },
         1:  Local::<Zroot2>
             {
-                num: Zroot2::from(1),
+                num: Zroot2(1,0),
                 log_den:1
             },
         2:  Local::<Zroot2>::from(0),
-        3:  Local::<Zroot2>
-            {
-                num: Zroot2::from(1),
-                log_den:1
-            },
+        3:  Local::<Zroot2>::from(0)
     };
-    
+    println!("{}", t.rsqnorm());
     
 }
 

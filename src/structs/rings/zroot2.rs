@@ -28,14 +28,34 @@ use crate::structs::rings::Int;
 pub struct Zroot2(pub Int,pub Int); //a+b\sqrt(2)
 
 // Rust must know how to diplay elements of this ring
+// Rust could learn some latex
 impl Display for Zroot2{
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        if self.1<0 {
-            write!(f, "{}+{}\\sqrt{{2}}", self.0, self.1)
+        if self.0!=0
+        {
+            if self.1<0 
+            {
+                write!(f, "{}{}\\sqrt{{2}}", self.0, self.1)
+            }
+            else if self.1>0
+            {
+                if self.1==1
+                {
+                    write!(f, "{}+\\sqrt{{2}}", self.0)
+                }
+                else
+                {
+                    write!(f, "{}+{}\\sqrt{{2}}", self.0, self.1)
+                }
+            }
+            else 
+            {
+                write!(f, "{}",self.0)
+            }
         }
         else
         {
-            write!(f, "{}+{}\\sqrt{{2}}", self.0, self.1)
+            write!(f, "{}\\sqrt{{2}}", self.1)
         }
     }
 }
