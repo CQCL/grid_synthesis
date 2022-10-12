@@ -1,7 +1,7 @@
 
 // Importing some ring elements
 use crate::structs::unimat::UniMat; 
-// use crate::structs::rings::complex::Complex; 
+use crate::structs::rings::Localizable; 
 use std::ops::Neg; 
 use std::ops::Add; 
 use std::ops::Sub; 
@@ -96,5 +96,29 @@ pub fn basic_identities_with_unimat_over<T>() -> ()
     println!("Test 1: Id.Id = Id");
     let u = UniMat::<T>::one();
     assert_eq!(u,u*u,"Failed to check that {} =\n {}\n*\n{}",u,u,u);
+
+}
+
+
+pub fn testing_that_localizable_rings_work<T>() -> ()
+where T: Copy+Debug+Display,
+      T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj<T>,
+      T: PartialEq+From<Int>+Localizable
+{
+
+    println!("--------------------");
+    let mut b = T::from(4);
+    println!("{}",b);
+    b= b.perform_n_multiplications(1);
+    println!("{}",b);
+    b= b.perform_n_multiplications(1);
+    println!("{}",b);
+    b= b.perform_n_multiplications(1);
+    println!("{}",b);
+    b= b.perform_n_multiplications(1);
+    println!("{}",b);
+    let i :Int;
+    (b , i) = b.reduce_by_dividing();
+    println!("{}, divided {} times",b,i);
 
 }

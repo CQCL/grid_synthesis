@@ -106,9 +106,9 @@ where T:Localizable+Add<Output=T>+PartialEq+From<Int>+Copy
         // println!("Want to add height {} and height {}",self.log_den,other.log_den);
         if self.log_den>other.log_den 
         {
-            let other_temp = self.num;
+            let mut other_temp = self.num;
             // println!("Will invoke perform_n_multiplications with n={}",other.log_den-self.log_den);
-            other_temp.perform_n_multiplications(self.log_den-other.log_den);
+            other_temp = other_temp.perform_n_multiplications(self.log_den-other.log_den);
             let temp = 
                 Self{
                     num: self.num + other_temp,
@@ -121,8 +121,8 @@ where T:Localizable+Add<Output=T>+PartialEq+From<Int>+Copy
         }
         else
         {
-            let self_temp = self.num;
-            self_temp.perform_n_multiplications(other.log_den-self.log_den);
+            let mut self_temp = self.num;
+            self_temp = self_temp.perform_n_multiplications(other.log_den-self.log_den);
             let mut temp = Self
             {
                 num: other.num + self_temp,

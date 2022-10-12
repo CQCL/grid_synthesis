@@ -30,6 +30,7 @@ use crate::structs::rings::quaternion::Quaternion;
 // use crate::tests::basic_identities;
 // use crate::tests::basic_identities_with_conj;
 // use crate::tests::basic_identities_with_unimat_over;
+// use crate::tests::testing_that_localizable_rings_work;
 
 fn main() {
 
@@ -76,7 +77,10 @@ fn main() {
     println!("Going to add the two");
     let a=a1+a0;
     println!("{}",a);
-    // println!("{}",h);
+    println!("{}",a0);
+    println!("{}",a-a1);
+    //
+    
     
 }
 
