@@ -64,22 +64,24 @@ fn main() {
                 log_den:1
             },
     };
-    let a0=h.0*h.0;
-    let a1=h.1*h.1;
-    let a2=h.2*h.2;
-    let a3=h.3*h.3;
+    println!("{}")
 
-    println!("{}",a0);
-    println!("{}",a1);
-    // println!("{}",a2);
-    // println!("{}",a3);
-    
-    println!("Going to add the two");
-    let a=a1+a0;
-    println!("{}",a);
-    println!("{}",a0);
-    println!("{}",a-a1);
-    //
+
+    let h = Quaternion::<Local::<Zroot2>>
+    {
+        0:  Local::<Zroot2>::from(0),
+        1:  Local::<Zroot2>
+            {
+                num: Zroot2::from(1),
+                log_den:1
+            },
+        2:  Local::<Zroot2>::from(0),
+        3:  Local::<Zroot2>
+            {
+                num: Zroot2::from(1),
+                log_den:1
+            },
+    };
     
     
 }
