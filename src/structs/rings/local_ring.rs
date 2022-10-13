@@ -187,20 +187,42 @@ where T:Neg<Output=T>+Localizable+PartialEq+Add<Output=T>+From<Int>+Copy
 
 // Nicely display Local<T> elements
 impl<T> Display for Local<T>
-where T: Display
+where T: Display+From<Int>+PartialEq
 {
     fn fmt(&self, f: &mut Formatter) -> Result{
         if self.log_den>0  
         {   
-            write!(f,"({})*sqrt(2)^(-{})",self.num, self.log_den)
+            if self.num== T::from(1)
+            {
+                write!(f,"\\sqrt(2)^(-{})", self.log_den)
+            }
+            else if self.num == T::from(0)
+            {
+                write!(f,"0")
+            }
+            else 
+            {
+                write!(f,"({})*\\sqrt(2)^(-{})",self.num, self.log_den)
+            }
         }        
         else if self.log_den<0  
         { 
-            write!(f,"({})*sqrt(2)^({})",self.num, self.log_den) 
+            if self.num== T::from(1)
+            {
+                write!(f,"\\sqrt(2)^({})",self.log_den)
+            }
+            else if self.num == T::from(0)
+            {
+                write!(f,"0")
+            }
+            else 
+            {
+                write!(f,"({})*\\sqrt(2)^({})",self.num, self.log_den)
+            }
         }
         else 
         {   
-            write!(f,"{}",self.num) 
+            write!(f,"({})",self.num) 
         }
     }
 }

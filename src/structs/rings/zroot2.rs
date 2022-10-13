@@ -55,7 +55,14 @@ impl Display for Zroot2{
         }
         else
         {
-            write!(f, "{}\\sqrt{{2}}", self.1)
+            if self.1!=0
+            {
+                write!(f, "{}\\sqrt{{2}}", self.1)
+            }
+            else
+            {
+                write!(f, "{}", self.1)
+            }
         }
     }
 }

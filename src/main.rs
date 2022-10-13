@@ -27,8 +27,8 @@ use crate::structs::rings::quaternion::Quaternion;
 //     return 0.0*theta*epsilon
 // }
   
-// use crate::tests::basic_identities;
-// use crate::tests::basic_identities_with_conj;
+use crate::tests::basic_identities;
+use crate::tests::basic_identities_with_conj;
 // use crate::tests::basic_identities_with_unimat_over;
 // use crate::tests::testing_that_localizable_rings_work;
 
@@ -47,9 +47,8 @@ fn main() {
     //
     // It seems to be going good with integers.
     // Let's implement gates now
-
     
-    let h = Quaternion::<Local::<Zroot2>>
+    let mut h = Quaternion::<Local::<Zroot2>>
     {
         0:  Local::<Zroot2>::from(0),
         1:  Local::<Zroot2>
@@ -65,8 +64,11 @@ fn main() {
             },
     };
 
+    // println!("{}",h);
+    // h=h*h*h;
 
-    println!("{}", h.rsqnorm());
+    // println!("{}",h);
+    // println!("{}", h.rsqnorm());
 
 
     let t = Quaternion::<Local::<Zroot2>>
@@ -84,7 +86,8 @@ fn main() {
         2:  Local::<Zroot2>::from(0),
         3:  Local::<Zroot2>::from(0)
     };
-    println!("{}", t.rsqnorm());
+    let m= h*t*h*t*t*t*h*t*h*t;
+    println!("{}",m);
     
 }
 
