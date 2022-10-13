@@ -87,7 +87,10 @@ fn main() {
         3:  Local::<Zroot2>::from(0)
     };
     let m= h*t*h*t*t*t*h*t*h*t;
-    println!("{}",m);
+    println!("{}",m.0);
+    println!("{}",m.1);
+    println!("{}",m.2);
+    println!("{}",m.3);
     
 }
 
