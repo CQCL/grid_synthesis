@@ -1,7 +1,7 @@
-
 // Importing some ring elements
 use crate::structs::unimat::UniMat; 
 use crate::structs::rings::Localizable; 
+use crate::structs::rings::Fixable; 
 use std::ops::Neg; 
 use std::ops::Add; 
 use std::ops::Sub; 
@@ -11,6 +11,8 @@ use std::fmt::Display;
 use std::fmt::Debug;
 
 use crate::structs::rings::Conj;
+use crate::structs::rings::local_ring::Local;
+use crate::structs::rings::quaternion::Quaternion;
 use crate::structs::rings::Int;
 
 // use crate::structs::rings::Constructs;
@@ -100,7 +102,7 @@ pub fn basic_identities_with_unimat_over<T>() -> ()
 }
 
 
-pub fn testing_that_localizable_rings_work<T>() -> ()
+pub fn testing_localizable_rings<T>() -> ()
 where T: Copy+Debug+Display,
       T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj<T>,
       T: PartialEq+From<Int>+Localizable
@@ -121,4 +123,60 @@ where T: Copy+Debug+Display,
     (b , i) = b.reduce_by_dividing();
     println!("{}, divided {} times",b,i);
 
+}
+
+pub fn testing_complex_rings_vs_quaternions_over<T>() 
+where T: Copy+Debug+Display,
+      T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj<T>,
+      T: PartialEq+From<Int>+Localizable
+{
+    let h = Quaternion::<Local::<T>>
+    {
+        0:  Local::<T>::from(0),
+        1:  Local::<T>
+            {
+                num: T::from(1),
+                log_den:1
+            },
+        2:  Local::<T>::from(0),
+        3:  Local::<T>
+            {
+                num: T::from(1),
+                log_den:1
+            },
+    };
+
+    // println!("{}",h);
+    // h=h*h*h;
+
+    // println!("{}",h);
+    // println!("{}", h.rsqnorm());
+
+    // Warning: THis is the T gate only when 
+    // the type T used here is Zroot2
+    let t = Quaternion::<Local::<T>>
+    {
+        0:  Local::<T>
+            {
+                num: T::from(1)+(T::from(1)).perform_n_multiplications(1),
+                log_den:1
+            },
+        1:  Local::<T>
+            {
+                num: T::from(1),
+                log_den:1
+            },
+        2:  Local::<T>::from(0),
+        3:  Local::<T>::from(0)
+    };
+
+
+    let t2 = t*t;
+    let m= h*t*h*t*t*t*h*t*h*t*t*t*h*t*t*t*t*t;
+
+    println!("Test 1: Checking norm is equal to sum of sqnorms");
+    assert_eq!(h.rsqnorm(),h.z().sqnorm()+h.w().sqnorm());
+    assert_eq!(t.rsqnorm(),t.z().sqnorm()+t.w().sqnorm());
+    assert_eq!(t2.rsqnorm(),t2.z().sqnorm()+t2.w().sqnorm());
+    assert_eq!(m.rsqnorm(),m.z().sqnorm()+m.w().sqnorm());
 }

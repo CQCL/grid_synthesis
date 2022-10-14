@@ -151,7 +151,7 @@ where T: Mul<Output=T> + Add<Output=T>,
     // Equal to whatever is the output here
     pub fn sqnorm(self) -> T
     {
-        return self.0*self.0+self.1*self.1
+        return self.0*self.0+self.1*self.1;
     }
 }
 

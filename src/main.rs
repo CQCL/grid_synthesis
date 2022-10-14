@@ -31,7 +31,7 @@ use crate::structs::rings::Fixable;
 // use crate::tests::basic_identities;
 // use crate::tests::basic_identities_with_conj;
 // use crate::tests::basic_identities_with_unimat_over;
-// use crate::tests::testing_that_localizable_rings_work;
+use crate::tests::testing_complex_rings_vs_quaternions_over;
 
 fn main() {
 
@@ -48,55 +48,7 @@ fn main() {
     //
     // It seems to be going good with integers.
     // Let's implement gates now
-    
-    let h = Quaternion::<Local::<Zroot2>>
-    {
-        0:  Local::<Zroot2>::from(0),
-        1:  Local::<Zroot2>
-            {
-                num: Zroot2::from(1),
-                log_den:1
-            },
-        2:  Local::<Zroot2>::from(0),
-        3:  Local::<Zroot2>
-            {
-                num: Zroot2::from(1),
-                log_den:1
-            },
-    };
-
-    // println!("{}",h);
-    // h=h*h*h;
-
-    // println!("{}",h);
-    // println!("{}", h.rsqnorm());
-
-
-    let t = Quaternion::<Local::<Zroot2>>
-    {
-        0:  Local::<Zroot2>
-            {
-                num: Zroot2(1,1),
-                log_den:1
-            },
-        1:  Local::<Zroot2>
-            {
-                num: Zroot2(1,0),
-                log_den:1
-            },
-        2:  Local::<Zroot2>::from(0),
-        3:  Local::<Zroot2>::from(0)
-    };
-    let t2 = t*t;
-    println!("{}",t2);
-    println!("{}",t2.logden());
-    println!("{}",t2.rsqnorm());
-    println!("{}",t2.rsqnorm().logden());
-
-    let m= h*t*h*t*t*t*h*t*h*t*t*t*h*t*t*t*t*t;
-    println!("{}",m);
-    println!("{}",m.logden());
-    println!("{}",m.rsqnorm());
+    testing_complex_rings_vs_quaternions_over::<Zroot2>();
     
 }
 
