@@ -26,6 +26,7 @@ use std::fmt::Formatter;
 // See mod.rs for some info
 // Or Zroot2
 use crate::structs::rings::Localizable; 
+use crate::structs::rings::Fixable; 
 use crate::structs::rings::Conj; //Conjugation trait
 
 //Integer type is set globally
@@ -50,7 +51,7 @@ pub struct Local<T>
 
 // Internal function
 // Used to make the numerator independent of denominator
-impl<T> Local<T> 
+impl<T> Fixable for Local<T> 
 where T: Localizable+PartialEq+From<Int>+Copy
 {
     fn fix(mut self) -> Self 
@@ -80,6 +81,11 @@ where T: Localizable+PartialEq+From<Int>+Copy
             // Return ownership
             return self;
         }
+    }
+
+    fn logden(self) -> Int
+    {
+        return self.log_den;
     }
 }
 

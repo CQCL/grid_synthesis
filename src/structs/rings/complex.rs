@@ -1,10 +1,11 @@
 // Ring of complex numbers
-// Over floats
+// This implementation is agnostic of what the complex numbers are defined over
+// Basically for any ring R, it makes numbers of the form a+bI, where a and b are in R
 
 
 // type of floats
-type Float = f64;
-type Int = i32;
+// use crate::structs::rings::Float;
+use crate::structs::rings::Int;
 
 
 use crate::structs::rings::Conj; //Conjugation trait
@@ -24,24 +25,28 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 
 #[derive(Copy, Clone, Debug)]
-pub struct Complex(pub Float,pub Float);
+pub struct Complex<T>(pub T,pub T);
 // the real part is variable.0
 // the imaginary part is variable.1
 
 
 
 // Conjugate Complex elements
-impl<T> Conj<T> for Complex {
-    fn conj(self) -> Complex {
+impl<T> Conj<T> for Complex<T>
+where T: Neg<Output=T>
+{
+    fn conj(self) -> Self {
         Complex(self.0,-self.1)
     }
 }
 
 
 // Negatation on Complex
-impl Neg for Complex{
-    type Output = Complex;
-    fn neg(self) -> Complex {
+impl<T> Neg for Complex<T>
+where T: Neg<Output=T>
+{
+    type Output = Self;
+    fn neg(self) -> Self {
         Complex(-self.0,-self.1)
     }
 }
@@ -49,10 +54,12 @@ impl Neg for Complex{
 
 
 // Teaching rust how to add Complex elements
-impl Add for Complex {
-    type Output = Complex;
+impl<T> Add for Complex<T> 
+where T: Add<Output=T>
+{
+    type Output = Self;
 
-    fn add(self, other: Complex) -> Complex {
+    fn add(self, other: Self) -> Self {
         Complex(self.0+other.0,self.1+other.1)
     }
 }
@@ -60,29 +67,44 @@ impl Add for Complex {
 
 
 // Teaching rust how to subtract Complex elements
-impl Sub for Complex {
-    type Output = Complex;
+impl<T> Sub for Complex<T> 
+where T: Sub<Output=T> 
+{
+    type Output = Self;
 
-    fn sub(self, other: Complex) -> Complex {
-        self+(-other) //subtraction is just adding the additive inverse
+    fn sub(self, other: Self) -> Self {
+        Self
+        {
+            0: self.0-other.0,
+            1: self.1-other.1
+        }
     }
 }
 
 
 // Teaching rust how to multiply Complex elements
-impl Mul for Complex {
-    type Output = Complex;
+impl<T> Mul for Complex<T> 
+where T:Mul<Output=T> + Add<Output=T> + Sub<Output=T>+Copy
+{
 
-    fn mul(self, other: Complex) -> Complex {
-        Complex(
-            other.0*self.0 - other.1*self.1,
-            other.0*self.1 + other.1*self.0 
-            )
+    type Output = Self;
+
+    fn mul(self, other: Self) -> Self 
+    {
+        // TODO: Implement the faster multiplication
+        // Given here:
+        // https://www.embedded.com/digital-signal-processing-tricks-fast-multiplication-of-complex-numbers/
+        Self
+        {
+            0: other.0*self.0 - other.1*self.1,
+            1: other.0*self.1 + other.1*self.0 
+        }
     }
 }
 
 // Nicely display Complex Matrices
-impl Display for Complex
+impl<T> Display for Complex<T>
+where T: Display
 {
     fn fmt(&self, f: &mut Formatter) -> Result{
         write!(f,"{}+{}i",self.0, self.1)
@@ -96,7 +118,7 @@ impl Display for Complex
 //     fn zero() -> Self {
 //         return Complex(0.0,0.0);
 //     }
-    
+
 //     fn one() -> Self {
 //         return Complex(1.0,0.0);
 //     }
@@ -104,7 +126,8 @@ impl Display for Complex
 
 
 // Teaching rust how to compare these ring elements
-impl PartialEq for Complex
+impl<T> PartialEq for Complex<T>
+where T: PartialEq
 {
     fn eq(&self, other: &Self) -> bool {
         return self.0==other.0 && self.1==other.1;
@@ -112,14 +135,23 @@ impl PartialEq for Complex
 }
 
 
-impl From<Int> for Complex {
+impl<T> From<Int> for Complex<T>
+where T: From<Int>
+{
     fn from(int: Int) -> Self {
-        Complex(int.try_into().unwrap(),0.0)
+        Complex(T::from(int),T::from(0))
     }
 }
 
-impl From<Float> for Complex {
-    fn from(int: Float) -> Self {
-        Complex(int,0.0)
+impl<T> Complex<T>
+where T: Mul<Output=T> + Add<Output=T>,
+      T: Copy
+{
+    // reduced square norm of our quaternion algebra
+    // Equal to whatever is the output here
+    pub fn sqnorm(self) -> T
+    {
+        return self.0*self.0+self.1*self.1
     }
 }
+

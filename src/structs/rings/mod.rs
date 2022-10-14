@@ -33,6 +33,17 @@ pub trait Localizable{
     fn perform_n_multiplications(self,_:Int) -> Self;
 }
 
+// Supertrait
+// Allows addition and multiplication in a local ring
+// See local_ring.rs for an implementation
+pub trait Fixable{
+    
+    // Reduce a number to it's lowest form, so that we can extract its p-adic valuation
+    fn fix(self) -> Self;
+    
+    // Return the log_den value to be used by something else
+    fn logden(self) -> Int;
+}
 
 pub mod zroot2;
 pub mod local_ring;

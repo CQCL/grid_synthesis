@@ -3,9 +3,11 @@
 // This will create a Quaternion algebra over anything
 
 use crate::structs::rings::Conj; //Conjugation trait
+use crate::structs::rings::Fixable; // For implementing local rings
 
 
 use crate::structs::rings::Int; //Integer type standard
+use crate::structs::rings::complex::Complex; //Complex type 
 
 // We bring them in so that we can overload the operators
 // Rust must learn how to do arithmetics in our rings
@@ -16,6 +18,11 @@ use std::ops::Mul;
 use std::ops::Div; 
 use std::cmp::PartialEq; 
 
+
+use std::cmp::max;
+
+
+
 // For display
 use std::fmt::Result;
 use std::fmt::Display;
@@ -24,13 +31,8 @@ use std::fmt::Formatter;
 
 // Quaternions.
 // They are of the form a+ib+cj+dk
-// where a,b,c,d are some ring elements
-// /         \
-// | u  -t^* |
-// | t   u^* |
-// \         /
-// where u and t are in giventype
-// It is required that giventype has implementations of Add,Sub,Mult,Neg,conj
+// where a,b,c,d are some ring elements of type T
+// It is required that T has implementations of Add,Sub,Mult,Neg,conj, etc.
 #[derive(Debug,Copy,Clone)]
 pub struct Quaternion<T>(pub T,pub T,pub T,pub T);
 
@@ -158,10 +160,9 @@ where T: Sub<Output=T>
 
 
 
-//Will work only if T has a division implementation
 impl<T> Quaternion<T>
 where T: Mul<Output=T> + Add<Output=T>,
-      T: Copy+PartialEq
+      T: Copy
 {
     // reduced square norm of our quaternion algebra
     // Equal to whatever is the output here
@@ -212,4 +213,36 @@ where T: Mul<Output=T> + Add<Output=T> + Neg<Output=T> + Div<Output=T>+Sub<Outpu
     {
         return self.mul(other.inv())
     }
+}
+
+
+//Will work only if T is a local_ring
+impl<T>  Quaternion<T>
+where T: Mul<Output=T> + Add<Output=T> + Neg<Output=T> + Sub<Output=T>,
+      T: Copy+PartialEq+From<Int>,
+      T: Fixable
+{
+    pub fn logden(self) -> Int
+    {
+        let mut temp = max(self.0.logden(),self.1.logden());
+        temp = max(temp,self.2.logden());
+        temp = max(temp,self.3.logden());
+        return temp;
+    }
+}
+
+// Give two complex numbers over T
+// Writing a+bI+cJ+dK = (a+bI)+(c_dI)J
+// Here (a+bI) = z and (c+dI) = w
+impl <T> Quaternion<T>
+{
+    pub fn z(self) -> Complex<T>
+    {
+        return Complex::<T>( self.0,self.1);
+    }
+    pub fn w(self) -> Complex<T>
+    {
+        return Complex::<T>( self.2,self.3);
+    }
+
 }
