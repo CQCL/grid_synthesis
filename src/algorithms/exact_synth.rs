@@ -24,3 +24,10 @@
 // and   v = v_1 + v_2 I
 // where u and t are in giventype
 //
+
+use crate::structs::rings::quaternion::Quaternion;
+use crate::structs::rings::local_ring::Local;
+use crate::structs::rings::zroot2::Zroot2;
+
+
+pub fn exact_synth_given_norm_1(
