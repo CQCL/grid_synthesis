@@ -9,6 +9,12 @@ use crate::structs::rings::Fixable; // For implementing local rings
 use crate::structs::rings::Int; //Integer type standard
 use crate::structs::rings::complex::Complex; //Complex type 
 
+
+
+// To construct gates 
+use crate::structs::rings::zroot2::Zroot2;
+use crate::structs::rings::local_ring::Local;
+
 // We bring them in so that we can overload the operators
 // Rust must learn how to do arithmetics in our rings
 use std::ops::Neg; 
@@ -246,3 +252,64 @@ impl <T> Quaternion<T>
     }
 
 }
+
+
+
+// Returning some gates
+//
+//
+
+// Better looking code
+type Loc = Local<Zroot2>;
+type Quat = Quaternion<Loc>;
+
+impl Quat
+{
+    pub fn t_gate() -> Quat
+    {
+        type T = Zroot2;
+        let t = Quaternion::<Local::<T>>
+        {
+            0:  Loc
+            {
+                num: T::from(1),
+                log_den:1
+            },
+            1:  Loc
+            {
+                num: T::from(1),
+                log_den:1
+            },
+            2:  Loc::from(0),
+            3:  Loc::from(0)
+        };
+
+        return t;
+    }
+
+
+    pub fn h_gate() -> Quat
+    {
+        type T = Zroot2;
+        let h = Quaternion::<Local::<T>>
+        {
+            0:  Loc::from(0),
+            1:  Loc
+            {
+                num: T::from(1),
+                log_den:1
+            },
+            2:  Loc::from(0),
+            3:  Loc
+            {
+                num: T::from(1),
+                log_den:1
+            },
+        };
+
+        return h;
+    }
+
+
+}
+

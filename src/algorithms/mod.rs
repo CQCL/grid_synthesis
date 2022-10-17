@@ -1,1 +1,1 @@
-pub mod exact_synth.rs
+pub mod exact_synth;

@@ -4,8 +4,8 @@
 
 
 pub mod structs;
-
 pub mod tests;
+pub mod algorithms;
 
 // type Angle = f64;
 // type Error = f64;
@@ -18,20 +18,23 @@ pub mod tests;
 use crate::structs::rings::local_ring::Local; 
 use crate::structs::rings::zroot2::Zroot2; 
 use crate::structs::rings::quaternion::Quaternion;
-use crate::structs::rings::Fixable;
+// use crate::structs::rings::Fixable;
+// use crate::structs::rings::Localizable;
 // use crate::structs::rings::Int;
 // use crate::structs::rings::cyclotomic::Cyclotomic; 
-  
-  
-// Obviously false code
-// fn grid_synth(theta: Angle,epsilon: Error) -> f64 {
-//     return 0.0*theta*epsilon
-// }
-  
+
+
+use crate::algorithms::exact_synth::exact_synth_given_norm_1;
+
 // use crate::tests::basic_identities;
 // use crate::tests::basic_identities_with_conj;
 // use crate::tests::basic_identities_with_unimat_over;
-use crate::tests::testing_complex_rings_vs_quaternions_over;
+// use crate::tests::testing_complex_rings_vs_quaternions_over;
+
+// Better looking code
+type Loc = Local<Zroot2>;
+type Quat = Quaternion<Loc>;
+// type Comp = Complex<Loc>;
 
 fn main() {
 
@@ -40,16 +43,13 @@ fn main() {
     println!("-------------CODE IS RUNNING--------------");
     println!("------------------------------------------");
 
-    // Gotta make some tests
-    //
-    // basic_identities::<Complex>();
-    // basic_identities::<Quaternion<Local<Zroot2>>>();
-    // basic_identities_with_conj::<Quaternion<Local<Zroot2>>>();
-    //
-    // It seems to be going good with integers.
-    // Let's implement gates now
-    testing_complex_rings_vs_quaternions_over::<Zroot2>();
-    
+    let h = Quat::h_gate();
+    let t = Quat::t_gate();
+    println!("{}", t);
+    let input = h*t*t*h*t*t*t*t*h*t*t*h*t*t*t*t*t*t*h*t*t*t*t*t*h*t*t*t*h*t*t*t*h*t*t*t*t*t*h*t*t*t*h;
+
+    exact_synth_given_norm_1(input);
+
 }
 
 

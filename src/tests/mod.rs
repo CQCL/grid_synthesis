@@ -1,7 +1,7 @@
 // Importing some ring elements
 use crate::structs::unimat::UniMat; 
 use crate::structs::rings::Localizable; 
-use crate::structs::rings::Fixable; 
+// use crate::structs::rings::Fixable; 
 use std::ops::Neg; 
 use std::ops::Add; 
 use std::ops::Sub; 

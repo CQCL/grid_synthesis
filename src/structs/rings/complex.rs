@@ -10,6 +10,11 @@ use crate::structs::rings::Int;
 
 use crate::structs::rings::Conj; //Conjugation trait
 
+// To construct Quaternions from  complex numbers
+use crate::structs::rings::quaternion::Quaternion;
+use crate::structs::rings::zroot2::Zroot2;
+use crate::structs::rings::local_ring::Local;
+
 // We bring them in so that we can overload the operators
 // Rust must learn how to do arithmetics in our rings
 use std::ops::Neg; 
@@ -155,3 +160,46 @@ where T: Mul<Output=T> + Add<Output=T>,
     }
 }
 
+// Constructing quaternions from two complex numbers
+impl<T> Complex<T>
+{
+    pub fn quat(z: Complex<T> , w: Complex<T> ) -> Quaternion<T>
+    {
+        return Quaternion::<T>
+        {
+            0: z.0,
+            1: z.1,
+            2: w.0,
+            3: w.1
+        };
+    }
+
+}
+
+
+// Returning the eigth root of unity
+type Loc = Local<Zroot2>;
+type Comp = Complex<Loc>;
+
+impl Comp
+{
+    pub fn mu_8() -> Comp
+    {
+        return Comp
+        {
+            0: Loc
+            {
+                num: Zroot2::from(1),
+                log_den: 1
+            },
+            
+            1: Loc
+            {
+                num: Zroot2::from(1),
+                log_den: 1
+            }
+
+        };
+
+    }
+}

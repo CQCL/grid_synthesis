@@ -29,5 +29,29 @@ use crate::structs::rings::quaternion::Quaternion;
 use crate::structs::rings::local_ring::Local;
 use crate::structs::rings::zroot2::Zroot2;
 
+// Better looking code
+type Quat = Quaternion<Local<Zroot2>>;
+type Field = Local<Zroot2>;
 
-pub fn exact_synth_given_norm_1(
+
+// This is an implementation of 1206.5236 
+// The table saying Algorithm 1 contains the pseudocode
+pub fn exact_synth_given_norm_1( gamma: Quat) -> ()
+{
+
+    if gamma.rsqnorm()!= Field::from(1)
+    {
+        panic!("I was promised norm 1");
+    }
+
+
+    let z=gamma.z();
+    // let w=gamma.w();
+    let zsqn = z.sqnorm();
+
+    // println!("{}", zsqn);
+     
+    let sde = zsqn.log_den;
+    println!("{}", sde);
+
+}
