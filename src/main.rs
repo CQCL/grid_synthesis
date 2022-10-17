@@ -43,19 +43,25 @@ fn main() {
     println!("-------------CODE IS RUNNING--------------");
     println!("------------------------------------------");
 
-    let h = Quat::h_gate();
+    // let h = Quat::h_gate();
     let t = Quat::t_gate();
+
+    println!("{}", t);
+    println!("{}", t.rsqnorm());
+
     let omega = Comp::mu_8();
     let one = Comp::from(1);
 
-    let g = Comp::quat_conj_transpose_second(one+omega,one-omega);
+    let mut g = Comp::quat_conj_transpose_second(one+omega,one-omega);
+    g =g*g*g*g*g*g*g*g*g*g;
     println!("{}", g);
     println!("{}", g.w().sqnorm());
     
 
-    let input = h*t*t*h*t*t*t*t*h*t*t*h*t*t*t*t*t*t*h*t*t*t*t*t*h*t*t*t*h*t*t*t*h*t*t*t*t*t*h*t*t*t*h;
+    // let input = h*t*t*h*t*t*t*t*h*t*t*h*t*t*t*t*t*t*h*t*t*t*t*t*h*t*t*t*h; 
+    // println!("{}", input.rsqnorm());
 
-    exact_synth_given_norm_1(input);
+    // exact_synth_given_norm_1(input);
 
 }
 

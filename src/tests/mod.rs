@@ -1,5 +1,5 @@
 // Importing some ring elements
-use crate::structs::unimat::UniMat; 
+// use crate::structs::unimat::UniMat; 
 use crate::structs::rings::Localizable; 
 // use crate::structs::rings::Fixable; 
 use std::ops::Neg; 
@@ -87,19 +87,19 @@ pub fn basic_identities_with_conj<T>() -> ()
 
 
 
-pub fn basic_identities_with_unimat_over<T>() -> () 
-    where T: Copy+Debug+Display,
-          T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj<T>,
-          T: PartialEq+From<Int>
-{
+// pub fn basic_identities_with_unimat_over<T>() -> () 
+//     where T: Copy+Debug+Display,
+//           T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj<T>,
+//           T: PartialEq+From<Int>
+// {
     
-    println!("Testing UniMat over {}", std::any::type_name::<T>());
-    println!("--------------------------------------");
-    println!("Test 1: Id.Id = Id");
-    let u = UniMat::<T>::one();
-    assert_eq!(u,u*u,"Failed to check that {} =\n {}\n*\n{}",u,u,u);
+//     println!("Testing UniMat over {}", std::any::type_name::<T>());
+//     println!("--------------------------------------");
+//     println!("Test 1: Id.Id = Id");
+//     let u = UniMat::<T>::one();
+//     assert_eq!(u,u*u,"Failed to check that {} =\n {}\n*\n{}",u,u,u);
 
-}
+// }
 
 
 pub fn testing_localizable_rings<T>() -> ()

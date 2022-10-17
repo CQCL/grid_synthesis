@@ -189,6 +189,7 @@ impl Mul for Zroot2 {
     type Output = Zroot2;
 
     fn mul(self, other: Zroot2) -> Zroot2 {
+        // Naive multiplication, for now
         Zroot2(
             other.0*self.0 + 2*other.1*self.1,
             other.0*self.1 + other.1*self.0 

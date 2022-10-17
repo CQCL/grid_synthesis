@@ -267,17 +267,16 @@ impl Quat
 {
     pub fn t_gate() -> Quat
     {
-        type T = Zroot2;
-        let t = Quaternion::<Local::<T>>
+        let t = Quat
         {
-            0:  Loc
+        0:  Loc
             {
-                num: T::from(1),
+                num: Zroot2(1,1),
                 log_den:1
             },
-            1:  Loc
+        1:  Loc
             {
-                num: T::from(1),
+                num: Zroot2(1,0),
                 log_den:1
             },
             2:  Loc::from(0),
