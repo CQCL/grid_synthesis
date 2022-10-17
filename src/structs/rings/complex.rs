@@ -67,6 +67,10 @@ where T: Add<Output=T>
     fn add(self, other: Self) -> Self {
         Complex(self.0+other.0,self.1+other.1)
     }
+    
+    // fn add(self, other: Int) -> Self {
+    //     return self+from(other);
+    // }
 }
 
 
@@ -162,6 +166,7 @@ where T: Mul<Output=T> + Add<Output=T>,
 
 // Constructing quaternions from two complex numbers
 impl<T> Complex<T>
+where T: Neg<Output=T>
 {
     pub fn quat(z: Complex<T> , w: Complex<T> ) -> Quaternion<T>
     {
@@ -172,6 +177,11 @@ impl<T> Complex<T>
             2: w.0,
             3: w.1
         };
+    }
+    
+    pub fn quat_conj_transpose_second(z: Complex<T> , w: Complex<T> ) -> Quaternion<T>
+    {
+        return Self::quat(z,-w.conj());
     }
 
 }

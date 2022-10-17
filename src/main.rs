@@ -14,7 +14,7 @@ pub mod algorithms;
 // use crate::structs::rings::dyad::Dyad; 
 // use crate::structs::rings::domega::DOmega; 
 // use crate::structs::rings::unimat::UniMat; 
-// use crate::structs::rings::complex::Complex; 
+use crate::structs::rings::complex::Complex; 
 use crate::structs::rings::local_ring::Local; 
 use crate::structs::rings::zroot2::Zroot2; 
 use crate::structs::rings::quaternion::Quaternion;
@@ -34,7 +34,7 @@ use crate::algorithms::exact_synth::exact_synth_given_norm_1;
 // Better looking code
 type Loc = Local<Zroot2>;
 type Quat = Quaternion<Loc>;
-// type Comp = Complex<Loc>;
+type Comp = Complex<Loc>;
 
 fn main() {
 
@@ -45,7 +45,14 @@ fn main() {
 
     let h = Quat::h_gate();
     let t = Quat::t_gate();
-    println!("{}", t);
+    let omega = Comp::mu_8();
+    let one = Comp::from(1);
+
+    let g = Comp::quat_conj_transpose_second(one+omega,one-omega);
+    println!("{}", g);
+    println!("{}", g.w().sqnorm());
+    
+
     let input = h*t*t*h*t*t*t*t*h*t*t*h*t*t*t*t*t*t*h*t*t*t*t*t*h*t*t*t*h*t*t*t*h*t*t*t*t*t*h*t*t*t*h;
 
     exact_synth_given_norm_1(input);
