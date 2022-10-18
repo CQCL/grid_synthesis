@@ -28,6 +28,7 @@
 use crate::structs::rings::quaternion::Quaternion;
 use crate::structs::rings::local_ring::Local;
 use crate::structs::rings::zroot2::Zroot2;
+// use crate::structs::rings::pow;
 
 // Better looking code
 type Quat = Quaternion<Local<Zroot2>>;

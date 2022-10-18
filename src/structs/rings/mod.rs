@@ -31,6 +31,12 @@ pub trait Localizable{
     // Multiply the ideal generator by the number of times given by n
     // WARNING: Bit Overflow may occur here if we perform too much multiplication
     fn perform_n_multiplications(self,_:Int) -> Self;
+    
+    // Should return norm
+    fn norm(self) -> Int;
+    
+    // Should check if norm is a unit 
+    fn is_unit(self) -> bool;
 }
 
 // Supertrait
@@ -51,3 +57,23 @@ pub mod domega;
 pub mod dyad;
 pub mod complex;
 pub mod quaternion;
+
+use std::ops::Mul;
+
+pub fn pow<T>(t: T, p: Int) -> T
+where T: Mul<Output=T>+Copy
+{
+    if p<=0
+    {
+        panic!("Power on a non-positive integer");
+    }
+
+    let mut out = t;
+    // TODO: Smarter implementation using 
+    // binary expansion of p is possible here
+    for i in 1..(p-1)
+    {
+        out=out*t;
+    }
+    return out;
+}

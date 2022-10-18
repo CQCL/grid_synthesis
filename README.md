@@ -31,9 +31,12 @@ Section 7.3 of [1] outlines the main algorithm.
 	- [X] Write a struct for $\mathbb{D}[\omega]$
 	- [X] Write a struct for unitary operators
 	- [ ] Plan additional functionality
-- [ ] Write some ring tests
-	- [ ] DEBUG!
+- [X] Write some ring tests
+	- [X] DEBUG!
 - [ ] Write an exact synthesis library (to do Step 3 as in the outline)
+	- Personal deadline: 
+		- Will finish this before 17-10-2022
+		- Will make it absolutely vanilla
 - [ ] Figure out prime factorization (implement or include)
 - [ ] Write a Step 2 to extend to floating point gate synthesis
 - [ ] Generalize to gates like $X_{\pi/2},Y_{\pi/2},Z_{\pi/2}$.

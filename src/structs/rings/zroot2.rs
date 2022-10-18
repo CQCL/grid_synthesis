@@ -146,6 +146,25 @@ impl Localizable for Zroot2
 
         return self;
     }
+
+    fn norm(self) -> Int
+    {
+        return self.0*self.0-2*self.1*self.1;
+    }
+    
+    // Should check if norm is a unit 
+    fn is_unit(self) -> bool
+    {
+        if self.norm()==1 || self.norm()==-1
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
 }
 
 impl From<Int> for Zroot2 {

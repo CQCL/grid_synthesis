@@ -19,10 +19,10 @@ use crate::structs::rings::local_ring::Local;
 use crate::structs::rings::zroot2::Zroot2; 
 use crate::structs::rings::quaternion::Quaternion;
 // use crate::structs::rings::Fixable;
-// use crate::structs::rings::Localizable;
-// use crate::structs::rings::Int;
+use crate::structs::rings::Localizable;
+use crate::structs::rings::Int;
 // use crate::structs::rings::cyclotomic::Cyclotomic; 
-
+use crate::structs::rings::pow;
 
 use crate::algorithms::exact_synth::exact_synth_given_norm_1;
 
@@ -36,6 +36,11 @@ type Loc = Local<Zroot2>;
 type Quat = Quaternion<Loc>;
 type Comp = Complex<Loc>;
 
+fn expression(s: Int, h: Quat, t: Quat, g: Quat) -> Quat 
+{ 
+    return h*pow(t,s)*g;
+} 
+
 fn main() {
 
     // Print text to the console
@@ -43,7 +48,7 @@ fn main() {
     println!("-------------CODE IS RUNNING--------------");
     println!("------------------------------------------");
 
-    // let h = Quat::h_gate();
+    let h = Quat::h_gate();
     let t = Quat::t_gate();
 
     println!("{}", t);
@@ -53,10 +58,19 @@ fn main() {
     let one = Comp::from(1);
 
     let mut g = Comp::quat_conj_transpose_second(one+omega,one-omega);
-    g =g*g*g*g*g*g*g*g*g*g;
-    println!("{}", g);
+    g =g*g*g*g*g*g*g*g*g;
+    g= g.inv();
+    println!("Here is g: {}", g);
     println!("{}", g.w().sqnorm());
-    
+    // for i in 1..43 
+    // {
+    //     println!("Testing i={}: {}",i, expression(i,h,t,g).rsqnorm() );
+    // }
+
+    // let ex = expression(37,h,t,g);
+    // println!("{}", ex);
+    // println!("{}", ex.rsqnorm().num.norm());
+
 
     // let input = h*t*t*h*t*t*t*t*h*t*t*h*t*t*t*t*t*t*h*t*t*t*t*t*h*t*t*t*h; 
     // println!("{}", input.rsqnorm());
@@ -64,5 +78,3 @@ fn main() {
     // exact_synth_given_norm_1(input);
 
 }
-
-

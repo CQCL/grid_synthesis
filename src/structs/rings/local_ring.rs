@@ -15,6 +15,7 @@ use std::ops::Neg;
 use std::ops::Add; 
 use std::ops::Sub; 
 use std::ops::Mul; 
+use std::ops::Div; 
 use std::cmp::PartialEq; 
 
 // For display
@@ -157,7 +158,7 @@ where T:Localizable+Add<Output=T>+PartialEq+From<Int>+Copy
 }
 
 
-// Teaching rust how to multiply Dyad elements
+// Teaching rust how to multiply Local elements
 impl<T> Mul for Local<T> 
 where T:Mul<Output=T>+Localizable+PartialEq+From<Int>+Copy
 {
@@ -308,3 +309,45 @@ where T: Conj<T>+Copy
         }
     }
 }
+
+
+
+// Teaching rust how to multiply Local elements
+impl<T> Div for Local<T> 
+where T: Mul<Output=T>+Conj<T>+Neg<Output=T>,
+      T: Localizable+PartialEq+From<Int>+Copy
+{
+    type Output = Self;
+
+    fn div(self, other: Self) -> Self 
+    {
+        let norm = other.num.norm();
+        if norm!=1 && norm!=-1
+        {
+            panic!("Division by a non-unit")
+        }
+        else if norm==1
+        {
+            let temp = Self
+            {
+                num: self.num*other.num.conj(),
+                log_den: self.log_den-other.log_den
+            };
+            // return temp;
+            temp.fix();
+            return temp;
+        }
+        else
+        {
+            let temp = Self
+            {
+                num: -self.num*other.num.conj(),
+                log_den: self.log_den-other.log_den
+            };
+            // return temp;
+            temp.fix();
+            return temp;
+        }
+    }
+}
+
