@@ -84,7 +84,6 @@ where T: Copy+Mul<Output=T>+Conj<T>+Neg+Add<Output=T>+Sub<Output=T>
 impl<T> UniMat<T>
 where T: From<i32>
 {
-    
     // WARNING: zero is possible to construct, but avoid using it
     // It is not a unitary matrix
     pub fn zero() -> Self {
@@ -94,6 +93,11 @@ where T: From<i32>
 
     pub fn one() -> Self {
         return Self{ u: T::from(1), t: T::from(0)}
+    }
+
+    pub fn h_gate() -> Self 
+    {
+
     }
 }
 
