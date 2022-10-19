@@ -39,7 +39,7 @@ pub struct DOmega(pub Dyad, pub Dyad, pub Dyad, pub Dyad);
 
 
 // Conjugate DOmega elements
-impl<T> Conj<T> for DOmega {
+impl Conj for DOmega {
     fn conj(self) -> DOmega {
         DOmega(self.0,-self.3, -self.2, -self.1)
     }

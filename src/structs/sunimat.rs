@@ -6,6 +6,7 @@
 
 
 use crate::structs::rings::Conj; //Conjugation trait
+use crate::structs::rings::Int; //Integer standard
 // use crate::structs::rings::Constructs; //Construction trait
 
 // We bring them in so that we can overload the operators
@@ -39,7 +40,7 @@ pub struct UniMat<T>
 
 // Nicely display Unitary Matrices
 impl<T> Display for UniMat<T>
-where T:Neg<Output=T>+Conj<T>+Display+Copy
+where T:Neg<Output=T>+Conj+Display+Copy
 {
     fn fmt(&self, f: &mut Formatter) -> Result{
         // write!(f,"/       \\");
@@ -51,7 +52,7 @@ where T:Neg<Output=T>+Conj<T>+Display+Copy
 // Conjugate-transpose UniMat<T> elements
 // Same as taking an inverse
 impl<T> UniMat<T> 
-where T: Neg<Output=T>+Conj<T>
+where T: Neg<Output=T>+Conj
 {
     pub fn inv(self) -> UniMat<T> {
         Self{
@@ -66,7 +67,7 @@ where T: Neg<Output=T>+Conj<T>
 // Also see this for why it looks so weird:
 // https://stackoverflow.com/questions/39169795/error-when-using-operators-with-a-generic-type
 impl<T> Mul for UniMat<T> 
-where T: Copy+Mul<Output=T>+Conj<T>+Neg+Add<Output=T>+Sub<Output=T>
+where T: Copy+Mul<Output=T>+Neg+Add<Output=T>+Sub<Output=T>+Conj
 {
     type Output = UniMat<T>;
     fn mul(self, other: UniMat<T>) 
@@ -83,7 +84,7 @@ where T: Copy+Mul<Output=T>+Conj<T>+Neg+Add<Output=T>+Sub<Output=T>
 
 // Get zero and one as Unitary matrices
 impl<T> UniMat<T>
-where T: From<i32>
+where T: From<Int>
 {
     // WARNING: zero is possible to construct, but avoid using it
     // It is not a unitary matrix
@@ -106,8 +107,18 @@ where T: From<i32>
         // TODO
         // These gates may not have determinant 1
     }
+
 }
 
+// impl<T> UniMat<T>
+// where T: Mul<Output=T>+Add<Output=T>+Conj,
+//       T: Copy
+// {
+//     pub fn det(self) -> T
+//     {
+//         return self.u*self.u.conj()+self.t*self.t*conj();
+//     }
+// }
 
 // Teaching rust how to compare these ring elements
 impl<T> PartialEq for UniMat<T> 

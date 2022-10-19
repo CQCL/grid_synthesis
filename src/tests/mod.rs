@@ -72,7 +72,7 @@ pub fn basic_identities<T>() -> ()
 // use crate::structs::rings::Constructs;
 pub fn basic_identities_with_conj<T>() -> () 
     where T: Copy+Debug+Display,
-          T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj<T>,
+          T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj,
           T: PartialEq+From<Int>
 {
     
@@ -104,7 +104,7 @@ pub fn basic_identities_with_conj<T>() -> ()
 
 pub fn testing_localizable_rings<T>() -> ()
 where T: Copy+Debug+Display,
-      T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj<T>,
+      T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj,
       T: PartialEq+From<Int>+Localizable
 {
 
@@ -127,7 +127,7 @@ where T: Copy+Debug+Display,
 
 pub fn testing_complex_rings_vs_quaternions_over<T>() 
 where T: Copy+Debug+Display,
-      T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj<T>,
+      T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj,
       T: PartialEq+From<Int>+Localizable
 {
     let h = Quaternion::<Local::<T>>

@@ -71,7 +71,7 @@ where T: Neg<Output=T>
 }
 
 // Conjugate Complex elements
-impl<T,E> Conj<E> for Quaternion<T> 
+impl<T> Conj for Quaternion<T> 
 where T: Neg<Output=T>
 {
     fn conj(self) -> Self {

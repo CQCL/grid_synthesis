@@ -185,8 +185,10 @@ impl PartialEq for Zroot2
 
 
 // Negatation on Zroot2
-impl Neg for Zroot2{
+impl Neg for Zroot2
+{
     type Output = Zroot2;
+
     fn neg(self) -> Zroot2 {
         Zroot2(-self.0,-self.1)
     }
@@ -217,7 +219,7 @@ impl Mul for Zroot2 {
 }
 
 // Conjugate Zroot2 elements
-impl<T> Conj<T> for Zroot2 {
+impl Conj for Zroot2 {
     fn conj(self) -> Zroot2 {
         Zroot2(self.0,-self.1)
     }

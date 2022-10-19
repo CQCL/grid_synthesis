@@ -100,7 +100,6 @@ where T:Neg<Output=T>
             log_den: self.log_den,
         }
     }
-
 }
 
 
@@ -297,8 +296,8 @@ where T: Localizable+PartialEq+Copy+From<Int>
 
 
 // Conjugate Complex elements
-impl<T> Conj<T> for Local<T> 
-where T: Conj<T>+Copy
+impl<T> Conj for Local<T> 
+where T: Conj+Copy
 {
     fn conj(self) -> Self {
         let temp_num = self.num;
@@ -314,7 +313,7 @@ where T: Conj<T>+Copy
 
 // Teaching rust how to multiply Local elements
 impl<T> Div for Local<T> 
-where T: Mul<Output=T>+Conj<T>+Neg<Output=T>,
+where T: Mul<Output=T>+Conj+Neg<Output=T>,
       T: Localizable+PartialEq+From<Int>+Copy
 {
     type Output = Self;

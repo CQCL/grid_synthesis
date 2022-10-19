@@ -37,11 +37,13 @@ pub struct Complex<T>(pub T,pub T);
 
 
 // Conjugate Complex elements
-impl<T> Conj<T> for Complex<T>
+impl<T> Conj for Complex<T>
 where T: Neg<Output=T>
 {
-    fn conj(self) -> Self {
-        Complex(self.0,-self.1)
+    // type Output = Self;
+    fn conj(self) -> Complex<T> 
+    {
+        return Complex(self.0,-self.1);
     }
 }
 

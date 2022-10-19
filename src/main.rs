@@ -19,15 +19,15 @@ use crate::structs::rings::local_ring::Local;
 use crate::structs::rings::zroot2::Zroot2; 
 use crate::structs::rings::quaternion::Quaternion;
 // use crate::structs::rings::Fixable;
-use crate::structs::rings::Localizable;
+// use crate::structs::rings::Localizable;
 use crate::structs::rings::Int;
 // use crate::structs::rings::cyclotomic::Cyclotomic; 
 use crate::structs::rings::pow;
 
-use crate::algorithms::exact_synth::exact_synth_given_norm_1;
+// use crate::algorithms::exact_synth::exact_synth_given_norm_1;
 
 // use crate::tests::basic_identities;
-// use crate::tests::basic_identities_with_conj;
+use crate::tests::basic_identities_with_conj;
 // use crate::tests::basic_identities_with_unimat_over;
 // use crate::tests::testing_complex_rings_vs_quaternions_over;
 
@@ -57,11 +57,14 @@ fn main() {
     let omega = Comp::mu_8();
     let one = Comp::from(1);
 
-    let mut g = Comp::quat_conj_transpose_second(one+omega,one-omega);
-    g =g*g*g*g*g*g*g*g*g;
-    g= g.inv();
-    println!("Here is g: {}", g);
-    println!("{}", g.w().sqnorm());
+    basic_identities_with_conj::<Comp>();
+    basic_identities_with_conj::<Quat>();
+
+    // let mut g = Comp::quat_conj_transpose_second(one+omega,one-omega);
+    // g =g*g*g*g*g*g*g*g*g;
+    // g= g.inv();
+    // println!("Here is g: {}", g);
+    // println!("{}", g.w().sqnorm());
     // for i in 1..43 
     // {
     //     println!("Testing i={}: {}",i, expression(i,h,t,g).rsqnorm() );

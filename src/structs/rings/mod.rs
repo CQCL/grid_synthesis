@@ -6,7 +6,7 @@ pub type Float = f64;
 
 // Supertrait
 // They become various conjugation operators on our rings
-pub trait Conj<T>{
+pub trait Conj{
     fn conj(self) -> Self;
 }
 
@@ -31,6 +31,10 @@ pub trait Localizable{
     // Multiply the ideal generator by the number of times given by n
     // WARNING: Bit Overflow may occur here if we perform too much multiplication
     fn perform_n_multiplications(self,_:Int) -> Self;
+    
+
+    // The following two functions should have their own trait.
+    // TODO
     
     // Should return norm
     fn norm(self) -> Int;
