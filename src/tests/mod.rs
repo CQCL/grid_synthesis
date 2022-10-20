@@ -15,6 +15,11 @@ use crate::structs::rings::local_ring::Local;
 use crate::structs::rings::quaternion::Quaternion;
 use crate::structs::rings::Int;
 
+// Inserted to make tests pass (Ben C, Oct. 20, 2022)
+use crate::structs::rings::complex::Complex;
+use crate::structs::rings::zroot2::Zroot2;
+use crate::structs::rings::Float;
+
 // use crate::structs::rings::Constructs;
 pub fn basic_identities<T>() -> () 
     where T: Copy+Debug+Display,
@@ -179,4 +184,49 @@ where T: Copy+Debug+Display,
     assert_eq!(t.rsqnorm(),t.z().sqnorm()+t.w().sqnorm());
     assert_eq!(t2.rsqnorm(),t2.z().sqnorm()+t2.w().sqnorm());
     assert_eq!(m.rsqnorm(),m.z().sqnorm()+m.w().sqnorm());
+}
+
+#[test]
+fn all_basic_identities() {
+    basic_identities::<Int>();
+    basic_identities::<Complex<Int>>();
+    basic_identities::<Quaternion<Int>>();
+    // basic_identities::<Local<Int>>(); // i64 not Localizable
+    // basic_identities::<Local<Complex<Int>>>(); // Localizable not implemented for Complex<i64>
+    // basic_identities::<Complex<Local<Int>>>(); // Localizable not implemented for i64
+    
+    basic_identities::<Zroot2>();
+    basic_identities::<Complex<Zroot2>>();
+    basic_identities::<Local<Zroot2>>();
+    // basic_identities::<Local<Complex<Zroot2>>>(); // Localizable not implemented for Complex<Zroot2>
+    basic_identities::<Complex<Local<Zroot2>>>();
+    basic_identities::<Quaternion<Zroot2>>();
+
+    // basic_identities::<Float>(); // From<i64> not yet implemented
+    // basic_identities::<Complex<Float>>(); // From<i64> not yet implemented
+    // basic_identities::<Quaternion<Float>>(); // From<i64> not yet implemented
+}
+
+#[test]
+fn all_conj_identities() {
+    // basic_identities_with_conj::<Complex<Int>>(); // Conj<Complex<i64>> not implemented
+    // basic_identities_with_conj::<Local<Complex<Int>>>(); // Localizable not implemented for Complex<i64>
+    // basic_identities_with_conj::<Complex<Local<Int>>>(); // `From<i64>` is not implemented for `Local<i64>`, `Localizable` is not implemented for `i64`
+    
+    // basic_identities_with_conj::<Complex<Zroot2>>(); // Conj<Complex<Zroot2>> is not implemented for Complex<Zroot2>
+    // basic_identities_with_conj::<Local<Complex<Zroot2>>>(); // Localizable not implemented for Complex<Zroot2>
+    // basic_identities_with_conj::<Complex<Local<Zroot2>>>(); // Conj<Complex<Local<Zroot2>>>  not implemented for Complex<Local<Zroot2>>
+}
+
+#[test]
+fn all_localizable_ring_tests() {
+    // testing_localizable_rings::<Int>(); // not Localizable
+    testing_localizable_rings::<Zroot2>();
+    // testing_localizable_rings::<Complex<Zroot2>>(); // not Localizable
+    // testing_localizable_rings::<Quaternion<Zroot2>>(); // not Localizable
+}
+
+#[test]
+fn all_complex_ring_quaternion_comparisons() {
+    testing_complex_rings_vs_quaternions_over::<Zroot2>();
 }
