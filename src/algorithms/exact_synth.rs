@@ -28,6 +28,7 @@
 use crate::structs::rings::quaternion::Quaternion;
 use crate::structs::rings::complex::Complex;
 use crate::structs::rings::local_ring::Local;
+use crate::structs::rings::Int;
 use crate::structs::rings::zroot2::Zroot2;
 use crate::structs::sunimat::UniMat;
 
@@ -38,6 +39,28 @@ type Comp = Complex<Loc>;
 type Mat = UniMat<Comp>;
 
 
+
+pub fn pow(t: Comp, n: Int) -> Comp
+{
+    // TODO
+    // Make a better implementation
+    // Remove this and make a type dependent implementation
+    if n<0
+    {
+        panic!("Not yet implemented");
+    }
+    if n==0
+    {
+        return Comp::from(1);
+    }
+    let mut temp=t;
+    for i in 1..(n-1)
+    {
+        temp = temp*t;
+    }
+    return temp;
+}
+
 // This is an implementation of 1206.5236 
 // The table saying Algorithm 1 contains the pseudocode
 pub fn exact_synth_given_norm_1( gamma: Mat) -> ()
@@ -47,15 +70,38 @@ pub fn exact_synth_given_norm_1( gamma: Mat) -> ()
     // {
     //     panic!("I was promised norm 1");
     // }
-
-
-    // let z=gamma.z();
-    // // let w=gamma.w();
+    println!("This is the det: {}", gamma.u.sqnorm()+gamma.t.sqnorm());
+    println!("{}", gamma.u.sqnorm().log_den);
+    let mut g: Mat;
+    for i in 0..10 {
+        g = multiply_H_times_t_to_n(gamma,i);
+        // println!("{}", g);
+        println!("{}", g.u.sqnorm());
+    }
+        
+    // let z=gamma.u;
+    // // // let w=gamma.w();
     // let zsqn = z.sqnorm();
 
-    // // println!("{}", zsqn);
+    // println!("{}", zsqn);
      
     // let sde = zsqn.log_den;
     // println!("{}", sde);
 
 }
+
+
+fn multiply_H_times_t_to_n( gamma: Mat, n: Int) -> Mat
+{
+    let omega = Comp::mu_8();
+    let u1 = gamma.u;
+    let t1 = gamma.t;
+    let u2 = u1+pow(omega,n)*t1;
+    let t2 = u1-pow(omega,n)*t1;
+    return Mat{
+        u: u2,
+        t: t2
+    };
+}
+
+

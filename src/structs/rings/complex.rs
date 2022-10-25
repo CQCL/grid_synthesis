@@ -195,6 +195,44 @@ type Comp = Complex<Loc>;
 
 impl Comp
 {
+    pub fn onebyroot2() -> Comp
+    {
+        return Comp
+        {
+            0: Loc
+            {
+                num: Zroot2::from(1),
+                log_den: 1
+            },
+            
+            1: Loc
+            {
+                num: Zroot2::from(0),
+                log_den: 0
+            }
+
+        };
+
+    }
+    pub fn root2() -> Comp
+    {
+        return Comp
+        {
+            0: Loc
+            {
+                num: Zroot2::from(1),
+                log_den: -1
+            },
+            
+            1: Loc
+            {
+                num: Zroot2::from(0),
+                log_den: 0
+            }
+
+        };
+
+    }
     pub fn mu_8() -> Comp
     {
         return Comp
