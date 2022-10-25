@@ -110,15 +110,15 @@ where T: From<Int>
 
 }
 
-// impl<T> UniMat<T>
-// where T: Mul<Output=T>+Add<Output=T>+Conj,
-//       T: Copy
-// {
-//     pub fn det(self) -> T
-//     {
-//         return self.u*self.u.conj()+self.t*self.t*conj();
-//     }
-// }
+impl<T> UniMat<T>
+where T: Mul<Output=T>+Add<Output=T>+Conj,
+      T: Copy
+{
+    pub fn det(self) -> T
+    {
+        return self.u*self.u.conj()+self.t*self.t.conj();
+    }
+}
 
 // Teaching rust how to compare these ring elements
 impl<T> PartialEq for UniMat<T> 

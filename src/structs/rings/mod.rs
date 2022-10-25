@@ -53,6 +53,11 @@ pub trait Fixable{
     
     // Return the log_den value to be used by something else
     fn logden(self) -> Int;
+    
+    // Return sqrt2 for zroot2
+    // Or in case of any other localizable ring
+    // return something other than sqrt2
+    fn local_gen() -> Self;
 }
 
 pub mod zroot2;

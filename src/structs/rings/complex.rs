@@ -7,13 +7,14 @@
 // use crate::structs::rings::Float;
 use crate::structs::rings::Int;
 
-
 use crate::structs::rings::Conj; //Conjugation trait
+// use crate::structs::rings::Localizable;
 
 // To construct Quaternions from  complex numbers
 use crate::structs::rings::quaternion::Quaternion;
 use crate::structs::rings::zroot2::Zroot2;
 use crate::structs::rings::local_ring::Local;
+use crate::structs::rings::Fixable;
 
 // We bring them in so that we can overload the operators
 // Rust must learn how to do arithmetics in our rings
@@ -21,6 +22,7 @@ use std::ops::Neg;
 use std::ops::Add; 
 use std::ops::Sub; 
 use std::ops::Mul; 
+use std::ops::Div; 
 use std::cmp::PartialEq; 
 
 
@@ -41,7 +43,7 @@ impl<T> Conj for Complex<T>
 where T: Neg<Output=T>
 {
     // type Output = Self;
-    fn conj(self) -> Complex<T> 
+    fn conj(self) -> Self
     {
         return Complex(self.0,-self.1);
     }
@@ -92,6 +94,29 @@ where T: Sub<Output=T>
     }
 }
 
+// Teaching rust how to divide Complex elements impl<T> Div for Complex<T> where T: Mul<Output=T> + Add<Output=T> + Sub<Output=T>+ Div<Output=T>,
+impl<T> Div for Complex<T> 
+where T:Mul<Output=T> + Add<Output=T> + Sub<Output=T>+Div<Output=T>,
+      T: Copy+PartialEq
+{
+
+    type Output = Self;
+
+    fn div(self, other: Self) -> Self 
+    {
+
+        let norm= other.0*self.0+other.1*self.1;
+        // TODO: Implement the faster multiplication
+        // Given here:
+        //
+        // https://www.embedded.com/digital-signal-processing-tricks-fast-multiplication-of-complex-numbers/
+        Self
+        {
+            0: ( other.0*self.0 - other.1*self.1 )/norm,
+            1: ( other.0*self.1 + other.1*self.0 )/norm
+        }
+    }
+}
 
 // Teaching rust how to multiply Complex elements
 impl<T> Mul for Complex<T> 
@@ -248,8 +273,15 @@ impl Comp
                 num: Zroot2::from(1),
                 log_den: 1
             }
-
         };
+    }
 
+    pub fn sqrt2() -> Comp
+    {
+        return Comp
+        {
+            0: Loc::local_gen(),
+            1: Loc::from(0),
+        };
     }
 }

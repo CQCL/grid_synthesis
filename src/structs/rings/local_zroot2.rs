@@ -4,9 +4,8 @@
 //
 // For non-mathematicians, what I want to really use it for is
 // To define numbers of the form (a+sqrt(2)b)/sqrt(2)^k for integers a,b,k
-// However, I will do a very general version which involves no 
-// description of sqrt(2)
 
+// This is now being written directly without using dependent types
 
 // We bring them in so that we can overload the operators
 // Rust must learn how to do arithmetics in our rings

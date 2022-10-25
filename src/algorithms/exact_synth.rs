@@ -26,6 +26,7 @@
 //
 
 use crate::structs::rings::quaternion::Quaternion;
+// use crate::structs::rings::Int;
 use crate::structs::rings::complex::Complex;
 use crate::structs::rings::local_ring::Local;
 use crate::structs::rings::Int;
@@ -38,6 +39,17 @@ type Loc = Local<Zroot2>;
 type Comp = Complex<Loc>;
 type Mat = UniMat<Comp>;
 
+pub fn act_upon_by_htpowk(gamma: Mat, k: Int) -> Mat
+{
+    let omega = Comp::mu_8();
+    let sqrt2 = Comp::sqrt2();
+    let z=gamma.u;
+    let w=gamma.t;
+    return Mat{
+        u: (z+omega*w)/sqrt2,
+        t: (z-omega*w)/sqrt2,
+    };
+}
 
 
 pub fn pow(t: Comp, n: Int) -> Comp
@@ -87,6 +99,14 @@ pub fn exact_synth_given_norm_1( gamma: Mat) -> ()
      
     // let sde = zsqn.log_den;
     // println!("{}", sde);
+    // if gamma.det()!= Comp::from(1)
+    //
+    // {
+    //     panic!("I was promised norm 1");
+    // }
+    // let zsqn=gamma.u.sqnorm();
+
+    // println!("{}", zsqn);
 
 }
 
