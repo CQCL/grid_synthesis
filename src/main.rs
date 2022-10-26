@@ -30,7 +30,10 @@ use crate::structs::rings::pow;
 // use crate::tests::basic_identities;
 // use crate::tests::basic_identities_with_conj;
 // use crate::tests::basic_identities_with_unimat_over;
-// use crate::tests::testing_complex_rings_vs_quaternions_over;
+// use crate::tests::testing_complex_riags_vs_quaternions_over;
+// use crate::tests::should_break_arithmetic_26_10_2022;
+// use crate::tests::broke_arithmetic_until_26_10_2022;
+use crate::tests::break_division_in_loc_26_10_2022;
 
 // Better looking code
 type Loc = Local<Zroot2>;
@@ -50,89 +53,32 @@ fn main() {
     println!("-------------CODE IS RUNNING--------------");
     println!("------------------------------------------");
 
-    // let h = Quat::h_gate();
-    // let t = Quat::t_gate();
-
-    // println!("{}", t);
-    // println!("{}", t.rsqnorm());
-
     let omega = Comp::mu_8();
     let onebyroot2 = Comp::onebyroot2();
     let root2 = Comp::root2();
     let one = Comp::from(1);
     let zero = Comp::from(0);
+    
+    let u1 = ( one+omega )*onebyroot2*onebyroot2;
+    let t1 = ( one-omega )*onebyroot2*onebyroot2; 
 
-    // basic_identities_with_conj::<Comp>();
-    // basic_identities_with_conj::<Quat>();
-    // println!("This is one by root 2: {}", onebyroot2);
-    // println!("This is one by root 2 squared: {}", onebyroot2*onebyroot2);
-    // let u1 = (one+omega)*onebyroot2*onebyroot2;
-    // let t1 = (one-omega)*onebyroot2*onebyroot2;
-    let u1 = one+omega;
-    let t1 = one-omega;    //*onebyroot2*onebyroot2;
-
-    let q1 = Quat{
-        0: u1.0,
-        1: u1.1,
-        2: t1.0,
-        3: t1.1
+    let mut g = Mat{
+        u : u1,
+        t : t1
     };
+    println!("{}", g.det());
 
-    let mut q = Quat{
-        0: u1.0,
-        1: u1.1,
-        2: -t1.0,
-        3: t1.1
-    };
-    let mut g = Mat
-    {
-        u: q1.z(),
-        t: q1.w()
-    };
-    assert_eq!(g.u.0,q.0);
-    assert_eq!(g.u.1,q.1);
-    assert_eq!(g.t.0,-q.2);
-    assert_eq!(g.t.1,q.3);
-    println!("Before square g: \n {}", g);
-    println!("det g: \n {}", g.det());
-    println!("Value of q: {}", q);
-    println!("rsqnorm q: {}", q.rsqnorm());
-    let gsq =g*g; // *g*g*g*g*g*g*g;
-    let qsq =q*q;
-    println!("After square g: \n {}", gsq);
-    println!("det g: \n {}", gsq.det());
-    println!("Value of square q: {}", qsq);
-    println!("rsqnorm q: {}", qsq.rsqnorm());
-    println!("This is the value of u: {}",g.u*g.u-g.t.conj()*g.t);
-    println!("u1 = {}",u1);
-    println!("u1*u1 = {}",u1*u1);
-    println!("t1 = {}",t1);
-    println!("t1.conj*t1 = {}",t1.conj()*t1);
-    println!("t1.norm = {}",t1.sqnorm());
-    println!("t1.0*t1.0 = {}",t1.0*t1.0);
-    println!("t1.1*t1.1 = {}",t1.1*t1.1);
-    println!("t1.0*t1.0+t1.1+t1.1 = {}",t1.0*t1.0+t1.1*t1.1);
-    println!("------------------------------");
-    println!("u1^2-t1.conj*t1 = {}",u1*u1-t1.conj()*t1);
-   //  assert_eq!(g.u.1,q.1);
-   //  assert_eq!(g.t.0,-q.2);
-   //  assert_eq!(g.t.1,q.3);
-    // exact_synth_given_norm_1(g);
-    // g= g.inv();
-    // println!("Here is g: {}", g);
-    // for i in 1..43 
-    // {
-    //     println!("Testing i={}: {}",i, expression(i,h,t,g).rsqnorm() );
-    // }
+    g=g*g*g*g*g*g*g;
 
-    // let ex = expression(37,h,t,g);
-    // println!("{}", ex);
-    // println!("{}", ex.rsqnorm().num.norm());
+    println!("{}", g.det());
 
+    println!("I am ready!");
+    
+    // println!("Before square g: \n {}", g);
+    // println!("det g: \n {}", g.det());
+    
+    // break_division_in_loc_26_10_2022();
+    
 
-    // let input = h*t*t*h*t*t*t*t*h*t*t*h*t*t*t*t*t*t*h*t*t*t*t*t*h*t*t*t*h; 
-    // println!("{}", input.rsqnorm());
-
-    // exact_synth_given_norm_1(input);
 
 }

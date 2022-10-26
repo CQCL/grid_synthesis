@@ -96,7 +96,7 @@ where T: Sub<Output=T>
 
 // Teaching rust how to divide Complex elements impl<T> Div for Complex<T> where T: Mul<Output=T> + Add<Output=T> + Sub<Output=T>+ Div<Output=T>,
 impl<T> Div for Complex<T> 
-where T:Mul<Output=T> + Add<Output=T> + Sub<Output=T>+Div<Output=T>,
+where T: Mul<Output=T> + Add<Output=T> + Sub<Output=T>+Div<Output=T>,
       T: Copy+PartialEq
 {
 
@@ -105,15 +105,16 @@ where T:Mul<Output=T> + Add<Output=T> + Sub<Output=T>+Div<Output=T>,
     fn div(self, other: Self) -> Self 
     {
 
-        let norm= other.0*self.0+other.1*self.1;
+        let norm= other.0*other.0+other.1*other.1;
+
         // TODO: Implement the faster multiplication
         // Given here:
         //
         // https://www.embedded.com/digital-signal-processing-tricks-fast-multiplication-of-complex-numbers/
         Self
         {
-            0: ( other.0*self.0 - other.1*self.1 )/norm,
-            1: ( other.0*self.1 + other.1*self.0 )/norm
+            0: ( other.0*self.0 + other.1*self.1 )/norm,
+            1: ( other.0*self.1 - other.1*self.0 )/norm
         }
     }
 }

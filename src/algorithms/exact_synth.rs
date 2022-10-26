@@ -107,7 +107,6 @@ pub fn exact_synth_given_norm_1( gamma: Mat) -> ()
     // let zsqn=gamma.u.sqnorm();
 
     // println!("{}", zsqn);
-
 }
 
 

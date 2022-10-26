@@ -12,7 +12,10 @@ use std::fmt::Debug;
 
 use crate::structs::rings::Conj;
 use crate::structs::rings::local_ring::Local;
+use crate::structs::rings::zroot2::Zroot2;
 use crate::structs::rings::quaternion::Quaternion;
+use crate::structs::rings::complex::Complex;
+use crate::structs::sunimat::UniMat; 
 use crate::structs::rings::Int;
 
 // use crate::structs::rings::Constructs;
@@ -180,3 +183,116 @@ where T: Copy+Debug+Display,
     assert_eq!(t2.rsqnorm(),t2.z().sqnorm()+t2.w().sqnorm());
     assert_eq!(m.rsqnorm(),m.z().sqnorm()+m.w().sqnorm());
 }
+
+
+// This used to break at some poitn
+pub fn broke_arithmetic_until_26_10_2022() 
+{
+
+    type Loc = Local<Zroot2>;
+    type Quat = Quaternion<Loc>;
+    type Comp = Complex<Loc>;
+    type Mat = UniMat<Comp>;
+
+    let omega = Comp::mu_8();
+    let onebyroot2 = Comp::onebyroot2();
+    let root2 = Comp::root2();
+    let one = Comp::from(1);
+    let zero = Comp::from(0);
+
+    let u1 = one+omega;
+    let t1 = one-omega; 
+
+    let q1 = Quat{
+        0: u1.0,
+        1: u1.1,
+        2: t1.0,
+        3: t1.1
+    };
+
+    let mut q = Quat{
+        0: u1.0,
+        1: u1.1,
+        2: -t1.0,
+        3: t1.1
+    };
+    let mut g = Mat
+    {
+        u: q1.z(),
+        t: q1.w()
+    };
+    
+    println!("Before square g: \n {}", g);
+    println!("det g: \n {}", g.det());
+    println!("Value of q: {}", q);
+    println!("rsqnorm q: {}", q.rsqnorm());
+    
+    let gsq =g*g; 
+    let qsq =q*q;
+    println!("After square g: \n {}", gsq);
+    println!("det g: \n {}", gsq.det());
+    println!("Value of square q: {}", qsq);
+    println!("rsqnorm q: {}", qsq.rsqnorm());
+    println!("This is the value of u: {}",g.u*g.u-g.t.conj()*g.t);
+    println!("u1 = {}",u1);
+    println!("u1*u1 = {}",u1*u1);
+    println!("t1 = {}",t1);
+    println!("t1.conj*t1 = {}",t1.conj()*t1);
+    println!("t1.norm = {}",t1.sqnorm());
+    println!("t1.0*t1.0 = {}",t1.0*t1.0);
+    println!("t1.1*t1.1 = {}",t1.1*t1.1);
+    println!("t1.0*t1.0+t1.1+t1.1 = {}",t1.0*t1.0+t1.1*t1.1);
+    println!("------------------------------");
+    println!("u1^2-t1.conj*t1 = {}",u1*u1-t1.conj()*t1);
+    
+
+    assert_eq!(gsq.u.0,qsq.0,"This causes a panic (as on 26-10-2022)");
+    assert_eq!(gsq.u.1,qsq.1);
+    assert_eq!(gsq.t.0,-qsq.2);
+    assert_eq!(gsq.t.1,qsq.3);
+}
+ 
+pub fn should_break_arithmetic_26_10_2022() -> ()
+{
+    type Loc = Local<Zroot2>;
+    
+
+    let left = Loc{
+        num: Zroot2(1,1),
+        log_den: 0,
+    };
+
+    let right = Loc{
+        num: Zroot2(-1,1),
+        log_den: -1,
+    };
+
+    // println!("{}", left);
+    // println!("{}", right);
+    // println!("{}", left+right);
+
+    assert_eq!(left+right,Loc::from(3),"Should create a panic in versions before 26-10-2022");
+
+}
+
+
+pub fn break_division_in_loc_26_10_2022() {
+    
+    type Loc = Local<Zroot2>;
+    type Quat = Quaternion<Loc>;
+    type Comp = Complex<Loc>;
+    type Mat = UniMat<Comp>;
+
+    let omega = Comp::mu_8();
+    let onebyroot2 = Comp::onebyroot2();
+    let root2 = Comp::root2();
+    let one = Comp::from(1);
+    let zero = Comp::from(0);
+
+
+    
+    println!("{}", omega);
+    println!("{}", (omega)/root2);
+    
+}
+    

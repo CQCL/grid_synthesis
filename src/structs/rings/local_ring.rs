@@ -68,16 +68,16 @@ where T: Localizable+PartialEq+From<Int>+Copy
                 // println!("Self obtained after it performed {} divisions",pow);
                 // println!("log_den is {}",self.log_den);
                 self.log_den = self.log_den - pow;
-                // println!("log_den is {}",self.log_den);
                 //
             }
+            // println!("log_den is {}",self.log_den);
             // Return ownership
             return self;
         }
         else
         {
             self.log_den=0;
-
+            
             // Return ownership
             return self;
         }
@@ -129,17 +129,16 @@ where T:Localizable+Add<Output=T>+PartialEq+From<Int>+Copy
         // println!("Want to add height {} and height {}",self.log_den,other.log_den);
         if self.log_den>other.log_den 
         {
-            let mut other_temp = self.num;
+            let mut other_temp = other.num;
             // println!("Will invoke perform_n_multiplications with n={}",self.log_den-other.log_den);
             other_temp = other_temp.perform_n_multiplications(self.log_den-other.log_den);
+
             let temp = 
                 Self{
                     num: self.num + other_temp,
                     log_den: self.log_den
                 };
 
-            // return temp; // Possible speedup?
-            // temp.fix();
             return temp;
         }
         else
@@ -224,7 +223,7 @@ where T: Display+From<Int>+PartialEq
         { 
             if self.num== T::from(1)
             {
-                write!(f,"\\sqrt(2)^({})",self.log_den)
+                write!(f,"\\sqrt(2)^({})",-self.log_den)
             }
             else if self.num == T::from(0)
             {
@@ -232,7 +231,7 @@ where T: Display+From<Int>+PartialEq
             }
             else 
             {
-                write!(f,"({})*\\sqrt(2)^({})",self.num, self.log_den)
+                write!(f,"({})*\\sqrt(2)^({})",self.num, -self.log_den)
             }
         }
         else 
@@ -333,28 +332,19 @@ where T: Mul<Output=T>+Conj+Neg<Output=T>,
         {
             panic!("Division by a non-unit")
         }
-        else if norm==1
+        // println!("Dividing height {} with height {}",self.log_den,other.log_den);
+        let temp = Self
         {
-            let temp = Self
-            {
-                num: self.num*other.num.conj(),
-                log_den: self.log_den-other.log_den
-            };
-            // return temp;
-            temp.fix();
-            return temp;
-        }
-        else
-        {
-            let temp = Self
-            {
-                num: -self.num*other.num.conj(),
-                log_den: self.log_den-other.log_den
-            };
-            // return temp;
-            temp.fix();
-            return temp;
-        }
+            num: self.num*other.num.conj()*T::from(norm),
+            log_den: self.log_den-other.log_den
+        };
+        
+        //fixing might not be needed
+        temp.fix(); 
+
+
+        return temp;
     }
 }
+
 
