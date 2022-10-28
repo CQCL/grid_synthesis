@@ -25,7 +25,7 @@ use crate::structs::rings::Conj;
 // use crate::structs::rings::cyclotomic::Cyclotomic; 
 use crate::structs::rings::pow;
 
-// use crate::algorithms::exact_synth::exact_synth_given_norm_1;
+use crate::algorithms::exact_synth::exact_synth_given_norm_1;
 
 // use crate::tests::basic_identities;
 // use crate::tests::basic_identities_with_conj;
@@ -33,7 +33,8 @@ use crate::structs::rings::pow;
 // use crate::tests::testing_complex_riags_vs_quaternions_over;
 // use crate::tests::should_break_arithmetic_26_10_2022;
 // use crate::tests::broke_arithmetic_until_26_10_2022;
-use crate::tests::break_division_in_loc_26_10_2022;
+// use crate::tests::doesnt_break_matrices_27_10_2022;
+use crate::tests::apply_gate_string_to_states_and_check_output;
 
 // Better looking code
 type Loc = Local<Zroot2>;
@@ -66,19 +67,14 @@ fn main() {
         u : u1,
         t : t1
     };
-    println!("{}", g.det());
 
-    g=g*g*g*g*g*g*g;
+    g=g*g*g*g*g*g; //*g*g*g*g*g;
 
-    println!("{}", g.det());
+    let (gate_sequence,output)  = exact_synth_given_norm_1(g);
 
-    println!("I am ready!");
+    println!("{}", gate_sequence);
+
+    apply_gate_string_to_states_and_check_output(gate_sequence, output , g);
     
-    // println!("Before square g: \n {}", g);
-    // println!("det g: \n {}", g.det());
-    
-    // break_division_in_loc_26_10_2022();
-    
-
 
 }

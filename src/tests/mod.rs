@@ -58,13 +58,13 @@ pub fn basic_identities<T>() -> ()
     let v=T::from(3);
     let w=T::from(-1);
     assert_eq!(w,u-v,"Failed to check that {} =\n {}\n-\n{}",w,u,v);
-    
+
     println!("Test 6: -2*2 == -4");
     let u=T::from(2);
     let v=T::from(-2);
     let w=T::from(-4);
     assert_eq!(w,u*v,"Failed to check that {} =\n{}*\n{}",w,v,u);
-    
+
     println!("Test 6: -3*-3*-3 == -27");
     let u=T::from(-3);
     let w=T::from(-27);
@@ -78,7 +78,7 @@ pub fn basic_identities_with_conj<T>() -> ()
           T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj,
           T: PartialEq+From<Int>
 {
-    
+
     println!("Testing conjugation on {}", std::any::type_name::<T>());
     println!("--------------------------------------");
     println!("Test 1: u.conj.conj = u");
@@ -95,7 +95,7 @@ pub fn basic_identities_with_conj<T>() -> ()
 //           T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj<T>,
 //           T: PartialEq+From<Int>
 // {
-    
+
 //     println!("Testing UniMat over {}", std::any::type_name::<T>());
 //     println!("--------------------------------------");
 //     println!("Test 1: Id.Id = Id");
@@ -106,9 +106,9 @@ pub fn basic_identities_with_conj<T>() -> ()
 
 
 pub fn testing_localizable_rings<T>() -> ()
-where T: Copy+Debug+Display,
-      T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj,
-      T: PartialEq+From<Int>+Localizable
+    where T: Copy+Debug+Display,
+          T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj,
+          T: PartialEq+From<Int>+Localizable
 {
 
     println!("--------------------");
@@ -129,24 +129,24 @@ where T: Copy+Debug+Display,
 }
 
 pub fn testing_complex_rings_vs_quaternions_over<T>() 
-where T: Copy+Debug+Display,
-      T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj,
-      T: PartialEq+From<Int>+Localizable
+    where T: Copy+Debug+Display,
+          T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj,
+          T: PartialEq+From<Int>+Localizable
 {
     let h = Quaternion::<Local::<T>>
     {
         0:  Local::<T>::from(0),
         1:  Local::<T>
-            {
-                num: T::from(1),
-                log_den:1
-            },
+        {
+            num: T::from(1),
+            log_den:1
+        },
         2:  Local::<T>::from(0),
         3:  Local::<T>
-            {
-                num: T::from(1),
-                log_den:1
-            },
+        {
+            num: T::from(1),
+            log_den:1
+        },
     };
 
     // println!("{}",h);
@@ -160,15 +160,15 @@ where T: Copy+Debug+Display,
     let t = Quaternion::<Local::<T>>
     {
         0:  Local::<T>
-            {
-                num: T::from(1)+(T::from(1)).perform_n_multiplications(1),
-                log_den:1
-            },
+        {
+            num: T::from(1)+(T::from(1)).perform_n_multiplications(1),
+            log_den:1
+        },
         1:  Local::<T>
-            {
-                num: T::from(1),
-                log_den:1
-            },
+        {
+            num: T::from(1),
+            log_den:1
+        },
         2:  Local::<T>::from(0),
         3:  Local::<T>::from(0)
     };
@@ -221,12 +221,12 @@ pub fn broke_arithmetic_until_26_10_2022()
         u: q1.z(),
         t: q1.w()
     };
-    
+
     println!("Before square g: \n {}", g);
     println!("det g: \n {}", g.det());
     println!("Value of q: {}", q);
     println!("rsqnorm q: {}", q.rsqnorm());
-    
+
     let gsq =g*g; 
     let qsq =q*q;
     println!("After square g: \n {}", gsq);
@@ -244,18 +244,18 @@ pub fn broke_arithmetic_until_26_10_2022()
     println!("t1.0*t1.0+t1.1+t1.1 = {}",t1.0*t1.0+t1.1*t1.1);
     println!("------------------------------");
     println!("u1^2-t1.conj*t1 = {}",u1*u1-t1.conj()*t1);
-    
+
 
     assert_eq!(gsq.u.0,qsq.0,"This causes a panic (as on 26-10-2022)");
     assert_eq!(gsq.u.1,qsq.1);
     assert_eq!(gsq.t.0,-qsq.2);
     assert_eq!(gsq.t.1,qsq.3);
 }
- 
+
 pub fn should_break_arithmetic_26_10_2022() -> ()
 {
     type Loc = Local<Zroot2>;
-    
+
 
     let left = Loc{
         num: Zroot2(1,1),
@@ -277,7 +277,7 @@ pub fn should_break_arithmetic_26_10_2022() -> ()
 
 
 pub fn break_division_in_loc_26_10_2022() {
-    
+
     type Loc = Local<Zroot2>;
     type Quat = Quaternion<Loc>;
     type Comp = Complex<Loc>;
@@ -290,9 +290,49 @@ pub fn break_division_in_loc_26_10_2022() {
     let zero = Comp::from(0);
 
 
-    
+
     println!("{}", omega);
     println!("{}", (omega)/root2);
-    
+
 }
-    
+
+pub fn doesnt_break_matrices_27_10_2022()
+{
+    type Loc = Local<Zroot2>;
+    type Quat = Quaternion<Loc>;
+    type Comp = Complex<Loc>;
+    type Mat = UniMat<Comp>;
+
+    let omega = Comp::mu_8();
+    let onebyroot2 = Comp::onebyroot2();
+    let root2 = Comp::root2();
+    let one = Comp::from(1);
+    let zero = Comp::from(0);
+
+
+
+    let u1 = ( one+omega )*onebyroot2*onebyroot2;
+    let t1 = ( one-omega )*onebyroot2*onebyroot2; 
+
+    let mut g = Mat{
+        u : u1,
+        t : t1
+    };
+
+    g=g*g*g*g; //*g*g*g*g*g;
+               //
+    assert_eq!( Mat::one(), g*(g.inv()));
+
+}
+
+
+type Loc = Local<Zroot2>;
+type Quat = Quaternion<Loc>;
+type Comp = Complex<Loc>;
+type Mat = UniMat<Comp>;
+
+// Want to check if my gate_string gives output when applied to gamma
+pub fn apply_gate_string_to_states_and_check_output( gate_string: String, gamma: Mat, output: Mat) 
+{
+    todo!("Will come back to this");
+}

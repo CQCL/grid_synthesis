@@ -208,7 +208,7 @@ where T: Display+From<Int>+PartialEq
         {   
             if self.num== T::from(1)
             {
-                write!(f,"\\sqrt(2)^(-{})", self.log_den)
+                write!(f,"√2^(-{})", self.log_den)
             }
             else if self.num == T::from(0)
             {
@@ -216,14 +216,14 @@ where T: Display+From<Int>+PartialEq
             }
             else 
             {
-                write!(f,"({})*\\sqrt(2)^(-{})",self.num, self.log_den)
+                write!(f,"({})*√2^(-{})",self.num, self.log_den)
             }
         }        
         else if self.log_den<0  
         { 
             if self.num== T::from(1)
             {
-                write!(f,"\\sqrt(2)^({})",-self.log_den)
+                write!(f,"√2^({})",-self.log_den)
             }
             else if self.num == T::from(0)
             {
@@ -231,7 +231,7 @@ where T: Display+From<Int>+PartialEq
             }
             else 
             {
-                write!(f,"({})*\\sqrt(2)^({})",self.num, -self.log_den)
+                write!(f,"({})*√2^({})",self.num, -self.log_den)
             }
         }
         else 

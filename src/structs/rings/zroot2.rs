@@ -35,17 +35,17 @@ impl Display for Zroot2{
         {
             if self.1<0 
             {
-                write!(f, "{}{}\\sqrt{{2}}", self.0, self.1)
+                write!(f, "{}{}√2", self.0, self.1)
             }
             else if self.1>0
             {
                 if self.1==1
                 {
-                    write!(f, "{}+\\sqrt{{2}}", self.0)
+                    write!(f, "{}+√2", self.0)
                 }
                 else
                 {
-                    write!(f, "{}+{}\\sqrt{{2}}", self.0, self.1)
+                    write!(f, "{}+{}√2", self.0, self.1)
                 }
             }
             else 
@@ -57,7 +57,7 @@ impl Display for Zroot2{
         {
             if self.1!=0
             {
-                write!(f, "{}\\sqrt{{2}}", self.1)
+                write!(f, "{}√2", self.1)
             }
             else
             {

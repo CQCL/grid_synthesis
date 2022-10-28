@@ -59,68 +59,163 @@ pub fn pow(t: Comp, n: Int) -> Comp
     // Remove this and make a type dependent implementation
     if n<0
     {
-        panic!("Not yet implemented");
+        let mut temp=Comp::from(1);
+        // println!("Power negative");
+        for i in 0..(-n)
+        {
+            temp = temp/t;
+        }
+        return temp;
     }
-    if n==0
+    else
     {
-        return Comp::from(1);
+        // println!("Power non-negative");
+        let mut temp=Comp::from(1);
+        for i in 0..n
+        {
+            temp = temp*t;
+        }
+        return temp;
     }
-    let mut temp=t;
-    for i in 1..(n-1)
-    {
-        temp = temp*t;
-    }
-    return temp;
 }
+
+
+fn multiply_H_times_T_to_n( gamma: Mat, n: Int) -> Mat
+{
+    if n==0
+    {     
+        let temp = gamma;
+        return gamma;
+    }
+    else
+    {
+        let omega = Comp::mu_8();
+        let sqrt2 = Comp::sqrt2();
+        let u1 = gamma.u;
+        let t1 = gamma.t;
+        let u2 = ( u1-pow(omega,n)*t1 )/sqrt2;
+        let t2 = ( u1+pow(omega,n)*t1 )/sqrt2;
+        
+        return Mat{
+            u: u2,
+            t: t2
+        };
+
+    }
+}
+
+pub fn apply_gate_string_to_state( gate_string: String ,  gamma: Mat) -> Mat
+{
+
+    let rt2 = Comp::root2();
+    let omega = Comp::mu_8();
+
+
+    let mut state = gamma;
+    for i in gate_string.chars().rev()
+    {
+        // print!("->{}",i);
+        if i=='H' 
+        {
+            state = Mat
+            {
+                u: (state.u+state.t)/rt2,
+                t: (state.u-state.t)/rt2,
+            };
+        }
+        if i=='T' 
+        {
+            state = Mat
+            {
+                u: state.u,
+                t: state.t*omega,
+            };
+        }
+    }
+    
+    return state;
+}
+
 
 // This is an implementation of 1206.5236 
 // The table saying Algorithm 1 contains the pseudocode
-pub fn exact_synth_given_norm_1( gamma: Mat) -> ()
+pub fn exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
 {
 
-    // if gamma.det()!= Loc::from(1)
-    // {
-    //     panic!("I was promised norm 1");
-    // }
-    println!("This is the det: {}", gamma.u.sqnorm()+gamma.t.sqnorm());
-    println!("{}", gamma.u.sqnorm().log_den);
-    let mut g: Mat;
-    for i in 0..10 {
-        g = multiply_H_times_t_to_n(gamma,i);
-        // println!("{}", g);
-        println!("{}", g.u.sqnorm());
+    let mut gate_string = "".to_string();
+
+    if gamma.det()!= Comp::from(1)
+    {
+        panic!("I was promised norm 1");
     }
-        
-    // let z=gamma.u;
-    // // // let w=gamma.w();
-    // let zsqn = z.sqnorm();
-
-    // println!("{}", zsqn);
-     
-    // let sde = zsqn.log_den;
-    // println!("{}", sde);
-    // if gamma.det()!= Comp::from(1)
-    //
-    // {
-    //     panic!("I was promised norm 1");
-    // }
-    // let zsqn=gamma.u.sqnorm();
-
-    // println!("{}", zsqn);
-}
+    if gamma.u.sqnorm().log_den != gamma.t.sqnorm().log_den
+    {
+        panic!("Mathematics is wrong");
+    }
+    // println!("This is the det: {}", gamma.u.sqnorm()+gamma.t.sqnorm());
+    let mut g: Mat;
+    let mut h = gamma;
+    let mut sdeq= h.u.sqnorm().log_den;
+    let mut nevercalled : bool;
+    let mut i: Int;
 
 
-fn multiply_H_times_t_to_n( gamma: Mat, n: Int) -> Mat
-{
-    let omega = Comp::mu_8();
-    let u1 = gamma.u;
-    let t1 = gamma.t;
-    let u2 = u1+pow(omega,n)*t1;
-    let t2 = u1-pow(omega,n)*t1;
-    return Mat{
-        u: u2,
-        t: t2
-    };
+    while sdeq>3
+    {
+        // println!("One while in");
+        nevercalled = true;
+        i = 1;
+
+        while nevercalled && i<5
+        {
+            // println!("Iteration number: {}",i );
+
+
+            sdeq= h.u.sqnorm().log_den;
+            g = multiply_H_times_T_to_n(h,i);
+
+            { //debug zone
+
+                if i==1
+                {
+                    let test = apply_gate_string_to_state("TH".to_string(),g);
+                    if test!=h
+                    {
+                        println!("{} \n", h);
+
+                        panic!{"Nihar doesnt understand his code"};
+                    }
+                }
+
+            }
+
+            let sdeq_new= g.u.sqnorm().log_den;
+            // println!("{} is now {}",g.u.sqnorm(),h.u.sqnorm() );
+            // println!("{} is now {}", sdeq, sdeq_new);
+            if sdeq_new==sdeq-1
+            {
+                nevercalled = false;
+
+                sdeq = sdeq_new-1;
+                h = g;
+                
+                gate_string.push_str("H");
+                for j in 0..i
+                {
+                    gate_string.push_str("T");
+                }
+            }
+            i=i+1;
+        }
+
+        if nevercalled
+        {
+            panic!("Could not decrease sdeq");
+        }
+
+    }
+
+    return (gate_string,h);
 }
 
 
