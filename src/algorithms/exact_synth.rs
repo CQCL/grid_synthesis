@@ -136,6 +136,16 @@ pub fn apply_gate_string_to_state( gate_string: String ,  gamma: Mat) -> Mat
     return state;
 }
 
+pub fn apply_h_gate( gamma: Mat) -> Mat
+{
+    let rt2 = Comp::sqrt2();
+    state = Mat
+    {
+        u: (state.u+state.t)/rt2,
+        t: (state.u-state.t)/rt2,
+    };
+    return state;
+}
 
 // This is an implementation of 1206.5236 
 // The table saying Algorithm 1 contains the pseudocode
