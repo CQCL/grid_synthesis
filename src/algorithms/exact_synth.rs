@@ -51,7 +51,6 @@ pub fn act_upon_by_htpowk(gamma: Mat, k: Int) -> Mat
     };
 }
 
-
 pub fn pow(t: Comp, n: Int) -> Comp
 {
     // TODO
@@ -117,19 +116,11 @@ pub fn apply_gate_string_to_state( gate_string: String ,  gamma: Mat) -> Mat
         // print!("->{}",i);
         if i=='H' 
         {
-            state = Mat
-            {
-                u: (state.u+state.t)/rt2,
-                t: (state.u-state.t)/rt2,
-            };
+            state = apply_h_gate(state);
         }
         if i=='T' 
         {
-            state = Mat
-            {
-                u: state.u,
-                t: state.t*omega,
-            };
+            state = apply_t_gate(state);
         }
     }
     
@@ -139,10 +130,31 @@ pub fn apply_gate_string_to_state( gate_string: String ,  gamma: Mat) -> Mat
 pub fn apply_h_gate( gamma: Mat) -> Mat
 {
     let rt2 = Comp::sqrt2();
-    state = Mat
+    let state = Mat
     {
-        u: (state.u+state.t)/rt2,
-        t: (state.u-state.t)/rt2,
+        u: (gamma.u+gamma.t)/rt2,
+        t: (gamma.u-gamma.t)/rt2,
+    };
+    return state;
+}
+
+pub fn apply_tinv_gate( gamma: Mat) -> Mat
+{
+    let omega = Comp::mu_8();
+    let state = Mat
+    {
+        u: gamma.u,
+        t: gamma.t/omega,
+    };
+    return state;
+}
+pub fn apply_t_gate( gamma: Mat) -> Mat
+{
+    let omega = Comp::mu_8();
+    let state = Mat
+    {
+        u: gamma.u,
+        t: gamma.t*omega,
     };
     return state;
 }
@@ -196,7 +208,6 @@ pub fn exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
                         panic!{"Nihar doesnt understand his code"};
                     }
                 }
-
             }
 
             let sdeq_new= g.u.sqnorm().log_den;

@@ -18,6 +18,7 @@ use crate::structs::rings::complex::Complex;
 use crate::structs::sunimat::UniMat; 
 use crate::structs::rings::Int;
 
+use crate::algorithms::exact_synth::apply_gate_string_to_state;
 // use crate::structs::rings::Constructs;
 pub fn basic_identities<T>() -> () 
     where T: Copy+Debug+Display,
@@ -332,7 +333,50 @@ type Comp = Complex<Loc>;
 type Mat = UniMat<Comp>;
 
 // Want to check if my gate_string gives output when applied to gamma
-pub fn apply_gate_string_to_states_and_check_output( gate_string: String, gamma: Mat, output: Mat) 
+pub fn apply_gate_string_to_states_and_check_output() 
 {
-    todo!("Will come back to this");
+    let g = Mat::one();
+
+    println!("Test 1:");
+    let mut g1 = apply_gate_string_to_state("H".to_string(), g);
+    let mut g2 = apply_gate_string_to_state("H".to_string(), g1);
+
+    let mut g2prime = apply_gate_string_to_state("HH".to_string(), g);
+
+    assert_eq!(g2,g2prime);
+    assert_eq!(g,g2prime);
+    assert_eq!(g,g2);
+
+    println!("Test 2:");
+    g1 = apply_gate_string_to_state("H".to_string(), g);
+    g2 = apply_gate_string_to_state("TTT".to_string(), g1);
+
+    g2prime = apply_gate_string_to_state("TTTH".to_string(), g);
+    // println!("{}", g2);
+    // println!("{}", g2prime);
+    assert_eq!(g2,g2prime);
+
+
+    println!("Test 3:");
+    g1 = apply_gate_string_to_state("TTTTTTHTTTHTH".to_string(), g);
+    g2 = apply_gate_string_to_state("TTH".to_string(), g1);
+
+    g2prime = apply_gate_string_to_state("TTHTTTTTTHTTTHTH".to_string(), g);
+    // println!("{}", g2);
+    // println!("{}", g2prime);
+    assert_eq!(g2,g2prime);
+
+    println!("Test 4:");
+    g1 = apply_gate_string_to_state("TTTTT".to_string(), g);
+    g2 = apply_gate_string_to_state("TTT".to_string(), g1);
+
+    g2prime = apply_gate_string_to_state("TTTTTTTT".to_string(), g);
+    // println!("{}", g2);
+    // println!("{}", g2prime);
+    assert_eq!(g2,g2prime);
+    assert_eq!(g,g2);
+    assert_eq!(g,g2prime);
+
+    
+
 }

@@ -71,11 +71,13 @@ where T: Localizable+PartialEq+From<Int>+Copy
                 //
             }
             // println!("log_den is {}",self.log_den);
+
             // Return ownership
             return self;
         }
         else
         {
+            // println!("This should be minus infinity");
             self.log_den=0;
             
             // Return ownership
@@ -173,14 +175,23 @@ where T:Mul<Output=T>+Localizable+PartialEq+From<Int>+Copy
 
     fn mul(self, other: Self) -> Self 
     {
-        let temp = Self
+        
+        if self.num == T::from(0) || other.num == T::from(0)
         {
-            num: self.num*other.num,
-            log_den: self.log_den+other.log_den
-        };
-        // return temp;
-        temp.fix();
-        return temp;
+            return Self::from(0);
+        }
+        else
+        {
+            let temp = Self
+            {
+                num: self.num*other.num,
+                log_den: self.log_den+other.log_den
+            };
+            // return temp;
+            temp.fix();
+            return temp;
+        }
+
     }
 }
 
@@ -333,17 +344,24 @@ where T: Mul<Output=T>+Conj+Neg<Output=T>,
             panic!("Division by a non-unit")
         }
         // println!("Dividing height {} with height {}",self.log_den,other.log_den);
-        let temp = Self
+        if self.num==T::from(0)
         {
-            num: self.num*other.num.conj()*T::from(norm),
-            log_den: self.log_den-other.log_den
-        };
-        
-        //fixing might not be needed
-        temp.fix(); 
+            return Self::from(0);
+        }
+        else
+        {
+            let temp = Self
+            {
+                num: self.num*other.num.conj()*T::from(norm),
+                log_den: self.log_den-other.log_den
+            };
+
+            //fixing might not be needed
+            temp.fix(); 
+            return temp;
+        }
 
 
-        return temp;
     }
 }
 
