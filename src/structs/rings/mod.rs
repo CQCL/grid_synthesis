@@ -62,8 +62,6 @@ pub trait Fixable{
 
 pub mod zroot2;
 pub mod local_ring;
-pub mod domega;
-pub mod dyad;
 pub mod complex;
 pub mod quaternion;
 
@@ -86,3 +84,6 @@ where T: Mul<Output=T>+Copy
     }
     return out;
 }
+
+
+

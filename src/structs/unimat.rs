@@ -1,8 +1,4 @@
 // Unitary matrices
-// That's what quantum gates are
-// It is a Lie group over the reals of dimension 3
-// It is equivalently, also the space of unit quaternions
-// We are interested in unitary matrices over the ring D[\omega]
 
 
 use crate::structs::rings::Conj; //Conjugation trait
@@ -22,13 +18,13 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 
 
-// Unitary matrices of determinant 1. They are of the form
-// /         \
-// | u  -t^* |
-// | t   u^* |
-// \         /
+// Unitary matrices. They are the form 
+// /                \
+// | u  -t^*(omega) |
+// | t   u^*(omega) |
+// \                /
 // where u and t are in giventype
-// It is required that giventype has implementations of Add,Sub,Mult,Neg,conj
+// and omega is a unit norm object
 #[derive(Debug,Copy,Clone)]
 pub struct UniMat<T>
 {

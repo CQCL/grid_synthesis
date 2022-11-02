@@ -21,7 +21,7 @@ use crate::structs::rings::quaternion::Quaternion;
 // use crate::structs::rings::Fixable;
 // use crate::structs::rings::Localizable;
 use crate::structs::rings::Int;
-use crate::structs::rings::Conj;
+// use crate::structs::rings::Conj;
 // use crate::structs::rings::cyclotomic::Cyclotomic; 
 use crate::structs::rings::pow;
 
@@ -34,18 +34,14 @@ use crate::algorithms::exact_synth::exact_synth_given_norm_1;
 // use crate::tests::should_break_arithmetic_26_10_2022;
 // use crate::tests::broke_arithmetic_until_26_10_2022;
 // use crate::tests::doesnt_break_matrices_27_10_2022;
-use crate::tests::apply_gate_string_to_states_and_check_output;
+// use crate::tests::apply_gate_string_to_states_and_check_output;
 
 // Better looking code
 type Loc = Local<Zroot2>;
-type Quat = Quaternion<Loc>;
 type Comp = Complex<Loc>;
 type Mat = UniMat<Comp>;
+// type Quat = Quaternion<Loc>;
 
-fn expression(s: Int, h: Quat, t: Quat, g: Quat) -> Quat 
-{ 
-    return h*pow(t,s)*g;
-} 
 
 fn main() {
 
@@ -68,12 +64,11 @@ fn main() {
         t : t1
     };
 
-    g=g*g*g*g*g*g; //*g*g*g*g*g;
+
+    // g=g*g*g*g*g*g; //*g*g*g*g*g;
 
     // let (gate_sequence,output)  = exact_synth_given_norm_1(g);
 
     // println!("{}", gate_sequence);
 
-    apply_gate_string_to_states_and_check_output();
-    
 }

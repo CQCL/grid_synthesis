@@ -15,12 +15,20 @@ use std::ops::Add;
 use std::ops::Sub; 
 use std::ops::Mul; 
 use std::ops::Div; 
+use std::ops::Rem; 
 use std::cmp::PartialEq; 
 
 // For display
 use std::fmt::Result;
 use std::fmt::Display;
 use std::fmt::Formatter;
+
+// Num traits
+use num_traits::Num;
+use num_traits::Zero;
+use num_traits::One;
+use num_traits::NumCast;
+
 
 // // Localization trait. 
 // See mod.rs for some info
@@ -35,7 +43,7 @@ use crate::structs::rings::Int;
 // Ring of numbers of the form a/2^n for integers a and n
 // These are dyadic integers
 // Each integer looks something like
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, PartialOrd)]
 pub struct Local<T> 
 {
     pub num: T,
@@ -52,12 +60,14 @@ pub struct Local<T>
 // Internal function
 // Used to make the numerator independent of denominator
 impl<T> Fixable for Local<T> 
-where T: Localizable+PartialEq+From<Int>+Copy
+where T: Localizable+PartialEq+Copy,
+      T: Num
+
 {
     fn fix(mut self) -> Self 
     {
         // println!("Fixing height {}",self.log_den);
-        if self.num != T::from(0)
+        if self.num != T::zero()
         { 
             // println!("Number is non-zero");
             if self.num.is_divisible()
@@ -79,7 +89,7 @@ where T: Localizable+PartialEq+From<Int>+Copy
         {
             // println!("This should be minus infinity");
             self.log_den=0;
-            
+
             // Return ownership
             return self;
         }
@@ -94,7 +104,7 @@ where T: Localizable+PartialEq+From<Int>+Copy
     {
         return Self
         {
-            num: T::from(1),
+            num: T::one(),
             log_den: -1
         }
     }
@@ -116,15 +126,16 @@ where T:Neg<Output=T>
 
 // Teaching rust how to add Local<T> elements
 impl<T> Add for Local<T> 
-where T:Localizable+Add<Output=T>+PartialEq+From<Int>+Copy
+where T: Localizable+PartialEq+Copy,
+      T: Num
 {
     type Output = Self;
     fn add(self, other: Self) -> Self {
-        if other.num==T::from(0)
+        if other.num==T::zero()
         {
             return self;
         }
-        if self.num==T::from(0)
+        if self.num==T::zero()
         {
             return other;
         }
@@ -169,16 +180,18 @@ where T:Localizable+Add<Output=T>+PartialEq+From<Int>+Copy
 
 // Teaching rust how to multiply Local elements
 impl<T> Mul for Local<T> 
-where T:Mul<Output=T>+Localizable+PartialEq+From<Int>+Copy
+where T: Mul<Output=T>+PartialEq+Copy,
+      T: Localizable,
+      T: Num
 {
     type Output = Self;
 
     fn mul(self, other: Self) -> Self 
     {
-        
-        if self.num == T::from(0) || other.num == T::from(0)
+
+        if self.num == T::zero() || other.num == T::zero()
         {
-            return Self::from(0);
+            return Self::zero();
         }
         else
         {
@@ -199,12 +212,20 @@ where T:Mul<Output=T>+Localizable+PartialEq+From<Int>+Copy
 
 // Teaching rust how to subtract Dyad elements
 impl<T> Sub for Local<T> 
-where T:Neg<Output=T>+Localizable+PartialEq+Add<Output=T>+From<Int>+Copy
+where T: Num,
+      T: Localizable,
+      T: Copy
 {
 
     type Output = Self;
-    fn sub(self, other: Self) -> Self {
-        self+(-other) //subtraction is just adding the additive inverse
+    fn sub(self, other: Self) -> Self 
+    {
+        let other_neg = Self
+        {
+            num: T::zero() - other.num,
+            log_den: other.log_den,
+        };
+        return self+other_neg;
     }
 
 }
@@ -212,16 +233,17 @@ where T:Neg<Output=T>+Localizable+PartialEq+Add<Output=T>+From<Int>+Copy
 
 // Nicely display Local<T> elements
 impl<T> Display for Local<T>
-where T: Display+From<Int>+PartialEq
+where T: Display+PartialEq,
+      T: Zero+One
 {
     fn fmt(&self, f: &mut Formatter) -> Result{
         if self.log_den>0  
         {   
-            if self.num== T::from(1)
+            if self.num== T::one()
             {
                 write!(f,"√2^(-{})", self.log_den)
             }
-            else if self.num == T::from(0)
+            else if self.num == T::zero()
             {
                 write!(f,"0")
             }
@@ -232,11 +254,11 @@ where T: Display+From<Int>+PartialEq
         }        
         else if self.log_den<0  
         { 
-            if self.num== T::from(1)
+            if self.num== T::zero()
             {
                 write!(f,"√2^({})",-self.log_den)
             }
-            else if self.num == T::from(0)
+            else if self.num == T::zero()
             {
                 write!(f,"0")
             }
@@ -254,48 +276,73 @@ where T: Display+From<Int>+PartialEq
 
 
 // Teaching rust how to compare these ring elements
-impl<T> PartialEq for Local<T> 
-where T: Localizable+PartialEq+From<Int>+Copy
+// impl<T> PartialOrd for Local<T>
+// where T: Copy+From<Int>+PartialEq
+// {
+//     fn partial_cmp(&self, other: &Self) -> Option< std::cmp::Ordering >
+//     {
+//         // panic!("Does not make sense");
+        
+//     }
+
+// }
+
+// Teaching rust how to compare these ring elements
+// impl<T> PartialEq for Local<T> 
+// where T: PartialEq+From<Int>+Copy,
+//       // T: Localizable
+// {
+//     fn eq(&self, other: &Self) -> bool 
+//     {
+//         // if other.num.is_divisible() && other.num != T::from(0)
+//         // {
+//         //     other.fix();
+//         // }
+//         // if self.num.is_divisible() && self.num != T::from(0)
+//         // {
+//         //     self.fix();
+//         // }
+//         return self.num==other.num && self.log_den==other.log_den;
+//     }
+// }
+
+
+impl<T> ToPrimitive for Local<T>
+where T: Num,
+      T: Localizable+PartialEq,
 {
-    fn eq(&self, other: &Self) -> bool {
-        if other.num.is_divisible() && other.num != T::from(0)
-        {
-            other.fix();
-        }
-        if self.num.is_divisible() && self.num != T::from(0)
-        {
-            self.fix();
-        }
-        return self.num==other.num && self.log_den==other.log_den;
-    }
+
 }
 
-
-
 // To construct Local<T> directly from integers
-impl<T> From<Int> for Local<T> 
-where T: From<Int>+Localizable+PartialEq+Copy
+impl<T> NumCast for Local<T> 
+where T: Num,
+      T: Localizable+PartialEq,
+      T: Copy
 {
-    fn from(input : Int) -> Self {
+    fn from(input : Int) -> Self 
+    {
+        panic!("Need to deprecate");
+        // let out = Self{
+        //     num: T::from(input.try_into().unwrap()),
+        //     log_den: 0
+        // };
 
-        let out = Self{
-            num: T::from(input.try_into().unwrap()),
-            log_den: 0
-        };
+        // if input!=1 && input!=0
+        // {
+        //     out.fix();
+        // }
 
-        if input!=1 && input!=0
-        {
-            out.fix();
-        }
-
-        return out;
+        // return out;
     }
 }
 
 
 // To construct Local<T> from T
 impl<T> From<T> for Local<T> 
-where T: Localizable+PartialEq+Copy+From<Int>
+where T: Num,
+      T: Localizable,
+      T: PartialEq+Copy
 {
     fn from(input : T) -> Self {
 
@@ -304,7 +351,7 @@ where T: Localizable+PartialEq+Copy+From<Int>
             log_den: 0
         };
 
-        if input!=T::from(1) && input!=T::from(0)
+        if input!=T::one() && input!=T::zero()
         {
             out.fix();
         }
@@ -331,33 +378,47 @@ where T: Conj+Copy
 
 // Teaching rust how to multiply Local elements
 impl<T> Div for Local<T> 
-where T: Mul<Output=T>+Conj+Neg<Output=T>,
-      T: Localizable+PartialEq+From<Int>+Copy
+where T: Num,
+      T: PartialEq+Copy,
+      T: Localizable+Conj,
 {
     type Output = Self;
 
     fn div(self, other: Self) -> Self 
     {
+        if self.num==T::zero()
+        {
+            return Self::zero();
+        }
+
         let norm = other.num.norm();
         if norm!=1 && norm!=-1
         {
             panic!("Division by a non-unit")
         }
         // println!("Dividing height {} with height {}",self.log_den,other.log_den);
-        if self.num==T::from(0)
+        else if norm==1
         {
-            return Self::from(0);
+            let temp = Self
+            {
+                num: self.num*other.num.conj(),
+                log_den: self.log_den-other.log_den
+            };
+
+            //fixing might not be needed
+            // temp.fix(); 
+            return temp;
         }
         else
         {
             let temp = Self
             {
-                num: self.num*other.num.conj()*T::from(norm),
+                num: T::zero()-self.num*other.num.conj(),
                 log_den: self.log_den-other.log_den
             };
 
             //fixing might not be needed
-            temp.fix(); 
+            // temp.fix(); 
             return temp;
         }
 
@@ -365,4 +426,75 @@ where T: Mul<Output=T>+Conj+Neg<Output=T>,
     }
 }
 
+impl<T> One for Local<T>
+where T: Copy+PartialEq,
+      T: Num,
+      T: Localizable,
+{
+    fn one() -> Self
+    {
+        return Self
+        {
+            num: T::one(),
+            log_den: 0,
+        }
+    }
+
+
+}
+
+impl<T> Zero for Local<T>
+where T: Copy+PartialEq,
+      T: Num,
+      T: Localizable,
+{
+    fn zero() -> Self
+    {
+        return Self
+        {
+            num: T::zero(),
+            log_den: 0,
+        }
+    }
+
+    fn is_zero(&self) -> bool
+    {
+        return self.num == T::zero();
+    }
+
+}
+
+impl<T> Rem for Local<T>
+{
+
+    type Output = Self;
+    fn rem(self, _ : Self) -> Self
+    {
+        panic!("Unimplimented or impossible");
+        // return self;
+    }
+}
+
+// impl<T> FromStrRadixErr for Local<T>
+// {
+
+// }
+
+impl<T> Num for Local<T>
+where T: Num,
+      T: Copy,
+      T: Localizable+Conj,
+
+{
+    // Some rust requirements to make a Complex compatible local
+    type FromStrRadixErr = std::num::ParseIntError  ;
+    fn from_str_radix(_: &str, _: u32) -> core::result::Result<Self, Self::FromStrRadixErr>
+    {
+        // Meant to parse a string and take the input as what is in the string
+        // Kinda complicated to do for this local ring
+        // Will skip it
+        panic!("Unimplimented or impossible");
+        //
+    }
+}
 

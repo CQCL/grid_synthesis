@@ -7,5 +7,6 @@ authors = ["Nihar Gargava <nihargargava@gmail.com>"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-
+num-complex = "0.4"
+num-traits = "0.2"
 

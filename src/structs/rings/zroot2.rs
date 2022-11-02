@@ -8,6 +8,8 @@ use std::ops::Neg;
 use std::ops::Add; 
 use std::ops::Sub; 
 use std::ops::Mul; 
+use std::ops::Div; 
+use std::ops::Rem; 
 use std::cmp::PartialEq; 
 
 // For display
@@ -19,12 +21,17 @@ use std::fmt::Formatter;
 // Setting up my boundaries
 use crate::structs::rings::Int;
 
+// Num traits
+use num_traits::Num;
+use num_traits::Zero;
+use num_traits::One;
+use num_traits::NumOps;
 
 
 // Quadratic number field with root 2
 // This struct assumes that you are going to localize it 
 // at sqrt(2)
-#[derive(Copy,Debug,Clone)]
+#[derive(Copy,Debug,Clone,PartialEq,PartialOrd)]
 pub struct Zroot2(pub Int,pub Int); //a+b\sqrt(2)
 
 // Rust must know how to diplay elements of this ring
@@ -175,13 +182,36 @@ impl From<Int> for Zroot2 {
 
 
 
-impl PartialEq for Zroot2
+// impl PartialEq for Zroot2
+// {
+//     fn eq(&self, other: &Self) -> bool {
+//         return self.0==other.0 && self.1==other.1;
+//     }
+// }
+
+impl Zero for Zroot2
 {
-    fn eq(&self, other: &Self) -> bool {
-        return self.0==other.0 && self.1==other.1;
+    fn zero() -> Self
+    {
+        return Zroot2(0,0);
     }
+    
+    fn is_zero(&self) -> bool
+    {
+        return self.0==0 && self.1==0;
+    }
+
 }
 
+impl One for Zroot2
+{
+    fn one() -> Self
+    {
+        return Zroot2(1,0);
+    }
+    
+
+}
 
 
 // Negatation on Zroot2
@@ -224,3 +254,52 @@ impl Conj for Zroot2 {
         Zroot2(self.0,-self.1)
     }
 }
+
+
+impl Rem for Zroot2 
+{
+    type Output = Self;
+    fn rem(self, other: Self) -> Self
+    {
+        panic!("TODO");
+    }
+
+}
+
+impl Div for Zroot2 
+{
+    type Output = Self;
+    fn div(self, other: Self) -> Self
+    {
+        let nor = self.norm();
+        if nor==1 || nor==-1
+        {
+            let norself = Self{
+                0: nor,
+                1: 0
+            };
+            return self*other.conj()*norself;
+        }
+        else
+        {
+            panic!("Division impossible");
+        }
+    }
+
+}
+
+
+impl Num for Zroot2
+{
+    // Some rust requirements to make a Complex compatible local
+    type FromStrRadixErr = std::num::ParseIntError  ;
+    fn from_str_radix(_: &str, _: u32) -> core::result::Result<Self, Self::FromStrRadixErr>
+    {
+        // Meant to parse a string and take the input as what is in the string
+        // Kinda complicated to do for this local ring
+        // Will skip it
+        panic!("Unimplimented or impossible");
+        //
+    }
+}
+

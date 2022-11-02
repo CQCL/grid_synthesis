@@ -34,7 +34,7 @@ use crate::structs::rings::zroot2::Zroot2;
 use crate::structs::sunimat::UniMat;
 
 // Better looking code
-type Quat = Quaternion<Local<Zroot2>>;
+// type Quat = Quaternion<Local<Zroot2>>;
 type Loc = Local<Zroot2>;
 type Comp = Complex<Loc>;
 type Mat = UniMat<Comp>;
@@ -83,7 +83,6 @@ fn multiply_H_times_T_to_n( gamma: Mat, n: Int) -> Mat
 {
     if n==0
     {     
-        let temp = gamma;
         return gamma;
     }
     else
@@ -92,13 +91,36 @@ fn multiply_H_times_T_to_n( gamma: Mat, n: Int) -> Mat
         let sqrt2 = Comp::sqrt2();
         let u1 = gamma.u;
         let t1 = gamma.t;
-        let u2 = ( u1-pow(omega,n)*t1 )/sqrt2;
-        let t2 = ( u1+pow(omega,n)*t1 )/sqrt2;
+        let u2 = ( u1+pow(omega,n)*t1 )/sqrt2;
+        let t2 = ( u1-pow(omega,n)*t1 )/sqrt2;
+        
+        // {
+        //     // ----- DEBUG ZONE --------
+
+        //     let mut debug = gamma;
+        //     for i in 0..n 
+        //     {
+        //         debug = apply_t_gate(debug);
+        //     }
+        //     debug = apply_h_gate(debug);
+        //     if debug.u != u2 || debug.t != t2
+        //     {
+        //         println!("Set out to multiply HT^{}",n );
+        //         println!("To the matrix \n{}",gamma );
+        //         println!("Got the entries \n {} \n {}", u2,t2 );
+        //         println!("instead of \n {}", debug);
+        //         panic!("Nihar does not understand his code");
+        //     }
+        //
+        //     // -----  END OF DEBUG ZONE -------
+        // }
         
         return Mat{
             u: u2,
             t: t2
         };
+
+
 
     }
 }
@@ -196,19 +218,21 @@ pub fn exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
             sdeq= h.u.sqnorm().log_den;
             g = multiply_H_times_T_to_n(h,i);
 
-            { //debug zone
+            // { 
+            //     // ------- DEBUG ZONE -----------
 
-                if i==1
-                {
-                    let test = apply_gate_string_to_state("TH".to_string(),g);
-                    if test!=h
-                    {
-                        println!("{} \n", h);
+            //     if i==1
+            //     {
+            //         let test = apply_gate_string_to_state("TTTTTTTH".to_string(),g);
+            //         if test!=h
+            //         {
+            //             println!("{} \n", h);
 
-                        panic!{"Nihar doesnt understand his code"};
-                    }
-                }
-            }
+            //             panic!{"Nihar doesnt understand his code"};
+            //         }
+            //     }
+            //     // -------- END OF DEBUG ZONE
+            // }
 
             let sdeq_new= g.u.sqnorm().log_den;
             // println!("{} is now {}",g.u.sqnorm(),h.u.sqnorm() );
