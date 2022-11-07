@@ -25,6 +25,12 @@ use std::ops::Mul;
 use std::ops::Div; 
 use std::cmp::PartialEq; 
 
+// Num traits
+use num_traits::Num;
+use num_traits::Zero;
+use num_traits::One;
+use num_traits::NumCast;
+use num_traits::FromPrimitive;
 
 // For display
 use std::fmt::Result;
@@ -227,13 +233,13 @@ impl Comp
         {
             0: Loc
             {
-                num: Zroot2::from(1),
+                num: Zroot2::one(),
                 log_den: 1
             },
             
             1: Loc
             {
-                num: Zroot2::from(0),
+                num: Zroot2::zero(),
                 log_den: 0
             }
 
@@ -246,13 +252,13 @@ impl Comp
         {
             0: Loc
             {
-                num: Zroot2::from(1),
+                num: Zroot2::one(),
                 log_den: -1
             },
             
             1: Loc
             {
-                num: Zroot2::from(0),
+                num: Zroot2::zero(),
                 log_den: 0
             }
 
@@ -265,13 +271,13 @@ impl Comp
         {
             0: Loc
             {
-                num: Zroot2::from(1),
+                num: Zroot2::one(),
                 log_den: 1
             },
             
             1: Loc
             {
-                num: Zroot2::from(1),
+                num: Zroot2::one(),
                 log_den: 1
             }
         };
@@ -282,7 +288,37 @@ impl Comp
         return Comp
         {
             0: Loc::local_gen(),
-            1: Loc::from(0),
+            1: Loc::zero(),
         };
+    }
+}
+
+impl<T> One for Complex<T>
+where T: Num,
+      T: Copy
+{
+    fn one() -> Self
+    {
+        return Self{
+            0: T::one(),
+            1: T::zero(),
+        }
+    }
+}
+
+impl<T> Zero for Complex<T>
+where T: Num,
+      T: Copy,
+{
+    fn zero() -> Self
+    {
+        return Self{
+            0: T::zero(),
+            1: T::zero(),
+        }
+    }
+    fn is_zero(&self) -> bool
+    {
+        return self.0.is_zero() && self.1.is_zero();
     }
 }

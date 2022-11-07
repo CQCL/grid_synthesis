@@ -7,6 +7,14 @@ pub mod structs;
 pub mod tests;
 pub mod algorithms;
 
+
+// Num traits
+use num_traits::Num;
+use num_traits::Zero;
+use num_traits::One;
+use num_traits::NumCast;
+use num_traits::FromPrimitive;
+
 // type Angle = f64;
 // type Error = f64;
 
@@ -53,8 +61,8 @@ fn main() {
     let omega = Comp::mu_8();
     let onebyroot2 = Comp::onebyroot2();
     let root2 = Comp::root2();
-    let one = Comp::from(1);
-    let zero = Comp::from(0);
+    let one = Comp::one();
+    let zero = Comp::zero();
     
     let u1 = ( one+omega )*onebyroot2*onebyroot2;
     let t1 = ( one-omega )*onebyroot2*onebyroot2; 

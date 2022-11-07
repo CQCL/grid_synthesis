@@ -63,7 +63,7 @@ pub trait Fixable{
 pub mod zroot2;
 pub mod local_ring;
 pub mod complex;
-pub mod quaternion;
+// pub mod quaternion;
 
 use std::ops::Mul;
 

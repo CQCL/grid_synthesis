@@ -23,6 +23,14 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 
 
+// Num traits
+use num_traits::Num;
+use num_traits::Zero;
+use num_traits::One;
+use num_traits::NumCast;
+use num_traits::FromPrimitive;
+
+
 // Unitary matrices of determinant 1. They are of the form
 // /         \
 // | u  -t^* |
@@ -67,7 +75,8 @@ where T: Neg<Output=T>+Conj
 // Also see this for why it looks so weird:
 // https://stackoverflow.com/questions/39169795/error-when-using-operators-with-a-generic-type
 impl<T> Mul for UniMat<T> 
-where T: Copy+Mul<Output=T>+Neg+Add<Output=T>+Sub<Output=T>+Conj
+where T: Copy,
+      T: Num+Conj
 {
     type Output = UniMat<T>;
     fn mul(self, other: UniMat<T>) 
@@ -84,28 +93,37 @@ where T: Copy+Mul<Output=T>+Neg+Add<Output=T>+Sub<Output=T>+Conj
 
 // Get zero and one as Unitary matrices
 impl<T> UniMat<T>
-where T: From<Int>
+where T: Num,
+      T: Copy
 {
     // WARNING: zero is possible to construct, but avoid using it
     // It is not a unitary matrix
     pub fn zero() -> Self {
-        return Self{ u: T::from(0), t: T::from(0)}
+        return Self{ u: T::zero(), t: T::zero()}
 
     }
+}
 
+impl<T> UniMat<T>
+where T: Num,
+      T: Copy
+{
     pub fn one() -> Self {
-        return Self{ u: T::from(1), t: T::from(0)};
+        return Self{ u: T::zero(), t: T::zero()};
     }
+}
 
+impl<T> UniMat<T>
+{
     pub fn h_gate() -> Self 
     {
-        return Self{ u: T::from(0), t: T::from(1)};
+        todo!();
     }
 
-    pub fn t_gate() -> ()
+    pub fn t_gate() -> Self
     {
         // TODO
-        // These gates may not have determinant 1
+        todo!();
     }
 
 }

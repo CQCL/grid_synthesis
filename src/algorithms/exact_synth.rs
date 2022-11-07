@@ -58,7 +58,7 @@ pub fn pow(t: Comp, n: Int) -> Comp
     // Remove this and make a type dependent implementation
     if n<0
     {
-        let mut temp=Comp::from(1);
+        let mut temp=Comp::one();
         // println!("Power negative");
         for i in 0..(-n)
         {
@@ -69,7 +69,7 @@ pub fn pow(t: Comp, n: Int) -> Comp
     else
     {
         // println!("Power non-negative");
-        let mut temp=Comp::from(1);
+        let mut temp=Comp::one();
         for i in 0..n
         {
             temp = temp*t;
@@ -188,7 +188,7 @@ pub fn exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
 
     let mut gate_string = "".to_string();
 
-    if gamma.det()!= Comp::from(1)
+    if gamma.det()!= Comp::one()
     {
         panic!("I was promised norm 1");
     }

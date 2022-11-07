@@ -28,6 +28,8 @@ use num_traits::Num;
 use num_traits::Zero;
 use num_traits::One;
 use num_traits::NumCast;
+use num_traits::FromPrimitive;
+// use num_traits::ToPrimitive;
 
 
 // // Localization trait. 
@@ -307,58 +309,113 @@ where T: Display+PartialEq,
 // }
 
 
-impl<T> ToPrimitive for Local<T>
-where T: Num,
-      T: Localizable+PartialEq,
+// impl<T> ToPrimitive for Local<T>
+// where T: Num,
+//       T: Localizable+PartialEq,
+// {
+    
+// }
+//
+//
+impl<T> FromPrimitive for Local<T>
 {
 
+    fn from_i64(n: i64) -> Option<Self>
+    {
+        todo!();
+    }
+    fn from_u64(n: u64) -> Option<Self>
+    {
+        todo!();
+    }
+
+    fn from_isize(n: isize) -> Option<Self> 
+    {
+        todo!()
+    }
+    fn from_i8(n: i8) -> Option<Self> 
+    {
+        todo!()
+    }
+    fn from_i16(n: i16) -> Option<Self> 
+    {
+        todo!()
+    }
+    fn from_i32(n: i32) -> Option<Self> 
+    {
+        todo!()
+    }
+    fn from_usize(n: usize) -> Option<Self> 
+    {
+        todo!()
+    }
+    fn from_u8(n: u8) -> Option<Self> 
+    {
+        todo!()
+    }
+    fn from_u16(n: u16) -> Option<Self> 
+    {
+        todo!()
+    }
+    fn from_u32(n: u32) -> Option<Self> 
+    {
+        todo!()
+    }
+    fn from_f32(n: f32) -> Option<Self> 
+    {
+        todo!()
+    }
+    fn from_f64(n: f64) -> Option<Self> 
+    {
+        todo!()
+    }
 }
 
 // To construct Local<T> directly from integers
-impl<T> NumCast for Local<T> 
-where T: Num,
-      T: Localizable+PartialEq,
-      T: Copy
-{
-    fn from(input : Int) -> Self 
-    {
-        panic!("Need to deprecate");
-        // let out = Self{
-        //     num: T::from(input.try_into().unwrap()),
-        //     log_den: 0
-        // };
+// impl<T> From<Int> for Local<T> 
+// where T: Num,
+//       T: Localizable+PartialEq,
+//       T: Copy
+// {
+//     fn from(input : Int) -> Self 
+//     {
+//         panic!("Need to deprecate");
+//         // let out = Self{
+//         //     num: T::from(input.try_into().unwrap()),
+//         //     log_den: 0
+//         // };
 
-        // if input!=1 && input!=0
-        // {
-        //     out.fix();
-        // }
+//         // if input!=1 && input!=0
+//         // {
+//         //     out.fix();
+//         // }
 
-        // return out;
-    }
-}
+//         // return out;
+//     }
+// }
 
 
 // To construct Local<T> from T
-impl<T> From<T> for Local<T> 
-where T: Num,
-      T: Localizable,
-      T: PartialEq+Copy
-{
-    fn from(input : T) -> Self {
+// impl<T> From<T> for Local<T> 
+// where T: Num,
+//       T: Localizable,
+//       T: PartialEq+Copy
+// {
+//     fn from(input : T) -> Self {
 
-        let out = Self{
-            num: input,
-            log_den: 0
-        };
+//         let out = Self{
+//             num: input,
+//             log_den: 0
+//         };
 
-        if input!=T::one() && input!=T::zero()
-        {
-            out.fix();
-        }
+//         if input!=T::one() && input!=T::zero()
+//         {
+//             out.fix();
+//         }
 
-        return out;
-    }
-}
+//         return out;
+//     }
+// }
 
 
 // Conjugate Complex elements

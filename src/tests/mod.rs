@@ -20,6 +20,12 @@ use crate::structs::rings::Int;
 use crate::algorithms::exact_synth::apply_gate_string_to_state;
 
 
+// Num traits
+use num_traits::Num;
+use num_traits::Zero;
+use num_traits::One;
+use num_traits::NumCast;
+use num_traits::FromPrimitive;
 
 // pub fn basic_identities<T>() -> () 
 //     where T: Copy+Debug+Display,
@@ -199,8 +205,8 @@ pub fn broke_arithmetic_until_26_10_2022()
     let omega = Comp::mu_8();
     let onebyroot2 = Comp::onebyroot2();
     let root2 = Comp::root2();
-    let one = Comp::from(1);
-    let zero = Comp::from(0);
+    let one = Comp::one();
+    let zero = Comp::zero();
 
     let u1 = one+omega;
     let t1 = one-omega; 
@@ -273,7 +279,7 @@ pub fn should_break_arithmetic_26_10_2022() -> ()
     // println!("{}", right);
     // println!("{}", left+right);
 
-    assert_eq!(left+right,Loc::from(3),"Should create a panic in versions before 26-10-2022");
+    assert_eq!(left+right,Loc::from_i32(3).unwrap(),"Should create a panic in versions before 26-10-2022");
 
 }
 
@@ -288,8 +294,8 @@ pub fn break_division_in_loc_26_10_2022() {
     let omega = Comp::mu_8();
     let onebyroot2 = Comp::onebyroot2();
     let root2 = Comp::root2();
-    let one = Comp::from(1);
-    let zero = Comp::from(0);
+    let one = Comp::one();
+    let zero = Comp::zero();
 
 
 
@@ -308,8 +314,8 @@ pub fn doesnt_break_matrices_27_10_2022()
     let omega = Comp::mu_8();
     let onebyroot2 = Comp::onebyroot2();
     let root2 = Comp::root2();
-    let one = Comp::from(1);
-    let zero = Comp::from(0);
+    let one = Comp::one();
+    let zero = Comp::zero();
 
 
 
