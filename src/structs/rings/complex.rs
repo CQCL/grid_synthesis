@@ -8,13 +8,13 @@
 use crate::structs::rings::Int;
 
 use crate::structs::rings::Conj; //Conjugation trait
-// use crate::structs::rings::Localizable;
+                                 // use crate::structs::rings::Localizable;
 
-// To construct Quaternions from  complex numbers
+                                 // To construct Quaternions from  complex numbers
 use crate::structs::rings::quaternion::Quaternion;
 use crate::structs::rings::zroot2::Zroot2;
 use crate::structs::rings::local_ring::Local;
-use crate::structs::rings::Fixable;
+// use crate::structs::rings::Fixable;
 
 // We bring them in so that we can overload the operators
 // Rust must learn how to do arithmetics in our rings
@@ -46,12 +46,13 @@ pub struct Complex<T>(pub T,pub T);
 
 // Conjugate Complex elements
 impl<T> Conj for Complex<T>
-where T: Neg<Output=T>
+where T: Neg<Output=T>,
+      T: Clone
 {
     // type Output = Self;
-    fn conj(self) -> Self
+    fn conj(&self) -> Self
     {
-        return Complex(self.0,-self.1);
+        return Complex(self.0.clone(),-self.1.clone());
     }
 }
 
@@ -77,7 +78,7 @@ where T: Add<Output=T>
     fn add(self, other: Self) -> Self {
         Complex(self.0+other.0,self.1+other.1)
     }
-    
+
     // fn add(self, other: Int) -> Self {
     //     return self+from(other);
     // }
@@ -200,7 +201,8 @@ where T: Mul<Output=T> + Add<Output=T>,
 
 // Constructing quaternions from two complex numbers
 impl<T> Complex<T>
-where T: Neg<Output=T>
+where T: Neg<Output=T>,
+      T: Clone
 {
     pub fn quat(z: Complex<T> , w: Complex<T> ) -> Quaternion<T>
     {
@@ -212,7 +214,7 @@ where T: Neg<Output=T>
             3: w.1
         };
     }
-    
+
     pub fn quat_conj_transpose_second(z: Complex<T> , w: Complex<T> ) -> Quaternion<T>
     {
         return Self::quat(z,-w.conj());
@@ -236,7 +238,7 @@ impl Comp
                 num: Zroot2::one(),
                 log_den: 1
             },
-            
+
             1: Loc
             {
                 num: Zroot2::zero(),
@@ -255,7 +257,7 @@ impl Comp
                 num: Zroot2::one(),
                 log_den: -1
             },
-            
+
             1: Loc
             {
                 num: Zroot2::zero(),
@@ -274,7 +276,7 @@ impl Comp
                 num: Zroot2::one(),
                 log_den: 1
             },
-            
+
             1: Loc
             {
                 num: Zroot2::one(),
@@ -287,7 +289,10 @@ impl Comp
     {
         return Comp
         {
-            0: Loc::local_gen(),
+            0: Loc{
+                num: Zroot2::one(),
+                log_den: -1,
+            },
             1: Loc::zero(),
         };
     }

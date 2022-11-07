@@ -3,13 +3,19 @@
 // This will create a Quaternion algebra over anything
 
 use crate::structs::rings::Conj; //Conjugation trait
-use crate::structs::rings::Fixable; // For implementing local rings
+// use crate::structs::rings::Fixable; // For implementing local rings
 
 
 use crate::structs::rings::Int; //Integer type standard
 use crate::structs::rings::complex::Complex; //Complex type 
 
 
+// Num traits
+use num_traits::Num;
+use num_traits::Zero;
+use num_traits::One;
+use num_traits::NumCast;
+use num_traits::FromPrimitive;
 
 // To construct gates 
 use crate::structs::rings::zroot2::Zroot2;
@@ -72,14 +78,15 @@ where T: Neg<Output=T>
 
 // Conjugate Complex elements
 impl<T> Conj for Quaternion<T> 
-where T: Neg<Output=T>
+where T: Neg<Output=T>,
+      T: Clone
 {
-    fn conj(self) -> Self {
+    fn conj(&self) -> Self {
         Self{
-            0: self.0,
-            1: -self.1,
-            2: -self.2,
-            3: -self.3,
+            0: self.0.clone(),
+            1: -self.1.clone(),
+            2: -self.2.clone(),
+            3: -self.3.clone(),
         }
     }
 }
@@ -223,19 +230,20 @@ where T: Mul<Output=T> + Add<Output=T> + Neg<Output=T> + Div<Output=T>+Sub<Outpu
 
 
 //Will work only if T is a local_ring
-impl<T>  Quaternion<T>
-where T: Mul<Output=T> + Add<Output=T> + Neg<Output=T> + Sub<Output=T>,
-      T: Copy+PartialEq+From<Int>,
-      T: Fixable
-{
-    pub fn logden(self) -> Int
-    {
-        let mut temp = max(self.0.logden(),self.1.logden());
-        temp = max(temp,self.2.logden());
-        temp = max(temp,self.3.logden());
-        return temp;
-    }
-}
+//TODO: Deprecate
+// impl<T>  Quaternion<T>
+// where T: Mul<Output=T> + Add<Output=T> + Neg<Output=T> + Sub<Output=T>,
+//       T: Copy+PartialEq+From<Int>,
+//       // T: Fixable
+// {
+//     pub fn logden(self) -> Int
+//     {
+//         let mut temp = max(self.0.logden(),self.1.logden());
+//         temp = max(temp,self.2.logden());
+//         temp = max(temp,self.3.logden());
+//         return temp;
+//     }
+// }
 
 // Give two complex numbers over T
 // Writing a+bI+cJ+dK = (a+bI)+(c_dI)J
@@ -279,8 +287,8 @@ impl Quat
                 num: Zroot2(1,0),
                 log_den:1
             },
-            2:  Loc::from(0),
-            3:  Loc::from(0)
+            2:  Loc::zero(),
+            3:  Loc::zero()
         };
 
         return t;
@@ -292,16 +300,16 @@ impl Quat
         type T = Zroot2;
         let h = Quaternion::<Local::<T>>
         {
-            0:  Loc::from(0),
+            0:  Loc::zero(),
             1:  Loc
             {
-                num: T::from(1),
+                num: T::one(),
                 log_den:1
             },
-            2:  Loc::from(0),
+            2:  Loc::zero(),
             3:  Loc
             {
-                num: T::from(1),
+                num: T::one(),
                 log_den:1
             },
         };

@@ -33,6 +33,15 @@ use crate::structs::rings::Int;
 use crate::structs::rings::zroot2::Zroot2;
 use crate::structs::sunimat::UniMat;
 
+
+// Num traits
+use num_traits::Num;
+use num_traits::Zero;
+use num_traits::One;
+use num_traits::NumCast;
+use num_traits::FromPrimitive;
+
+
 // Better looking code
 // type Quat = Quaternion<Local<Zroot2>>;
 type Loc = Local<Zroot2>;

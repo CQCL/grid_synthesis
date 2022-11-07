@@ -17,6 +17,7 @@ use crate::structs::rings::quaternion::Quaternion;
 use crate::structs::rings::complex::Complex;
 use crate::structs::sunimat::UniMat; 
 use crate::structs::rings::Int;
+use crate::structs::rings::Float;
 use crate::algorithms::exact_synth::apply_gate_string_to_state;
 
 
@@ -27,74 +28,77 @@ use num_traits::One;
 use num_traits::NumCast;
 use num_traits::FromPrimitive;
 
-// pub fn basic_identities<T>() -> () 
-//     where T: Copy+Debug+Display,
-//           T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>,
-//           T: PartialEq+From<Int>
-// {
+pub fn basic_identities<T>() -> () 
+    where T: Copy+Debug+Display,
+          T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>,
+          T: PartialEq,
+          T: NumCast
+{
 
-//     println!("Testing basic identities");
-//     println!("Type is {}", std::any::type_name::<T>());
-//     println!("--------------------------------------");
+    println!("Testing basic identities");
+    println!("Type is {}", std::any::type_name::<T>());
+    println!("--------------------------------------");
 
-//     println!("Test 1: 1*1 == 1");
-//     let u=T::from(1);
-//     assert_eq!(u,u*u,"Failed to check that {} =\n {}\n*\n{}",u,u,u);
-
-
-//     println!("Test 2: 0+0 == 0");
-//     let u= T::from(0);
-//     // println!("{}",u);
-//     // println!("{}",u+u);
-//     assert_eq!(u,u+u," \n--------------\n Failed to check that \n{} \n= \n{} + \n{}",u,u,u);
-
-//     println!("Test 3: 2+3 == 5");
-//     let u=T::from(2);
-//     let v=T::from(3);
-//     let w=T::from(5);
-//     assert_eq!(w,v+u,"Failed to check that {} =\n {}\n+\n{}",w,v,u);
-
-//     println!("test 4: 1-1 == 0");
-//     let u= T::from(1);
-//     let z= T::from(0);
-//     // // println!("{}",z);
-//     // // println!("{}",u-u);
-//     assert_eq!(z,u-u,"Failed to check that {} =\n {}\n-\n{}",z,u,u);
-
-//     println!("Test 5: 2-3 == -1");
-//     let u=T::from(2);
-//     let v=T::from(3);
-//     let w=T::from(-1);
-//     assert_eq!(w,u-v,"Failed to check that {} =\n {}\n-\n{}",w,u,v);
-
-//     println!("Test 6: -2*2 == -4");
-//     let u=T::from(2);
-//     let v=T::from(-2);
-//     let w=T::from(-4);
-//     assert_eq!(w,u*v,"Failed to check that {} =\n{}*\n{}",w,v,u);
-
-//     println!("Test 6: -3*-3*-3 == -27");
-//     let u=T::from(-3);
-//     let w=T::from(-27);
-//     assert_eq!(w,u*u*u,"Failed to check that {} ={}*\n{}*\n{}",w,u,u,u);
-// }
+    println!("Test 1: 1*1 == 1");
+    let u=T::from(1).unwrap();
+    assert_eq!(u,u*u,"Failed to check that {} =\n {}\n*\n{}",u,u,u);
 
 
-// // use crate::structs::rings::Constructs;
-// pub fn basic_identities_with_conj<T>() -> () 
-//     where T: Copy+Debug+Display,
-//           T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj,
-//           T: PartialEq+From<Int>
-// {
+    println!("Test 2: 0+0 == 0");
+    let u= T::from(0).unwrap();
+    // println!("{}",u);
+    // println!("{}",u+u);
+    assert_eq!(u,u+u," \n--------------\n Failed to check that \n{} \n= \n{} + \n{}",u,u,u);
 
-//     println!("Testing conjugation on {}", std::any::type_name::<T>());
-//     println!("--------------------------------------");
-//     println!("Test 1: u.conj.conj = u");
-//     println!("        When u = 2");
-//     let u= T::from(2);
-//     assert_eq!(u,u.conj().conj(),"Failed to check that {} =\n {}",u,u);
+    println!("Test 3: 2+3 == 5");
+    let u=T::from(2).unwrap();
+    let v=T::from(3).unwrap();
+    let w=T::from(5).unwrap();
+    assert_eq!(w,v+u,"Failed to check that {} =\n {}\n+\n{}",w,v,u);
 
-// }
+    println!("test 4: 1-1 == 0");
+    let u= T::from(1).unwrap();
+    let z= T::from(0).unwrap();
+    // // println!("{}",z);
+    // // println!("{}",u-u);
+    assert_eq!(z,u-u,"Failed to check that {} =\n {}\n-\n{}",z,u,u);
+
+    println!("Test 5: 2-3 == -1");
+    let u=T::from(2).unwrap();
+    let v=T::from(3).unwrap();
+    let w=T::from(-1).unwrap();
+    assert_eq!(w,u-v,"Failed to check that {} =\n {}\n-\n{}",w,u,v);
+
+    println!("Test 6: -2*2 == -4");
+    let u=T::from(2).unwrap();
+    let v=T::from(-2).unwrap();
+    let w=T::from(-4).unwrap();
+    assert_eq!(w,u*v,"Failed to check that {} =\n{}*\n{}",w,v,u);
+
+    println!("Test 6: -3*-3*-3 == -27");
+    let u=T::from(-3).unwrap();
+    let w=T::from(-27).unwrap();
+    assert_eq!(w,u*u*u,"Failed to check that {} ={}*\n{}*\n{}",w,u,u,u);
+}
+
+
+// use crate::structs::rings::Constructs;
+pub fn basic_identities_with_conj<T>() -> () 
+    where T: Copy+Debug+Display,
+          T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj,
+          T: PartialEq,
+          // T: TryInto<T>,
+          T: One
+{
+
+    println!("Testing conjugation on {}", std::any::type_name::<T>());
+    println!("--------------------------------------");
+    println!("Test 1: u.conj.conj = u");
+    println!("        When u = 2");
+    let u = T::one()+T::one();
+    assert_eq!(u,u.conj().conj(),"Failed to check that {} =\n {}",u,u);
+
+}
 
 
 
@@ -194,6 +198,7 @@ use num_traits::FromPrimitive;
 
 
 // This used to break at some poitn
+#[test]
 pub fn broke_arithmetic_until_26_10_2022() 
 {
 
@@ -260,6 +265,7 @@ pub fn broke_arithmetic_until_26_10_2022()
     assert_eq!(gsq.t.1,qsq.3);
 }
 
+#[test]
 pub fn should_break_arithmetic_26_10_2022() -> ()
 {
     type Loc = Local<Zroot2>;
@@ -275,15 +281,17 @@ pub fn should_break_arithmetic_26_10_2022() -> ()
         log_den: -1,
     };
 
-    // println!("{}", left);
-    // println!("{}", right);
-    // println!("{}", left+right);
+    println!("{}", left);
+    println!("{}", right);
+    println!("{}", left+right);
+    let expected = Loc::one()+Loc::one()+Loc::one();
 
-    assert_eq!(left+right,Loc::from_i32(3).unwrap(),"Should create a panic in versions before 26-10-2022");
+    assert_eq!(left+right,expected,"Should create a panic in versions before 26-10-2022");
 
 }
 
 
+#[test]
 pub fn break_division_in_loc_26_10_2022() {
 
     type Loc = Local<Zroot2>;
@@ -304,6 +312,8 @@ pub fn break_division_in_loc_26_10_2022() {
 
 }
 
+
+#[test]
 pub fn doesnt_break_matrices_27_10_2022()
 {
     type Loc = Local<Zroot2>;
@@ -400,8 +410,64 @@ pub fn apply_gate_string_to_states_and_check_output()
 pub fn check_num_trait_compatibility_of_local()
 {
     type Cmp = num_complex::Complex::<Local::<Zroot2>>;
-    let mut i : Cmp;
-    i = num_traits::One::one();
-    i = i+i;
-    println!("{}", i);
+    let o= Cmp::one();
+    let t = o+o;
+    let loc2 = Local::<Zroot2>::one();
+
+    // It's awesome that this works
+    // Automatic type promotion
+    // TODO: Implement something like this for Locals as well
+    assert_eq!(t,o*(loc2+loc2)); 
+}
+
+
+#[test]
+pub fn check_that_rings_work()
+{
+
+    basic_identities_with_conj::<Complex::<Local::<Zroot2>>>();
+
+    basic_identities_with_conj::<Local::<Zroot2>>();
+
+    basic_identities_with_conj::<Zroot2>();
+
+}
+
+
+pub fn checking_conversion_from_int<T>()
+where T:One,
+      T:Debug,
+      T:PartialEq,
+      T:NumCast
+{
+    let o = T::one();
+    let o2=T::from(1).unwrap();
+
+    assert_eq!(o,o2);
+}
+
+#[test]
+pub fn type_conversion_testing()
+{
+    checking_conversion_from_int::<Int>();
+    checking_conversion_from_int::<Float>();
+    checking_conversion_from_int::<num_complex::Complex::<Int>>();
+    checking_conversion_from_int::<num_complex::Complex::<Float>>();
+    checking_conversion_from_int::<Zroot2>();
+    checking_conversion_from_int::<Local::<Zroot2>>();
+    checking_conversion_from_int::<num_complex::Complex::<Local::<Zroot2>>>();
+}
+
+
+#[test]
+pub fn sanity_checks_for_my_rings()
+{
+    basic_identities::<Int>();
+    basic_identities::<Float>();
+    basic_identities::<num_complex::Complex::<Int>>();
+    basic_identities::<num_complex::Complex::<Float>>();
+    basic_identities::<Zroot2>();
+    basic_identities::<Local::<Zroot2>>();
+    basic_identities::<num_complex::Complex::<Local::<Zroot2>>>();
+
 }

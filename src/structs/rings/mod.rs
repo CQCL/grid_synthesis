@@ -7,7 +7,7 @@ pub type Float = f64;
 // Supertrait
 // They become various conjugation operators on our rings
 pub trait Conj{
-    fn conj(self) -> Self;
+    fn conj(&self) -> Self;
 }
 
 // Supertrait (deprecated now, use from::(0) etc instead)
@@ -46,24 +46,29 @@ pub trait Localizable{
 // Supertrait
 // Allows addition and multiplication in a local ring
 // See local_ring.rs for an implementation
-pub trait Fixable{
+// TODO: Deprecate
+// pub trait Fixable{
     
-    // Reduce a number to it's lowest form, so that we can extract its p-adic valuation
-    fn fix(self) -> Self;
+//     // Reduce a number to it's lowest form, so that we can extract its p-adic valuation
+//     fn fix(self) -> Self;
     
-    // Return the log_den value to be used by something else
-    fn logden(self) -> Int;
+//     // Return the log_den value to be used by something else
+//     fn logden(self) -> Int;
     
-    // Return sqrt2 for zroot2
-    // Or in case of any other localizable ring
-    // return something other than sqrt2
-    fn local_gen() -> Self;
-}
+//     // Return sqrt2 for zroot2
+//     // Or in case of any other localizable ring
+//     // return something other than sqrt2
+//     fn local_gen() -> Self;
+// }
+
+
+
+
 
 pub mod zroot2;
 pub mod local_ring;
 pub mod complex;
-// pub mod quaternion;
+pub mod quaternion;
 
 use std::ops::Mul;
 

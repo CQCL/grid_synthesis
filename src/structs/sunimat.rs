@@ -76,7 +76,10 @@ where T: Neg<Output=T>+Conj
 // https://stackoverflow.com/questions/39169795/error-when-using-operators-with-a-generic-type
 impl<T> Mul for UniMat<T> 
 where T: Copy,
-      T: Num+Conj
+      T: Conj,
+      T: Mul<Output=T>,
+      T: Add<Output=T>,
+      T: Sub<Output=T>
 {
     type Output = UniMat<T>;
     fn mul(self, other: UniMat<T>) 
@@ -93,7 +96,7 @@ where T: Copy,
 
 // Get zero and one as Unitary matrices
 impl<T> UniMat<T>
-where T: Num,
+where T: Zero,
       T: Copy
 {
     // WARNING: zero is possible to construct, but avoid using it
@@ -105,11 +108,11 @@ where T: Num,
 }
 
 impl<T> UniMat<T>
-where T: Num,
+where T: Zero+One,
       T: Copy
 {
     pub fn one() -> Self {
-        return Self{ u: T::zero(), t: T::zero()};
+        return Self{ u: T::one(), t: T::zero()};
     }
 }
 

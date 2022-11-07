@@ -26,6 +26,8 @@ use num_traits::Num;
 use num_traits::Zero;
 use num_traits::One;
 use num_traits::NumOps;
+use num_traits::NumCast;
+use num_traits::ToPrimitive;
 
 
 // Quadratic number field with root 2
@@ -107,7 +109,7 @@ impl Localizable for Zroot2
 
         // Remember, trailing zeroes can be size(Int)
         // when Int==0
-        
+
         let trail0 = self.0.trailing_zeros();
         let trail1 = self.1.trailing_zeros();
 
@@ -158,7 +160,7 @@ impl Localizable for Zroot2
     {
         return self.0*self.0-2*self.1*self.1;
     }
-    
+
     // Should check if norm is a unit 
     fn is_unit(self) -> bool
     {
@@ -182,12 +184,6 @@ impl From<Int> for Zroot2 {
 
 
 
-// impl PartialEq for Zroot2
-// {
-//     fn eq(&self, other: &Self) -> bool {
-//         return self.0==other.0 && self.1==other.1;
-//     }
-// }
 
 impl Zero for Zroot2
 {
@@ -195,7 +191,7 @@ impl Zero for Zroot2
     {
         return Zroot2(0,0);
     }
-    
+
     fn is_zero(&self) -> bool
     {
         return self.0==0 && self.1==0;
@@ -209,7 +205,7 @@ impl One for Zroot2
     {
         return Zroot2(1,0);
     }
-    
+
 
 }
 
@@ -250,7 +246,8 @@ impl Mul for Zroot2 {
 
 // Conjugate Zroot2 elements
 impl Conj for Zroot2 {
-    fn conj(self) -> Zroot2 {
+    fn conj(&self) -> Self 
+    {
         Zroot2(self.0,-self.1)
     }
 }
@@ -303,3 +300,32 @@ impl Num for Zroot2
     }
 }
 
+impl ToPrimitive for Zroot2
+{
+    // Rust needs this. 
+    // The NumCast library does not work otherwise
+    // Honestly, I cannot convert Zroot2 to i64 or u64
+    fn to_i64(&self) -> Option<i64> 
+    { 
+        return None;
+    }
+
+    fn to_u64(&self) -> Option<u64> 
+    { 
+        return None;
+    }
+
+}
+
+impl NumCast for Zroot2
+{
+    fn from<T>(given: T) -> Option<Self>
+        where T: ToPrimitive
+    {
+        return Some(Self
+                    {
+                        0: given.to_i64().unwrap(),
+                        1: 0
+                    });
+    }
+}

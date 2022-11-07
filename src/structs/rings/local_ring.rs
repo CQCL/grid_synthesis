@@ -27,16 +27,14 @@ use std::fmt::Formatter;
 use num_traits::Num;
 use num_traits::Zero;
 use num_traits::One;
+use num_traits::ToPrimitive;
 use num_traits::NumCast;
-use num_traits::FromPrimitive;
-// use num_traits::ToPrimitive;
 
 
 // // Localization trait. 
 // See mod.rs for some info
 // Or Zroot2
 use crate::structs::rings::Localizable; 
-use crate::structs::rings::Fixable; 
 use crate::structs::rings::Conj; //Conjugation trait
 
 //Integer type is set globally
@@ -61,12 +59,12 @@ pub struct Local<T>
 
 // Internal function
 // Used to make the numerator independent of denominator
-impl<T> Fixable for Local<T> 
+impl<T> Local<T> 
 where T: Localizable+PartialEq+Copy,
       T: Num
 
 {
-    fn fix(mut self) -> Self 
+    fn fix(&mut self) -> Self 
     {
         // println!("Fixing height {}",self.log_den);
         if self.num != T::zero()
@@ -85,7 +83,7 @@ where T: Localizable+PartialEq+Copy,
             // println!("log_den is {}",self.log_den);
 
             // Return ownership
-            return self;
+            return *self;
         }
         else
         {
@@ -93,7 +91,7 @@ where T: Localizable+PartialEq+Copy,
             self.log_den=0;
 
             // Return ownership
-            return self;
+            return *self;
         }
     }
 
@@ -197,7 +195,7 @@ where T: Mul<Output=T>+PartialEq+Copy,
         }
         else
         {
-            let temp = Self
+            let mut temp = Self
             {
                 num: self.num*other.num,
                 log_den: self.log_den+other.log_den
@@ -277,99 +275,47 @@ where T: Display+PartialEq,
 }
 
 
-// Teaching rust how to compare these ring elements
-// impl<T> PartialOrd for Local<T>
-// where T: Copy+From<Int>+PartialEq
-// {
-//     fn partial_cmp(&self, other: &Self) -> Option< std::cmp::Ordering >
-//     {
-//         // panic!("Does not make sense");
-        
-//     }
-
-// }
-
-// Teaching rust how to compare these ring elements
-// impl<T> PartialEq for Local<T> 
-// where T: PartialEq+From<Int>+Copy,
-//       // T: Localizable
-// {
-//     fn eq(&self, other: &Self) -> bool 
-//     {
-//         // if other.num.is_divisible() && other.num != T::from(0)
-//         // {
-//         //     other.fix();
-//         // }
-//         // if self.num.is_divisible() && self.num != T::from(0)
-//         // {
-//         //     self.fix();
-//         // }
-//         return self.num==other.num && self.log_den==other.log_den;
-//     }
-// }
 
 
-// impl<T> ToPrimitive for Local<T>
-// where T: Num,
-//       T: Localizable+PartialEq,
-// {
+
+ impl<T> ToPrimitive for Local<T>
+ {
+    // Rust needs this. 
+    // The NumCast library does not work otherwise
+    // Honestly, I cannot convert Local<T> to i64 or u64
+    fn to_i64(&self) -> Option<i64> 
+    { 
+        return None;
+    }
+
+    fn to_u64(&self) -> Option<u64> 
+    { 
+        return None;
+    }
     
-// }
-//
-//
-impl<T> FromPrimitive for Local<T>
-{
+ }
+ 
+impl<T> NumCast for Local<T>
+where T: NumCast,
+      T: Localizable,
+      T: PartialEq,
+      T: Copy,
+      T: Num
+ {
+    fn from<E>(given: E) -> Option<Self>
+        where E: ToPrimitive
+    {
+        let mut temp = Self
+        {
+            num: T::from(given).unwrap(),
+            log_den:0
+        };
+        temp = temp.fix();
+        return Some(temp);
+    }
+ }
 
-    fn from_i64(n: i64) -> Option<Self>
-    {
-        todo!();
-    }
-    fn from_u64(n: u64) -> Option<Self>
-    {
-        todo!();
-    }
 
-    fn from_isize(n: isize) -> Option<Self> 
-    {
-        todo!()
-    }
-    fn from_i8(n: i8) -> Option<Self> 
-    {
-        todo!()
-    }
-    fn from_i16(n: i16) -> Option<Self> 
-    {
-        todo!()
-    }
-    fn from_i32(n: i32) -> Option<Self> 
-    {
-        todo!()
-    }
-    fn from_usize(n: usize) -> Option<Self> 
-    {
-        todo!()
-    }
-    fn from_u8(n: u8) -> Option<Self> 
-    {
-        todo!()
-    }
-    fn from_u16(n: u16) -> Option<Self> 
-    {
-        todo!()
-    }
-    fn from_u32(n: u32) -> Option<Self> 
-    {
-        todo!()
-    }
-    fn from_f32(n: f32) -> Option<Self> 
-    {
-        todo!()
-    }
-    fn from_f64(n: f64) -> Option<Self> 
-    {
-        todo!()
-    }
-}
 
 // To construct Local<T> directly from integers
 // impl<T> From<Int> for Local<T> 
@@ -422,7 +368,7 @@ impl<T> FromPrimitive for Local<T>
 impl<T> Conj for Local<T> 
 where T: Conj+Copy
 {
-    fn conj(self) -> Self {
+    fn conj(&self) -> Self {
         let temp_num = self.num;
         temp_num.conj();
         Self{
