@@ -384,7 +384,7 @@ where T: Conj+Copy
 impl<T> Div for Local<T> 
 where T: Num,
       T: PartialEq+Copy,
-      T: Localizable+Conj,
+      T: Localizable,
 {
     type Output = Self;
 

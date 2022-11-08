@@ -28,15 +28,15 @@ pub trait Localizable{
     fn perform_n_multiplications(self,_:Int) -> Self;
     
 
+}
     // The following two functions should have their own trait.
     // TODO
     
     // Should return norm
-    fn norm(self) -> Int;
+    // fn norm(self) -> Int;
     
     // Should check if norm is a unit 
-    fn is_unit(self) -> bool;
-}
+    // fn is_unit(self) -> bool;
 
 
 

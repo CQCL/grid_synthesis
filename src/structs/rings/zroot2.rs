@@ -156,6 +156,9 @@ impl Localizable for Zroot2
         return self;
     }
 
+}
+impl Zroot2
+{
     fn norm(self) -> Int
     {
         return self.0*self.0-2*self.1*self.1;
@@ -173,7 +176,6 @@ impl Localizable for Zroot2
             return false;
         }
     }
-
 }
 
 impl From<Int> for Zroot2 {

@@ -496,6 +496,7 @@ pub fn sanity_checks_for_my_rings()
     basic_identities::<Local::<Zroot2>>();
     basic_identities::<num_complex::Complex::<Local::<Zroot2>>>();
 
+    basic_identities::<Local::<Int>>();
 }
 
 
@@ -509,6 +510,8 @@ pub fn division_checks_for_some_rings()
     basic_identities_with_div::<Local::<Zroot2>>();
     basic_identities_with_div::<num_complex::Complex::<Local::<Zroot2>>>();
     
+    basic_identities_with_div::<Local::<Int>>();
+
     // This should fail:
     // As on 08-11-2022
     // basic_identities_with_div::<Zroot2>();
