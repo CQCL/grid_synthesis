@@ -1,3 +1,9 @@
+
+// --------------------------
+//         WARNING: 
+//     NOW DEPRECATED !!!
+// -----------------------------
+
 // Ring of complex numbers
 // This implementation is agnostic of what the complex numbers are defined over
 // Basically for any ring R, it makes numbers of the form a+bI, where a and b are in R
@@ -223,80 +229,6 @@ where T: Neg<Output=T>,
 }
 
 
-// Returning the eigth root of unity
-type Loc = Local<Zroot2>;
-type Comp = Complex<Loc>;
-
-impl Comp
-{
-    pub fn onebyroot2() -> Comp
-    {
-        return Comp
-        {
-            0: Loc
-            {
-                num: Zroot2::one(),
-                log_den: 1
-            },
-
-            1: Loc
-            {
-                num: Zroot2::zero(),
-                log_den: 0
-            }
-
-        };
-
-    }
-    pub fn root2() -> Comp
-    {
-        return Comp
-        {
-            0: Loc
-            {
-                num: Zroot2::one(),
-                log_den: -1
-            },
-
-            1: Loc
-            {
-                num: Zroot2::zero(),
-                log_den: 0
-            }
-
-        };
-
-    }
-    pub fn mu_8() -> Comp
-    {
-        return Comp
-        {
-            0: Loc
-            {
-                num: Zroot2::one(),
-                log_den: 1
-            },
-
-            1: Loc
-            {
-                num: Zroot2::one(),
-                log_den: 1
-            }
-        };
-    }
-
-    pub fn sqrt2() -> Comp
-    {
-        return Comp
-        {
-            0: Loc{
-                num: Zroot2::one(),
-                log_den: -1,
-            },
-            1: Loc::zero(),
-        };
-    }
-}
 
 impl<T> One for Complex<T>
 where T: Num,

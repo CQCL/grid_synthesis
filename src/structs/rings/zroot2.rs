@@ -268,7 +268,10 @@ impl Div for Zroot2
     type Output = Self;
     fn div(self, other: Self) -> Self
     {
-        let nor = self.norm();
+        // Zroot2 is norm-Euclidean
+        // Therefore a division algorithm is very much possible for Zroot2
+        // Will look in to this: TODO
+        let nor = other.norm();
         if nor==1 || nor==-1
         {
             let norself = Self{
@@ -279,8 +282,10 @@ impl Div for Zroot2
         }
         else
         {
+            println!("Wanted to divide {} with {}",self,other);
             panic!("Division impossible");
         }
+        
     }
 
 }

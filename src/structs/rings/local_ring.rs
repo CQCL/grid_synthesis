@@ -342,26 +342,27 @@ where T: NumCast,
 
 
 // To construct Local<T> from T
-// impl<T> From<T> for Local<T> 
-// where T: Num,
-//       T: Localizable,
-//       T: PartialEq+Copy
-// {
-//     fn from(input : T) -> Self {
+impl<T> Local<T> 
+where T: Localizable,
+      T: PartialEq+Copy,
+      T: Num
+{
+    pub fn from_base(input : T) -> Self 
+    {
 
-//         let out = Self{
-//             num: input,
-//             log_den: 0
-//         };
+        let mut out = Self{
+            num: input,
+            log_den: 0
+        };
 
-//         if input!=T::one() && input!=T::zero()
-//         {
-//             out.fix();
-//         }
+        if input!=T::one() && input!=T::zero()
+        {
+            out.fix();
+        }
 
-//         return out;
-//     }
-// }
+        return out;
+    }
+}
 
 
 // Conjugate Complex elements
@@ -394,17 +395,16 @@ where T: Num,
             return Self::zero();
         }
 
-        let norm = other.num.norm();
-        if norm!=1 && norm!=-1
+        else if other.num.is_zero()
         {
-            panic!("Division by a non-unit")
+            panic!("Division by zero")
         }
         // println!("Dividing height {} with height {}",self.log_den,other.log_den);
-        else if norm==1
+        else 
         {
             let temp = Self
             {
-                num: self.num*other.num.conj(),
+                num: self.num/other.num,
                 log_den: self.log_den-other.log_den
             };
 
@@ -412,19 +412,6 @@ where T: Num,
             // temp.fix(); 
             return temp;
         }
-        else
-        {
-            let temp = Self
-            {
-                num: T::zero()-self.num*other.num.conj(),
-                log_den: self.log_den-other.log_den
-            };
-
-            //fixing might not be needed
-            // temp.fix(); 
-            return temp;
-        }
-
 
     }
 }
@@ -500,4 +487,8 @@ where T: Num,
         //
     }
 }
+
+
+
+
 

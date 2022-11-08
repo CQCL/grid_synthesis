@@ -10,3 +10,5 @@ authors = ["Nihar Gargava <nihargargava@gmail.com>"]
 num-complex = "0.4"
 num-traits = "0.2"
 
+# For testing
+rand = "0.8.5"

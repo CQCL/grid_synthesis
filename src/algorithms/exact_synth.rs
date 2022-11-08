@@ -27,11 +27,14 @@
 
 use crate::structs::rings::quaternion::Quaternion;
 // use crate::structs::rings::Int;
-use crate::structs::rings::complex::Complex;
+// use crate::structs::rings::complex::Complex;
 use crate::structs::rings::local_ring::Local;
 use crate::structs::rings::Int;
+use crate::structs::rings::Conj;
 use crate::structs::rings::zroot2::Zroot2;
 use crate::structs::sunimat::UniMat;
+use crate::structs::rings::special_values::mu_8;
+use crate::structs::rings::special_values::sqrt2;
 
 
 // Num traits
@@ -41,17 +44,22 @@ use num_traits::One;
 use num_traits::NumCast;
 use num_traits::FromPrimitive;
 
+// Complex numbers
+use num_complex::Complex;
 
 // Better looking code
 // type Quat = Quaternion<Local<Zroot2>>;
 type Loc = Local<Zroot2>;
+
 type Comp = Complex<Loc>;
+
 type Mat = UniMat<Comp>;
+
 
 pub fn act_upon_by_htpowk(gamma: Mat, k: Int) -> Mat
 {
-    let omega = Comp::mu_8();
-    let sqrt2 = Comp::sqrt2();
+    let omega = mu_8();
+    let sqrt2 = sqrt2();
     let z=gamma.u;
     let w=gamma.t;
     return Mat{
@@ -96,8 +104,8 @@ fn multiply_H_times_T_to_n( gamma: Mat, n: Int) -> Mat
     }
     else
     {
-        let omega = Comp::mu_8();
-        let sqrt2 = Comp::sqrt2();
+        let omega = mu_8();
+        let sqrt2 = sqrt2();
         let u1 = gamma.u;
         let t1 = gamma.t;
         let u2 = ( u1+pow(omega,n)*t1 )/sqrt2;
@@ -137,8 +145,8 @@ fn multiply_H_times_T_to_n( gamma: Mat, n: Int) -> Mat
 pub fn apply_gate_string_to_state( gate_string: String ,  gamma: Mat) -> Mat
 {
 
-    let rt2 = Comp::root2();
-    let omega = Comp::mu_8();
+    let rt2 = sqrt2();
+    let omega = mu_8();
 
 
     let mut state = gamma;
@@ -160,7 +168,7 @@ pub fn apply_gate_string_to_state( gate_string: String ,  gamma: Mat) -> Mat
 
 pub fn apply_h_gate( gamma: Mat) -> Mat
 {
-    let rt2 = Comp::sqrt2();
+    let rt2 = sqrt2();
     let state = Mat
     {
         u: (gamma.u+gamma.t)/rt2,
@@ -171,7 +179,7 @@ pub fn apply_h_gate( gamma: Mat) -> Mat
 
 pub fn apply_tinv_gate( gamma: Mat) -> Mat
 {
-    let omega = Comp::mu_8();
+    let omega = mu_8();
     let state = Mat
     {
         u: gamma.u,
@@ -181,7 +189,7 @@ pub fn apply_tinv_gate( gamma: Mat) -> Mat
 }
 pub fn apply_t_gate( gamma: Mat) -> Mat
 {
-    let omega = Comp::mu_8();
+    let omega = mu_8();
     let state = Mat
     {
         u: gamma.u,
@@ -201,14 +209,14 @@ pub fn exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
     {
         panic!("I was promised norm 1");
     }
-    if gamma.u.sqnorm().log_den != gamma.t.sqnorm().log_den
+    if gamma.u.norm_sqr().log_den != gamma.t.norm_sqr().log_den
     {
         panic!("Mathematics is wrong");
     }
-    // println!("This is the det: {}", gamma.u.sqnorm()+gamma.t.sqnorm());
+    // println!("This is the det: {}", gamma.u.norm_sqr()+gamma.t.norm_sqr());
     let mut g: Mat;
     let mut h = gamma;
-    let mut sdeq= h.u.sqnorm().log_den;
+    let mut sdeq= h.u.norm_sqr().log_den;
     let mut nevercalled : bool;
     let mut i: Int;
 
@@ -224,7 +232,7 @@ pub fn exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
             // println!("Iteration number: {}",i );
 
 
-            sdeq= h.u.sqnorm().log_den;
+            sdeq= h.u.norm_sqr().log_den;
             g = multiply_H_times_T_to_n(h,i);
 
             // { 
@@ -243,8 +251,8 @@ pub fn exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
             //     // -------- END OF DEBUG ZONE
             // }
 
-            let sdeq_new= g.u.sqnorm().log_den;
-            // println!("{} is now {}",g.u.sqnorm(),h.u.sqnorm() );
+            let sdeq_new= g.u.norm_sqr().log_den;
+            // println!("{} is now {}",g.u.norm_sqr(),h.u.norm_sqr() );
             // println!("{} is now {}", sdeq, sdeq_new);
             if sdeq_new==sdeq-1
             {

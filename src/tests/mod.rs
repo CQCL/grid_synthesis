@@ -3,6 +3,7 @@
 use crate::structs::rings::Localizable; 
 // use crate::structs::rings::Fixable; 
 use std::ops::Neg; 
+use std::ops::Div; 
 use std::ops::Add; 
 use std::ops::Sub; 
 use std::ops::Mul; 
@@ -14,7 +15,13 @@ use crate::structs::rings::Conj;
 use crate::structs::rings::local_ring::Local;
 use crate::structs::rings::zroot2::Zroot2;
 use crate::structs::rings::quaternion::Quaternion;
-use crate::structs::rings::complex::Complex;
+use crate::structs::rings::special_values::mu_8;
+use crate::structs::rings::special_values::onebyroot2;
+use crate::structs::rings::special_values::sqrt2;
+
+
+
+use num_complex::Complex;
 use crate::structs::sunimat::UniMat; 
 use crate::structs::rings::Int;
 use crate::structs::rings::Float;
@@ -81,6 +88,25 @@ pub fn basic_identities<T>() -> ()
     assert_eq!(w,u*u*u,"Failed to check that {} ={}*\n{}*\n{}",w,u,u,u);
 }
 
+pub fn basic_identities_with_div<T>() -> ()
+    where T: Copy+Debug+Display,
+          T: One+NumCast,
+          T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>,
+          T: Div<Output=T>,
+          T: PartialEq,
+{
+
+    println!("Test 1: 2/2 == 1");
+    let u=T::from(2).unwrap();
+    let w=T::from(2).unwrap();
+    assert_eq!(T::one(),u/w,"Failed to check that 1={} /\n{}",u,w);
+    
+    println!("Test 2: 4/2 == 2");
+    let u=T::from(64).unwrap();
+    let w=T::from(8).unwrap();
+    assert_eq!(w,u/w,"Failed to check that {}={} /\n{}",w,u,w);
+
+}
 
 // use crate::structs::rings::Constructs;
 pub fn basic_identities_with_conj<T>() -> () 
@@ -207,9 +233,9 @@ pub fn broke_arithmetic_until_26_10_2022()
     type Comp = Complex<Loc>;
     type Mat = UniMat<Comp>;
 
-    let omega = Comp::mu_8();
-    let onebyroot2 = Comp::onebyroot2();
-    let root2 = Comp::root2();
+    let omega = mu_8();
+    let onebyroot2 = onebyroot2();
+    let root2 = sqrt2();
     let one = Comp::one();
     let zero = Comp::zero();
 
@@ -217,17 +243,17 @@ pub fn broke_arithmetic_until_26_10_2022()
     let t1 = one-omega; 
 
     let q1 = Quat{
-        0: u1.0,
-        1: u1.1,
-        2: t1.0,
-        3: t1.1
+        0: u1.re,
+        1: u1.im,
+        2: t1.re,
+        3: t1.im
     };
 
     let mut q = Quat{
-        0: u1.0,
-        1: u1.1,
-        2: -t1.0,
-        3: t1.1
+        0: u1.re,
+        1: u1.im,
+        2: -t1.re,
+        3: t1.im
     };
     let mut g = Mat
     {
@@ -251,18 +277,18 @@ pub fn broke_arithmetic_until_26_10_2022()
     println!("u1*u1 = {}",u1*u1);
     println!("t1 = {}",t1);
     println!("t1.conj*t1 = {}",t1.conj()*t1);
-    println!("t1.norm = {}",t1.sqnorm());
-    println!("t1.0*t1.0 = {}",t1.0*t1.0);
-    println!("t1.1*t1.1 = {}",t1.1*t1.1);
-    println!("t1.0*t1.0+t1.1+t1.1 = {}",t1.0*t1.0+t1.1*t1.1);
+    println!("t1.norm = {}",t1.norm_sqr());
+    println!("t1.0*t1.0 = {}",t1.re*t1.re);
+    println!("t1.1*t1.1 = {}",t1.im*t1.im);
+    println!("t1.0*t1.0+t1.1+t1.1 = {}",t1.re*t1.re+t1.im*t1.im);
     println!("------------------------------");
     println!("u1^2-t1.conj*t1 = {}",u1*u1-t1.conj()*t1);
 
 
-    assert_eq!(gsq.u.0,qsq.0,"This causes a panic (as on 26-10-2022)");
-    assert_eq!(gsq.u.1,qsq.1);
-    assert_eq!(gsq.t.0,-qsq.2);
-    assert_eq!(gsq.t.1,qsq.3);
+    assert_eq!(gsq.u.re,qsq.0,"This causes a panic (as on 26-10-2022)");
+    assert_eq!(gsq.u.im,qsq.1);
+    assert_eq!(gsq.t.re,-qsq.2);
+    assert_eq!(gsq.t.im,qsq.3);
 }
 
 #[test]
@@ -299,9 +325,9 @@ pub fn break_division_in_loc_26_10_2022() {
     // type Mat = UniMat<Comp>;
     // type Quat = Quaternion<Loc>;
 
-    let omega = Comp::mu_8();
-    let onebyroot2 = Comp::onebyroot2();
-    let root2 = Comp::root2();
+    let omega = mu_8();
+    let onebyroot2 = onebyroot2();
+    let root2 = sqrt2();
     let one = Comp::one();
     let zero = Comp::zero();
 
@@ -321,9 +347,9 @@ pub fn doesnt_break_matrices_27_10_2022()
     type Mat = UniMat<Comp>;
     // type Quat = Quaternion<Loc>;
 
-    let omega = Comp::mu_8();
-    let onebyroot2 = Comp::onebyroot2();
-    let root2 = Comp::root2();
+    let omega = mu_8();
+    let onebyroot2 = onebyroot2();
+    let root2 = sqrt2();
     let one = Comp::one();
     let zero = Comp::zero();
 
@@ -471,3 +497,69 @@ pub fn sanity_checks_for_my_rings()
     basic_identities::<num_complex::Complex::<Local::<Zroot2>>>();
 
 }
+
+
+#[test]
+pub fn division_checks_for_some_rings()
+{
+    basic_identities_with_div::<Int>();
+    basic_identities_with_div::<Float>();
+    basic_identities_with_div::<num_complex::Complex::<Int>>();
+    basic_identities_with_div::<num_complex::Complex::<Float>>();
+    basic_identities_with_div::<Local::<Zroot2>>();
+    basic_identities_with_div::<num_complex::Complex::<Local::<Zroot2>>>();
+    
+    // This should fail:
+    // As on 08-11-2022
+    // basic_identities_with_div::<Zroot2>();
+}
+
+use rand::thread_rng;
+use rand::Rng;
+
+#[test]
+pub fn random_local_arithmetic() 
+{
+    // Doing some random arithmetic
+
+    type Loc = Local::<Zroot2>;
+    let mut rng = thread_rng();
+    let u1 :i64 = rng.gen_range(-1000..1000);
+    let u2 :i64 = rng.gen_range(-1000..1000);
+    let v1 :i64 = rng.gen_range(-1000..1000);
+    let v2 :i64 = rng.gen_range(-1000..1000);
+    let uzrt2 = Zroot2( u1, u2);
+    let vzrt2 = Zroot2( v1, v2);
+
+    let u = Loc::from_base(uzrt2);
+    let v = Loc::from_base(vzrt2);
+    let o = Loc::zero();
+
+    println!("{}", u);
+    println!("{}", v);
+
+    println!("Test 1: ---------");
+    assert_eq!((u*v)-(v*u),o);
+
+    println!("Test 2: ---------");
+    println!("This used to break arithmetic (see above)");
+    let left = Loc{
+        num: Zroot2(1,1),
+        log_den: 0,
+    };
+
+    let right = Loc{
+        num: Zroot2(-1,1),
+        log_den: -1,
+    };
+
+    println!("{}", left);
+    println!("{}", right);
+    println!("{}", left+right);
+    assert_eq!((u*left)+(u*right),u*(left+right));
+
+    println!("Test 3: ---------");
+    let z = Loc::from_base(Zroot2(rng.gen_range(-1000..1000),rng.gen_range(-1000..1000)));
+    assert_eq!(z*u-z*v,z*(u-v));
+}
+

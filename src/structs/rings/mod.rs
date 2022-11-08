@@ -10,16 +10,11 @@ pub trait Conj{
     fn conj(&self) -> Self;
 }
 
-// Supertrait (deprecated now, use from::(0) etc instead)
-// They return zero and one elements of our rings
-// pub trait Constructs<T>{
-//     fn zero() -> Self;
-//     fn one() -> Self;
-// }
 
 // Supertrait
 // Allows you to define a possible prime ideal for localization
 // See Zroot2 for an implementation
+// Also see Int for an implementation
 pub trait Localizable{
     // one should be able to check if the divisibility by ideal exists
     fn is_divisible(self) -> bool;
@@ -43,31 +38,14 @@ pub trait Localizable{
     fn is_unit(self) -> bool;
 }
 
-// Supertrait
-// Allows addition and multiplication in a local ring
-// See local_ring.rs for an implementation
-// TODO: Deprecate
-// pub trait Fixable{
-    
-//     // Reduce a number to it's lowest form, so that we can extract its p-adic valuation
-//     fn fix(self) -> Self;
-    
-//     // Return the log_den value to be used by something else
-//     fn logden(self) -> Int;
-    
-//     // Return sqrt2 for zroot2
-//     // Or in case of any other localizable ring
-//     // return something other than sqrt2
-//     fn local_gen() -> Self;
-// }
-
 
 
 
 
 pub mod zroot2;
+pub mod int_localization;
 pub mod local_ring;
-pub mod complex;
+pub mod special_values;
 pub mod quaternion;
 
 use std::ops::Mul;
@@ -91,4 +69,21 @@ where T: Mul<Output=T>+Copy
 }
 
 
+use std::ops::Neg;
+use num_traits::Num;
 
+// Implementing Conjuation for complex numbers
+impl<T> Conj for num_complex::Complex<T>
+where T: Neg<Output=T>,
+      T: Copy,
+      T: Num
+{
+    fn conj(&self) -> Self
+    {
+        return Self
+        {
+            re: self.re,
+            im: -self.im,
+        };
+    }
+}

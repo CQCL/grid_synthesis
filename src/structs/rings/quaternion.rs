@@ -3,12 +3,11 @@
 // This will create a Quaternion algebra over anything
 
 use crate::structs::rings::Conj; //Conjugation trait
-// use crate::structs::rings::Fixable; // For implementing local rings
 
 
 use crate::structs::rings::Int; //Integer type standard
-use crate::structs::rings::complex::Complex; //Complex type 
-
+// use crate::structs::rings::complex::Complex; //Complex type 
+use num_complex::Complex;
 
 // Num traits
 use num_traits::Num;
@@ -252,11 +251,17 @@ impl <T> Quaternion<T>
 {
     pub fn z(self) -> Complex<T>
     {
-        return Complex::<T>( self.0,self.1);
+        return Complex::<T>{
+            re: self.0,
+            im: self.1
+        };
     }
     pub fn w(self) -> Complex<T>
     {
-        return Complex::<T>( self.2,self.3);
+        return Complex::<T>{
+            re: self.2,
+            im: self.3
+        };
     }
 
 }

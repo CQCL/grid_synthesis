@@ -22,7 +22,7 @@ use num_traits::FromPrimitive;
 // use crate::structs::rings::dyad::Dyad; 
 // use crate::structs::rings::domega::DOmega; 
 use crate::structs::sunimat::UniMat; 
-use crate::structs::rings::complex::Complex; 
+// use crate::structs::rings::complex::Complex; 
 use crate::structs::rings::local_ring::Local; 
 use crate::structs::rings::zroot2::Zroot2; 
 use crate::structs::rings::quaternion::Quaternion;
@@ -32,6 +32,13 @@ use crate::structs::rings::Int;
 // use crate::structs::rings::Conj;
 // use crate::structs::rings::cyclotomic::Cyclotomic; 
 use crate::structs::rings::pow;
+
+use crate::structs::rings::special_values::mu_8;
+use crate::structs::rings::special_values::onebyroot2;
+use crate::structs::rings::special_values::sqrt2;
+
+
+use num_complex::Complex;
 
 use crate::algorithms::exact_synth::exact_synth_given_norm_1;
 
@@ -58,9 +65,9 @@ fn main() {
     println!("-------------CODE IS RUNNING--------------");
     println!("------------------------------------------");
 
-    let omega = Comp::mu_8();
-    let onebyroot2 = Comp::onebyroot2();
-    let root2 = Comp::root2();
+    let omega = mu_8();
+    let onebyroot2 = onebyroot2();
+    let root2 = sqrt2();
     let one = Comp::one();
     let zero = Comp::zero();
     
@@ -73,10 +80,10 @@ fn main() {
     };
 
 
-    // g=g*g*g*g*g*g; //*g*g*g*g*g;
+    g=g*g*g*g*g*g; //*g*g*g*g*g;
 
-    // let (gate_sequence,output)  = exact_synth_given_norm_1(g);
+    let (gate_sequence,output)  = exact_synth_given_norm_1(g);
 
-    // println!("{}", gate_sequence);
+    println!("{}", gate_sequence);
 
 }
