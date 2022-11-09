@@ -47,6 +47,7 @@ pub mod int_localization;
 pub mod local_ring;
 pub mod special_values;
 pub mod quaternion;
+pub mod domega;
 
 use std::ops::Mul;
 

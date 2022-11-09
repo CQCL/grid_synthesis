@@ -86,6 +86,13 @@ pub fn basic_identities<T>() -> ()
     let u=T::from(-3).unwrap();
     let w=T::from(-27).unwrap();
     assert_eq!(w,u*u*u,"Failed to check that {} ={}*\n{}*\n{}",w,u,u,u);
+    
+    println!("Test 6: 4*-1*2 == -8");
+    let u=T::from(4).unwrap();
+    let v=T::from(-1).unwrap();
+    let w=T::from(2).unwrap();
+    let z=T::from(-8).unwrap();
+    assert_eq!(z,u*v*w,"Failed to check that {} =\n{}*\n{}*\n{}",z,v,u,w);
 }
 
 pub fn basic_identities_with_div<T>() -> ()
