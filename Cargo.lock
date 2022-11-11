@@ -45,10 +45,10 @@ dependencies = [
 name = "grid_synthesis"
 version = "0.1.0"
 dependencies = [
+ "lll-rs",
  "num-complex",
  "num-traits",
  "rand",
- "rug",
 ]
 
 [[package]]
@@ -56,6 +56,15 @@ name = "libc"
 version = "0.2.137"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc7fcc620a3bff7cdd7a365be3376c97191aeaccc2a603e600951e452615bf89"
+
+[[package]]
+name = "lll-rs"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "99851f71a541e367bdbbe3f9c1faad0e2fc082bfa10264a132c18688fdd05bb7"
+dependencies = [
+ "rug",
+]
 
 [[package]]
 name = "num-complex"
