@@ -1,3 +1,6 @@
 pub mod rings;
-// pub mod unimat;
+
+pub mod rect;
+
 pub mod sunimat;
+// pub mod unimat;
