@@ -10,15 +10,14 @@ use crate::structs::rings::Int;
 
 
 
-// This is an implementation of just a bounding box routine
-pub fn grid_problem_in_a_bounding_box( boxA : Rect, boxB : Rect) -> ()
+pub fn ellispoid_parameters_for_region_A(direction: eta, epsilonA: Float, maxlogdep: Int) -> (matrix: Matrix)
 {
     todo!();
 }
 
 
 // This is an implementation of Proposition 5.22
-pub fn grid_problem( radiusA: Float, epsilonA: Float  , radiusB: Float ,  maxlogdep: Int )-> ()
+pub fn grid_problem( direction: eta, epsilonA: Float  ,  maxlogdep: Int )-> ()
 {
     todo!();
 }
