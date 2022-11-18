@@ -4,7 +4,6 @@
 //
 //
 
-use crate::structs::rect::Rect;
 use crate::structs::rings::Float;
 use crate::structs::rings::Int;
 
@@ -15,6 +14,7 @@ const sqrt2:Float = 1.4142135623730951;
 type Comp = num_complex::Complex<Float>;
 type Mat2 = nalgebra::Matrix2<Float>;
 type Mat4 = nalgebra::Matrix4<Float>;
+type Vec4 = nalgebra::Matrix4x1<Float>;
 
 // See comments for output idea
 pub fn ellipse_parameters_for_region_A(direction: Comp, epsilonA: Float ) -> (Comp, Mat2, Float)
@@ -54,21 +54,75 @@ pub fn ellipse_parameters_for_region_A(direction: Comp, epsilonA: Float ) -> (Co
     let e_1 = direction.re;
     let e_2 = direction.im;
     // todo!();
-    
+
     let mut outputmatrix =  nalgebra::matrix![
-     c+e_1*e_1*(1.0-c)+sqrtc   , e_1*e_2*(1.0-c)   ;
-     e_1*e_2*(1.0-c)  , c+e_2*e_2*(1.0-c)+sqrtc  ;
-     ];
+        c+e_1*e_1*(1.0-c)+sqrtc   , e_1*e_2*(1.0-c)   ;
+    e_1*e_2*(1.0-c)  , c+e_2*e_2*(1.0-c)+sqrtc  ;
+    ];
 
-     outputmatrix *= 1.0/(1.0+sqrtc);
+    outputmatrix *= 1.0/(1.0+sqrtc);
 
-     return (direction*(1.0-c), outputmatrix, c*c*(2.0-c));
-
-
+    return (direction*(1.0-c), outputmatrix, c*c*(2.0-c));
 
 }
 
+pub fn call_lll_on_nalgebra_matrix( m : Mat4) -> Mat4
+{
+    use lll_rs::{
+        // l2::{bigl2, l2f},
+        lll::lllf,
+        matrix::Matrix,
+        vector::VectorF,
+    };
 
+    // use rug::{Integer,Assign};
+
+    // Init the matrix with Integer
+    let mut basis: Matrix<VectorF> = Matrix::init(4, 4);
+
+    // Populate the matix
+    basis[0] = VectorF::from_vector(vec![
+                                    m[(0,0)],
+                                    m[(1,0)],
+                                    m[(2,0)],
+                                    m[(3,0)],
+    ]);
+
+    basis[1] = VectorF::from_vector(vec![
+                                    m[(0,1)],
+                                    m[(1,1)],
+                                    m[(2,1)],
+                                    m[(3,1)],
+    ]);
+    basis[2] = VectorF::from_vector(vec![
+                                    m[(0,2)],
+                                    m[(1,2)],
+                                    m[(2,2)],
+                                    m[(3,2)],
+    ]);
+    basis[3] = VectorF::from_vector(vec![
+                                    m[(0,3)],
+                                    m[(1,3)],
+                                    m[(2,3)],
+                                    m[(3,3)],
+    ]);
+
+    // Perfom the LLL basis redution
+    lllf::lattice_reduce(&mut basis);
+
+    // OR
+    // Perfom the LLL basis redution
+    // Specify the delta and eta coefficient for the reduction
+    // bigl2::lattice_reduce(&mut basis, 0.5005, 0.999);
+    //
+    return Mat4::new( 
+        basis[0][0], basis[0][1], basis[0][2], basis[0][3],
+        basis[1][0], basis[1][1], basis[1][2], basis[1][3],
+        basis[2][0], basis[2][1], basis[2][2], basis[2][3],
+        basis[3][0], basis[3][1], basis[3][2], basis[3][3],
+        );
+
+}
 
 // This is an implementation of Proposition 5.22
 pub fn grid_problem( direction: Comp, epsilonA: Float,  maxlogdep: Int )-> ()
@@ -105,30 +159,60 @@ pub fn grid_problem( direction: Comp, epsilonA: Float,  maxlogdep: Int )-> ()
     // |                                                            |
     // |                                                            |
     // +------------------------------------------------------------+
-                                                                                                      
+
     // Bound the region in an ellipse
     let (center,mat,radius) =   ellipse_parameters_for_region_A(direction, epsilonA);
 
     //create a 4 dimensional ellipsoid binding the region above combined with unit disc 
-    
+
     let c = 1.0/(1.0+radius);
-    
+
     let mat_big = 
-             Mat4::new(mat[(0,0)]*c, mat[(0,1)]*c, 0.0  , 0.0,
-                       mat[(1,0)]*c, mat[(1,1)]*c, 0.0  , 0.0,
-                               0.0 ,         0.0 , 1.0-c, 0.0,
-                               0.0 ,         0.0 , 0.0  , 1.0-c);
+        Mat4::new(mat[(0,0)]*c, mat[(0,1)]*c, 0.0  , 0.0,
+        mat[(1,0)]*c, mat[(1,1)]*c, 0.0  , 0.0,
+        0.0 ,         0.0 , 1.0-c, 0.0,
+        0.0 ,         0.0 , 0.0  , 1.0-c);
     let radius_big = 1.0;
 
     let mat_lattice = 
-             Mat4::new( 1.0 ,   sqrt2  , 0.0  , 0.0,
-                        1.0 ,  -sqrt2  , 0.0  , 0.0,
-                        0.0 ,      0.0 , 1.0  ,  sqrt2 ,
-                        0.0 ,      0.0 , 1.0  , -sqrt2 );
+        Mat4::new( 1.0 ,   sqrt2  , 0.0  , 0.0,
+                   1.0 ,  -sqrt2  , 0.0  , 0.0,
+                   0.0 ,      0.0 , 1.0  ,  sqrt2 ,
+                   0.0 ,      0.0 , 1.0  , -sqrt2 );
 
     let mut reducable = mat_big*mat_lattice;
-    lll_rs::lll::biglll::lattice_reduce(&mut reducable);
 
-    todo!("List lattice points in this region");
+    let reduced = call_lll_on_nalgebra_matrix(reducable);
+
+
+    // TODO: Figure out this N
+    let N = 1;
+
+    for i1 in -N..N 
+    {   for i2 in -N..N
+        {
+            for i3 in -N..N
+            {
+                for i4 in -N..N
+                {
+                    let point = reduced*Vec4::new(i1 as Float,i2 as Float,i3 as Float,i4 as Float);
+                    if point.norm()<=1.0
+                    {
+                        println!("{}", point);
+                        println!("{},{},{},{}",i1,i2,i3,i4 );
+                    }
+                }
+
+            }
+        }
+
+    }
+
+    //////////////////// DEBUG ZONE  /////////////////////
+    //
+    // println!("{}", reduced);
+    //
+    ///////////////////END OF DEBUG ZONE /////////////////
+
 }
 
