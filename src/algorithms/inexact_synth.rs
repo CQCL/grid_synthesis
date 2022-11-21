@@ -185,7 +185,8 @@ pub fn grid_problem( direction: Comp, epsilonA: Float,  maxlogdep: Int )-> ()
     let reduced = call_lll_on_nalgebra_matrix(reducable);
 
 
-    // TODO: Figure out this N
+    // N should be calculated based on LLL parameters
+    //
     let N = 1;
 
     for i1 in -N..N 
