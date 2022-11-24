@@ -1,7 +1,5 @@
-// This rust module contains all our rings etc.
-// Some of these O(1) operations about multiplication and addition can be optimized a little bit
-// The DOmega ring can be stored directly without any underlying Dyad implentation, I feel
 pub type Int = i64;
+pub type LogDepInt = i32;
 pub type Float = f64;
 
 // Supertrait
@@ -20,12 +18,12 @@ pub trait Localizable{
     fn is_divisible(self) -> bool;
     // if it is divisible, we perform the division
     // We return the number of times we divided
-    fn reduce_by_dividing(self) -> (Self,Int)
+    fn reduce_by_dividing(self) -> (Self,LogDepInt)
     where Self: Sized;
 
     // Multiply the ideal generator by the number of times given by n
     // WARNING: Bit Overflow may occur here if we perform too much multiplication
-    fn perform_n_multiplications(self,_:Int) -> Self;
+    fn perform_n_multiplications(self,_:LogDepInt) -> Self;
     
 
 }

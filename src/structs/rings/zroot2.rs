@@ -20,6 +20,7 @@ use std::fmt::Formatter;
 
 // Setting up my boundaries
 use crate::structs::rings::Int;
+use crate::structs::rings::LogDepInt;
 
 // Num traits
 use num_traits::Num;
@@ -103,7 +104,7 @@ impl Localizable for Zroot2
         if self.0%2==0 { true }
         else { false }
     }
-    fn reduce_by_dividing(mut self) -> ( Self, Int )
+    fn reduce_by_dividing(mut self) -> ( Self, LogDepInt )
     {
         // println!("Hi, I'm reducing self");
 
@@ -140,7 +141,7 @@ impl Localizable for Zroot2
     }
 
 
-    fn perform_n_multiplications(mut self, n: Int) -> Self 
+    fn perform_n_multiplications(mut self, n: LogDepInt) -> Self 
     {
         // (  a+bsqrt(2) )*2^(n/2) = (a*2^(n/2) +b*( k/2 + 1/2) ) 
         // println!("Will multiply {} times",n);

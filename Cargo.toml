@@ -13,8 +13,9 @@ num-complex = "0.4"
 num-traits = "0.2"
 
 # For algorithms
-lll-rs = "0.2"
-nalgebra = "0.31.4"
+lll-rs = "0.2" # Should be possible to write my own. It's easy
+nalgebra = "0.31.4" # standard matrix ops
+prime_factorization = "1.0.3" # Might replace it by a lookup table
 
 
 # For testing

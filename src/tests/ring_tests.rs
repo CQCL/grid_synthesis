@@ -16,7 +16,7 @@ use crate::structs::rings::local_ring::Local;
 use crate::structs::rings::zroot2::Zroot2;
 use crate::structs::rings::quaternion::Quaternion;
 use crate::structs::rings::special_values::mu_8;
-use crate::structs::rings::special_values::onebyroot2;
+use crate::structs::rings::special_values::onebyroot2comp;
 use crate::structs::rings::special_values::sqrt2;
 
 
@@ -241,7 +241,7 @@ pub fn broke_arithmetic_until_26_10_2022()
     type Mat = UniMat<Comp>;
 
     let omega = mu_8();
-    let onebyroot2 = onebyroot2();
+    let onebyroot2 = onebyroot2comp();
     let root2 = sqrt2();
     let one = Comp::one();
     let zero = Comp::zero();
@@ -333,7 +333,7 @@ pub fn break_division_in_loc_26_10_2022() {
     // type Quat = Quaternion<Loc>;
 
     let omega = mu_8();
-    let onebyroot2 = onebyroot2();
+    let onebyroot2 = onebyroot2comp();
     let root2 = sqrt2();
     let one = Comp::one();
     let zero = Comp::zero();
@@ -355,7 +355,7 @@ pub fn doesnt_break_matrices_27_10_2022()
     // type Quat = Quaternion<Loc>;
 
     let omega = mu_8();
-    let onebyroot2 = onebyroot2();
+    let onebyroot2 = onebyroot2comp();
     let root2 = sqrt2();
     let one = Comp::one();
     let zero = Comp::zero();
