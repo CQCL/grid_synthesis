@@ -4,32 +4,20 @@
 //
 //
 
-//
-
 use crate::structs::rings::Float;
-use crate::structs::rings::local_ring::Local;
-use crate::structs::rings::zroot2::Zroot2;
 use crate::structs::rings::Int;
-use crate::structs::rings::LogDepInt;
-use crate::structs::rings::Localizable;
 
-use num_traits::Pow;
-use num_traits::One;
-use nalgebra::linalg::QR;
 
 // PLEASE IMPROVE FOR BETTER ACCURACY!
-const SQRT2:Float = 1.4142135623730951;
+const sqrt2:Float = 1.4142135623730951;
 
 type Comp = num_complex::Complex<Float>;
-type Loc = Local::<Zroot2>;
-type CompLoc = num_complex::Complex<Loc>;
 type Mat2 = nalgebra::Matrix2<Float>;
 type Mat4 = nalgebra::Matrix4<Float>;
 type Vec4 = nalgebra::Matrix4x1<Float>;
-type Vec4Int = nalgebra::Matrix4x1<Int>;
 
 // See comments for output idea
-pub fn ellipse_parameters_for_region_a(direction: Comp, epsilon_a: Float ) -> (Comp, Mat2, Float)
+pub fn ellipse_parameters_for_region_A(direction: Comp, epsilonA: Float ) -> (Comp, Mat2, Float)
 {
     // Let direction = e_1 + i e_2
     // Want to have x^2 + y^2 <1 and 1-(xe_1 + ye_2) < \epsilon
@@ -61,7 +49,7 @@ pub fn ellipse_parameters_for_region_a(direction: Comp, epsilon_a: Float ) -> (C
     // Ans:  Radius is 2c^2 - c^3 where c = \epsilon
 
 
-    let c = epsilon_a;
+    let c = epsilonA;
     let sqrtc = c.sqrt();
     let e_1 = direction.re;
     let e_2 = direction.im;
@@ -136,7 +124,6 @@ pub fn call_lll_on_nalgebra_matrix( m : Mat4) -> Mat4
 
 }
 
-<<<<<<< HEAD
 pub fn find_lattice_points_in_a_box(red_matrix: Mat4, center: Vec4, r: Float) -> ()
 {
     // Given a box of radius r (half of the side length = radius) 
@@ -145,309 +132,13 @@ pub fn find_lattice_points_in_a_box(red_matrix: Mat4, center: Vec4, r: Float) ->
 }
 
 
-=======
-
-pub fn find_operator_norm(input : Mat4) -> Float
-{
-    return input.singular_values()[0];
-}
-
-
-
-pub fn extract_gate_coordinate_in_local_ring(integer_coords: Vec4Int) -> Option::<(Loc,Loc)>
-{
-    let zrt_left = Zroot2(integer_coords[0],integer_coords[1]);
-    let zrt_right = Zroot2(integer_coords[2],integer_coords[3]);
-
-    // We throw away the points if they were covered while checking smaller values of exactlogdep
-    if zrt_left.is_divisible() && zrt_right.is_divisible()
-    {
-        return None;
-    }
-    else 
-    {
-        return Some( (Loc::from_base(zrt_left), Loc::from_base(zrt_left)) );
-    }
-}
-
-
-// Integer point should be useful
-pub fn test_this_integer_point( this_point : Vec4Int, coordinate_basis: Mat4 , epsilon_a: Float, direction: Comp, exactlogdep: LogDepInt  ) -> bool
-{
-    let actual_point = coordinate_basis*Vec4::new(this_point[0] as Float,this_point[1] as Float,this_point[2] as Float,this_point[3] as Float) * SQRT2.pow(-exactlogdep);
-
-    let complex_point = Comp
-    { 
-        re: actual_point[0]+SQRT2*actual_point[1],
-        im: actual_point[2]+SQRT2*actual_point[3],
-    };
-
-    let complex_point_dot_conj = Comp
-    { 
-        re: actual_point[0]-SQRT2*actual_point[1],
-        im: actual_point[2]-SQRT2*actual_point[3],
-    };
-
-    if complex_point_dot_conj.norm_sqr() < 1.0
-    {
-        if complex_point.re*direction.re+complex_point.im*direction.im > 1.0- epsilon_a
-        {
-            return true;
-        }
-        else 
-        {
-            return false;
-        }
-        // todo!();
-    }
-    else 
-    {
-        return false;
-    }
-}
-
-
-
-pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  -> Option::<(Loc,Loc)>
-{
-    todo!()
-}
-
-
-// Return a complete unitary, if it can be returned
-// Else return none
-pub fn attempt_to_figure_out_gate_given_that_this_point_is_feasible( this_point: Vec4Int, exactlogdep: LogDepInt) -> Option::<CompLoc>
-{
-    
-    let get_coord =  extract_gate_coordinate_in_local_ring(this_point);
-
-    if get_coord == None
-    {
-        return None;
-    }
-    else
-    {
-        let (left,right) = get_coord.unwrap();
-
-        let left_scaled = Loc
-        {
-            num: left.num,
-            log_den: left.log_den + exactlogdep,
-        };
-        
-        let right_scaled = Loc
-        {
-            num: right.num,
-            log_den: right.log_den + exactlogdep,
-        };
-
-        let our_num = Loc::one() - left_scaled*left_scaled - right_scaled*right_scaled;
-
-        attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num);
-
-        todo!();
-    }
-    
-
-}
-
-
-pub fn test_integer_points_in_ball_around_integer_center_of_radius(radius: Float, int_center: Vec4Int, direction_of_rotation: Comp, epsilon_a: Float, exactlogdep: LogDepInt) -> ()
-{
-    let mut collection = Vec::<Vec4Int>::new();
-
-    let n = (radius*radius).floor() as Int + 1;
-
-
-
-    let mut i1 : Int;
-    let mut i2 : Int;
-    let mut i3 : Int;
-    let mut i4 : Int;
-
-
-    i1 = 0;
-    while i1*i1 < n
-    {
-        i2 = 0;
-        while i2*i2 < n - i1*i1
-        {
-            i3 = 0;
-            while i3*i3 < n - i1*i1 - i2*i2
-            {
-
-                i4 = 0;
-                while i4*i4 < n - i1*i1 - i2*i2 - i3*i3
-                {
-                    if i1==0 && i2==0 && i3==0 && i4==0 
-                    {
-                        collection.push(Vec4Int::new( i1, i2, i3, i4));
-                    }
-                    else if i1!=0 && i2==0 && i3==0 && i4==0 
-                    {
-                        collection.push(Vec4Int::new( i1, i2, i3, i4));
-                        collection.push(Vec4Int::new(-i1, i2, i3, i4));
-                    }
-                    else if i1==0 && i2!=0 && i3==0 && i4==0 
-                    {
-                        collection.push(Vec4Int::new( i1, i2, i3, i4));
-                        collection.push(Vec4Int::new( i1,-i2, i3, i4));
-                    }
-                    else if i1==0 && i2==0 && i3!=0 && i4==0 
-                    {
-                        collection.push(Vec4Int::new( i1, i2, i3, i4));
-                        collection.push(Vec4Int::new( i1, i2,-i3, i4));
-                    }
-                    else if i1==0 && i2==0 && i3==0 && i4!=0 
-                    {
-                        collection.push(Vec4Int::new( i1, i2, i3, i4));
-                        collection.push(Vec4Int::new( i1, i2, i3,-i4));
-                    }
-                    else if i1!=0 && i2!=0 && i3==0 && i4==0 
-                    {
-                        collection.push(Vec4Int::new( i1, i2, i3, i4));
-                        collection.push(Vec4Int::new(-i1, i2, i3, i4));
-                        collection.push(Vec4Int::new( i1,-i2, i3, i4));
-                        collection.push(Vec4Int::new(-i1,-i2, i3, i4));
-                    }
-                    else if i1!=0 && i2==0 && i3!=0 && i4==0 
-                    {
-                        collection.push(Vec4Int::new( i1, i2, i3, i4));
-                        collection.push(Vec4Int::new(-i1, i2, i3, i4));
-                        collection.push(Vec4Int::new( i1, i2,-i3, i4));
-                        collection.push(Vec4Int::new(-i1, i2,-i3, i4));
-                    }
-                    else if i1!=0 && i2==0 && i3==0 && i4!=0 
-                    {
-                        collection.push(Vec4Int::new( i1, i2, i3, i4));
-                        collection.push(Vec4Int::new(-i1, i2, i3, i4));
-                        collection.push(Vec4Int::new( i1, i2, i3,-i4));
-                        collection.push(Vec4Int::new(-i1, i2, i3,-i4));
-                    }
-                    else if i1==0 && i2!=0 && i3!=0 && i4==0 
-                    {
-                        collection.push(Vec4Int::new( i1, i2, i3, i4));
-                        collection.push(Vec4Int::new( i1,-i2, i3, i4));
-                        collection.push(Vec4Int::new( i1, i2,-i3, i4));
-                        collection.push(Vec4Int::new( i1,-i2,-i3, i4));
-                    }
-                    else if i1==0 && i2!=0 && i3==0 && i4!=0 
-                    {
-                        collection.push(Vec4Int::new( i1, i2, i3, i4));
-                        collection.push(Vec4Int::new( i1,-i2, i3, i4));
-                        collection.push(Vec4Int::new( i1, i2, i3,-i4));
-                        collection.push(Vec4Int::new( i1,-i2, i3,-i4));
-                    }
-                    else if i1==0 && i2==0 && i3!=0 && i4!=0 
-                    {
-                        collection.push(Vec4Int::new( i1, i2, i3, i4));
-                        collection.push(Vec4Int::new( i1, i2,-i3, i4));
-                        collection.push(Vec4Int::new( i1, i2, i3,-i4));
-                        collection.push(Vec4Int::new( i1, i2,-i3,-i4));
-                    }
-                    else if i1!=0 && i2!=0 && i3!=0 && i4==0 
-                    {
-                        collection.push(Vec4Int::new( i1, i2, i3, i4));
-                        collection.push(Vec4Int::new(-i1, i2, i3, i4));
-                        collection.push(Vec4Int::new( i1,-i2, i3, i4));
-                        collection.push(Vec4Int::new(-i1,-i2, i3, i4));
-                        collection.push(Vec4Int::new( i1, i2,-i3, i4));
-                        collection.push(Vec4Int::new(-i1, i2,-i3, i4));
-                        collection.push(Vec4Int::new( i1,-i2,-i3, i4));
-                        collection.push(Vec4Int::new(-i1,-i2,-i3, i4));
-                    }
-                    else if i1!=0 && i2!=0 && i3==0 && i4!=0 
-                    {
-                        collection.push(Vec4Int::new( i1, i2, i3, i4));
-                        collection.push(Vec4Int::new(-i1, i2, i3, i4));
-                        collection.push(Vec4Int::new( i1,-i2, i3, i4));
-                        collection.push(Vec4Int::new(-i1,-i2, i3, i4));
-                        collection.push(Vec4Int::new( i1, i2, i3,-i4));
-                        collection.push(Vec4Int::new(-i1, i2, i3,-i4));
-                        collection.push(Vec4Int::new( i1,-i2, i3,-i4));
-                        collection.push(Vec4Int::new(-i1,-i2, i3,-i4));
-                    }
-                    else if i1!=0 && i2==0 && i3!=0 && i4!=0 
-                    {
-                        collection.push(Vec4Int::new( i1, i2, i3, i4));
-                        collection.push(Vec4Int::new(-i1, i2, i3, i4));
-                        collection.push(Vec4Int::new( i1, i2,-i3, i4));
-                        collection.push(Vec4Int::new(-i1, i2,-i3, i4));
-                        collection.push(Vec4Int::new( i1, i2, i3,-i4));
-                        collection.push(Vec4Int::new(-i1, i2, i3,-i4));
-                        collection.push(Vec4Int::new( i1, i2,-i3,-i4));
-                        collection.push(Vec4Int::new(-i1, i2,-i3,-i4));
-                    }
-                    else if i1==0 && i2!=0 && i3!=0 && i4!=0 
-                    {
-                        collection.push(Vec4Int::new( i1, i2, i3, i4));
-                        collection.push(Vec4Int::new( i1,-i2, i3, i4));
-                        collection.push(Vec4Int::new( i1, i2,-i3, i4));
-                        collection.push(Vec4Int::new( i1,-i2,-i3, i4));
-                        collection.push(Vec4Int::new( i1, i2, i3,-i4));
-                        collection.push(Vec4Int::new( i1,-i2, i3,-i4));
-                        collection.push(Vec4Int::new( i1, i2,-i3,-i4));
-                        collection.push(Vec4Int::new( i1,-i2,-i3,-i4));
-                    }
-                    else if i1!=0 && i2!=0 && i3!=0 && i4!=0 
-                    {
-                        collection.push(Vec4Int::new( i1, i2, i3, i4));
-                        collection.push(Vec4Int::new(-i1, i2, i3, i4));
-                        collection.push(Vec4Int::new( i1,-i2, i3, i4));
-                        collection.push(Vec4Int::new(-i1,-i2, i3, i4));
-                        collection.push(Vec4Int::new( i1, i2,-i3, i4));
-                        collection.push(Vec4Int::new(-i1, i2,-i3, i4));
-                        collection.push(Vec4Int::new( i1,-i2,-i3, i4));
-                        collection.push(Vec4Int::new(-i1,-i2,-i3, i4));
-                        collection.push(Vec4Int::new( i1, i2, i3,-i4));
-                        collection.push(Vec4Int::new(-i1, i2, i3,-i4));
-                        collection.push(Vec4Int::new( i1,-i2, i3,-i4));
-                        collection.push(Vec4Int::new(-i1,-i2, i3,-i4));
-                        collection.push(Vec4Int::new( i1, i2,-i3,-i4));
-                        collection.push(Vec4Int::new(-i1, i2,-i3,-i4));
-                        collection.push(Vec4Int::new( i1,-i2,-i3,-i4));
-                        collection.push(Vec4Int::new(-i1,-i2,-i3,-i4));
-                    }
-
-                    i4 = i4 +1
-                }
-
-                i3 = i3+1;
-
-            }
-
-            i2 = i2+1;
-        }
-
-        i1= i1+1;
-    }
-
-
-    // return collection;
-}
-
-pub fn pseudo_nearest_neighbour_integer_coordinates(lattice_matrix_orthognal_part_inverse : Mat4, input_vector: Vec4 )  -> Vec4Int
-{
-    let floating_vector = lattice_matrix_orthognal_part_inverse*input_vector;
-    let output = Vec4Int::new(  
-        floating_vector[0].round() as Int,
-        floating_vector[1].round() as Int,
-        floating_vector[2].round() as Int,
-        floating_vector[3].round() as Int,
-        );
-    return output;
-}
-
-
-
->>>>>>> 8e4ae3d7c78c5461a396772e9d473c2a751f98ce
 // This is an implementation of Proposition 5.22
-pub fn grid_problem( direction: Comp, epsilon_a: Float,  exactlogdep: LogDepInt )-> ()
+pub fn grid_problem( direction: Comp, epsilonA: Float,  maxlogdep: Int )-> ()
 {
 
     // Trying to find the lattice points in the intersection of a disc and a half plane
     // Somtimes this region is called the "miniscule" region
-    // Zoom out for the oversimilified picture
+    // Zoom out for the picture
     // +------------------------------------------------------------+
     // |                                                            |
     // |                                                            |
@@ -476,13 +167,9 @@ pub fn grid_problem( direction: Comp, epsilon_a: Float,  exactlogdep: LogDepInt 
     // |                                                            |
     // |                                                            |
     // +------------------------------------------------------------+
-    //
-    // The actual problem is a four dimensional lattice intersecting with a region like this
 
     // Bound the region in an ellipse
-    let (center,mat,radius) =   ellipse_parameters_for_region_a(direction, epsilon_a);
-
-    let centervec = Vec4::new(center.re,center.im,0.0,0.0);
+    let (center,mat,radius) =   ellipse_parameters_for_region_A(direction, epsilonA);
 
     //create a 4 dimensional ellipsoid binding the region above combined with unit disc 
 
@@ -491,21 +178,14 @@ pub fn grid_problem( direction: Comp, epsilon_a: Float,  exactlogdep: LogDepInt 
     let mat_big = 
         Mat4::new(mat[(0,0)]*c, mat[(0,1)]*c, 0.0  , 0.0,
         mat[(1,0)]*c, mat[(1,1)]*c, 0.0  , 0.0,
-<<<<<<< HEAD
         0.0 ,         0.0 , 1.0-c, 0.0,
         0.0 ,         0.0 , 0.0  , 1.0-c);
-=======
-        0.0 ,         0.0         , 1.0-c, 0.0,
-        0.0 ,         0.0         , 0.0  , 1.0-c);
-
-    let radius_big = 1.0;
->>>>>>> 8e4ae3d7c78c5461a396772e9d473c2a751f98ce
 
     let mat_lattice = 
-        Mat4::new( 1.0 ,   SQRT2  , 0.0  , 0.0,
-                   0.0 ,      0.0 , 1.0  ,  SQRT2 ,
-                   1.0 ,  -SQRT2  , 0.0  , 0.0,
-                   0.0 ,      0.0 , 1.0  , -SQRT2 );
+        Mat4::new( 1.0 ,   sqrt2  , 0.0  , 0.0,
+                   1.0 ,  -sqrt2  , 0.0  , 0.0,
+                   0.0 ,      0.0 , 1.0  ,  sqrt2 ,
+                   0.0 ,      0.0 , 1.0  , -sqrt2 );
 
     let mut reducable = mat_big*mat_lattice;
 
@@ -522,20 +202,33 @@ pub fn grid_problem( direction: Comp, epsilon_a: Float,  exactlogdep: LogDepInt 
 
     
 
-    let operatornorm = find_operator_norm(reduced);
-    let reduced_orthogonal_part_inverse = reduced.qr().q().try_inverse().unwrap();
+    // N should be calculated based on LLL parameters
+    //
+    let N = 1;
 
+    for i1 in -N..N 
+    {   for i2 in -N..N
+        {
+            for i3 in -N..N
+            {
+                for i4 in -N..N
+                {
+                    let point = reduced*Vec4::new(i1 as Float,i2 as Float,i3 as Float,i4 as Float);
+                    if point.norm()<=1.0
+                    {
+                        println!("{}", point);
+                        println!("{},{},{},{}",i1,i2,i3,i4 );
+                    }
+                }
 
+            }
+        }
 
-    // Instead of this, we could have a rust thread
-    // stream out lattice points by communicating messages.
-    // and in parallel another one testing that it works
-    let integer_center = pseudo_nearest_neighbour_integer_coordinates(reduced_orthogonal_part_inverse, centervec*SQRT2.pow(exactlogdep));
-    test_integer_points_in_ball_around_integer_center_of_radius(operatornorm*SQRT2.pow(exactlogdep), integer_center, direction,epsilon_a,exactlogdep);
-
+    }
 
     //////////////////// DEBUG ZONE  /////////////////////
     //
+    // println!("{}", reduced);
     //
     ///////////////////END OF DEBUG ZONE /////////////////
 
