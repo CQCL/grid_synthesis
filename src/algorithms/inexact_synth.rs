@@ -136,16 +136,6 @@ pub fn call_lll_on_nalgebra_matrix( m : Mat4) -> Mat4
 
 }
 
-<<<<<<< HEAD
-pub fn find_lattice_points_in_a_box(red_matrix: Mat4, center: Vec4, r: Float) -> ()
-{
-    // Given a box of radius r (half of the side length = radius) 
-    // This will list down all the points in the box
-    // assuming that the lattice is LLL-reduced
-}
-
-
-=======
 
 pub fn find_operator_norm(input : Mat4) -> Float
 {
@@ -440,7 +430,6 @@ pub fn pseudo_nearest_neighbour_integer_coordinates(lattice_matrix_orthognal_par
 
 
 
->>>>>>> 8e4ae3d7c78c5461a396772e9d473c2a751f98ce
 // This is an implementation of Proposition 5.22
 pub fn grid_problem( direction: Comp, epsilon_a: Float,  exactlogdep: LogDepInt )-> ()
 {
@@ -491,15 +480,10 @@ pub fn grid_problem( direction: Comp, epsilon_a: Float,  exactlogdep: LogDepInt 
     let mat_big = 
         Mat4::new(mat[(0,0)]*c, mat[(0,1)]*c, 0.0  , 0.0,
         mat[(1,0)]*c, mat[(1,1)]*c, 0.0  , 0.0,
-<<<<<<< HEAD
-        0.0 ,         0.0 , 1.0-c, 0.0,
-        0.0 ,         0.0 , 0.0  , 1.0-c);
-=======
         0.0 ,         0.0         , 1.0-c, 0.0,
         0.0 ,         0.0         , 0.0  , 1.0-c);
 
     let radius_big = 1.0;
->>>>>>> 8e4ae3d7c78c5461a396772e9d473c2a751f98ce
 
     let mat_lattice = 
         Mat4::new( 1.0 ,   SQRT2  , 0.0  , 0.0,
