@@ -124,6 +124,14 @@ pub fn call_lll_on_nalgebra_matrix( m : Mat4) -> Mat4
 
 }
 
+pub fn find_lattice_points_in_a_box(red_matrix: Mat4, center: Vec4, r: Float) -> ()
+{
+    // Given a box of radius r (half of the side length = radius) 
+    // This will list down all the points in the box
+    // assuming that the lattice is LLL-reduced
+}
+
+
 // This is an implementation of Proposition 5.22
 pub fn grid_problem( direction: Comp, epsilonA: Float,  maxlogdep: Int )-> ()
 {
@@ -172,7 +180,6 @@ pub fn grid_problem( direction: Comp, epsilonA: Float,  maxlogdep: Int )-> ()
         mat[(1,0)]*c, mat[(1,1)]*c, 0.0  , 0.0,
         0.0 ,         0.0 , 1.0-c, 0.0,
         0.0 ,         0.0 , 0.0  , 1.0-c);
-    let radius_big = 1.0;
 
     let mat_lattice = 
         Mat4::new( 1.0 ,   sqrt2  , 0.0  , 0.0,
@@ -183,7 +190,17 @@ pub fn grid_problem( direction: Comp, epsilonA: Float,  maxlogdep: Int )-> ()
     let mut reducable = mat_big*mat_lattice;
 
     let reduced = call_lll_on_nalgebra_matrix(reducable);
+    
+    
+    let center4d = reduced.try_inverse().unwrap()*Vec4::new(center.re,center.im,0.0,0.0);
+    let radius_big = 1.0;
 
+    // List lattice points in a four dimensional ball 
+    // Given the the basis is LLL-reduced
+    // and given a center and radius
+    find_lattice_points_in_a_box(reduced, center4d, radius_big);
+
+    
 
     // N should be calculated based on LLL parameters
     //
