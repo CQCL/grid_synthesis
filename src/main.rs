@@ -34,7 +34,7 @@ use crate::structs::rings::Int;
 use crate::structs::rings::pow;
 
 use crate::structs::rings::special_values::mu_8;
-use crate::structs::rings::special_values::onebyroot2;
+use crate::structs::rings::special_values::onebyroot2comp;
 use crate::structs::rings::special_values::sqrt2;
 
 
@@ -66,7 +66,7 @@ fn main() {
     println!("------------------------------------------");
 
     let omega = mu_8();
-    let onebyroot2 = onebyroot2();
+    let onebyroot2 = onebyroot2comp();
     let root2 = sqrt2();
     let one = Comp::one();
     let zero = Comp::zero();

@@ -8,6 +8,7 @@
 
 //Integer type is set globally
 use crate::structs::rings::Int; 
+use crate::structs::rings::LogDepInt; 
 use crate::structs::rings::Localizable; 
 
 
@@ -18,13 +19,13 @@ impl Localizable for Int
         return self%2==0
     }
 
-    fn reduce_by_dividing(self) -> (Self,Int)
+    fn reduce_by_dividing(self) -> (Self,LogDepInt)
     {
         let trailing = self.trailing_zeros();
         return (self >> trailing, trailing.try_into().unwrap());
     }
     
-    fn perform_n_multiplications(self, n: Int) -> Self
+    fn perform_n_multiplications(self, n: LogDepInt) -> Self
     {
         return self << n;
     }

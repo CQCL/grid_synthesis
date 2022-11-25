@@ -4,7 +4,7 @@ use crate::structs::rings::local_ring::Local;
 use crate::structs::rings::zroot2::Zroot2;
 use crate::structs::rings::quaternion::Quaternion;
 use crate::structs::rings::special_values::mu_8;
-use crate::structs::rings::special_values::onebyroot2;
+use crate::structs::rings::special_values::onebyroot2comp;
 use crate::structs::rings::special_values::sqrt2;
 
 use num_complex::Complex;

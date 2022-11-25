@@ -38,7 +38,8 @@ use crate::structs::rings::Localizable;
 use crate::structs::rings::Conj; //Conjugation trait
 
 //Integer type is set globally
-use crate::structs::rings::Int; 
+// use crate::structs::rings::Int; 
+use crate::structs::rings::LogDepInt; 
 
 // Ring of numbers of the form a/2^n for integers a and n
 // These are dyadic integers
@@ -48,7 +49,7 @@ pub struct Local<T>
 {
     pub num: T,
     // The integer a above
-    pub log_den: Int,
+    pub log_den: LogDepInt,
 
     // Perhaps I could save an bool
     // That remembers weather or not a+bsqrt(2)/sqrt(2)^k i
@@ -73,7 +74,7 @@ where T: Localizable+PartialEq+Copy,
             if self.num.is_divisible()
             {
                 // println!("Number is divisible");
-                let pow: Int;
+                let pow: LogDepInt;
                 (self.num, pow) = self.num.reduce_by_dividing();
                 // println!("Self obtained after it performed {} divisions",pow);
                 // println!("log_den is {}",self.log_den);
@@ -95,7 +96,7 @@ where T: Localizable+PartialEq+Copy,
         }
     }
 
-    fn logden(self) -> Int
+    fn logden(self) -> LogDepInt
     {
         return self.log_den;
     }

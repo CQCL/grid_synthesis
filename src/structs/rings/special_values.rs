@@ -11,7 +11,7 @@ type Loc = Local<Zroot2>;
 type Comp = Complex<Loc>;
 
 
-pub fn onebyroot2() -> Comp
+pub fn onebyroot2comp() -> Comp
 {
     return Comp
     {
@@ -28,6 +28,16 @@ pub fn onebyroot2() -> Comp
         }
 
     };
+
+}
+
+pub fn onebyroot2loc() -> Loc
+{
+    return Loc
+        {
+            num: Zroot2::one(),
+            log_den: 1
+        };
 
 }
 
