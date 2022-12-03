@@ -13,6 +13,9 @@ use crate::structs::rings::Int;
 use crate::structs::rings::LogDepInt;
 use crate::structs::rings::Localizable;
 
+
+use crate::algorithms::local_prime_factorization::prime_factorization_of_loc;
+
 use num_traits::Pow;
 use num_traits::One;
 use nalgebra::linalg::QR;
@@ -200,7 +203,8 @@ pub fn test_this_integer_point( this_point : Vec4Int, coordinate_basis: Mat4 , e
 
 pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  -> Option::<(Loc,Loc)>
 {
-    todo!()
+    prime_factorization_of_loc(our_num);
+    todo!();
 }
 
 
@@ -498,11 +502,6 @@ pub fn grid_problem( direction: Comp, epsilon_a: Float,  exactlogdep: LogDepInt 
     
     let center4d = reduced.try_inverse().unwrap()*Vec4::new(center.re,center.im,0.0,0.0);
     let radius_big = 1.0;
-
-    // List lattice points in a four dimensional ball 
-    // Given the the basis is LLL-reduced
-    // and given a center and radius
-    find_lattice_points_in_a_box(reduced, center4d, radius_big);
 
     
 
