@@ -1,3 +1,5 @@
+#![allow(warnings)]
+
 pub type Int = i64;
 pub type LogDepInt = i32;
 pub type Float = f64;

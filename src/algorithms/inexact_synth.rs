@@ -15,6 +15,8 @@ use crate::structs::rings::Localizable;
 
 
 use crate::algorithms::local_prime_factorization::prime_factorization_of_loc;
+use crate::structs::sunimat::UniMat;
+
 
 use num_traits::Pow;
 use num_traits::One;
@@ -30,6 +32,8 @@ type Mat2 = nalgebra::Matrix2<Float>;
 type Mat4 = nalgebra::Matrix4<Float>;
 type Vec4 = nalgebra::Matrix4x1<Float>;
 type Vec4Int = nalgebra::Matrix4x1<Int>;
+type Sunimat = UniMat<Float>;
+type Sunimatloc = UniMat<Loc>;
 
 // See comments for output idea
 pub fn ellipse_parameters_for_region_a(direction: Comp, epsilon_a: Float ) -> (Comp, Mat2, Float)
@@ -165,8 +169,13 @@ pub fn extract_gate_coordinate_in_local_ring(integer_coords: Vec4Int) -> Option:
 
 
 // Integer point should be useful
+// That is, if it roughly lies in the region close to the required place,,
+// Here we make sure that it is truly within the region we want
 pub fn test_this_integer_point( this_point : Vec4Int, coordinate_basis: Mat4 , epsilon_a: Float, direction: Comp, exactlogdep: LogDepInt  ) -> bool
 {
+
+    // take the input and mutiply coordinate change matrix
+    // and scale the vector by sqrt2^exactlogdep
     let actual_point = coordinate_basis*Vec4::new(this_point[0] as Float,this_point[1] as Float,this_point[2] as Float,this_point[3] as Float) * SQRT2.pow(-exactlogdep);
 
     let complex_point = Comp
@@ -191,7 +200,6 @@ pub fn test_this_integer_point( this_point : Vec4Int, coordinate_basis: Mat4 , e
         {
             return false;
         }
-        // todo!();
     }
     else 
     {
@@ -204,13 +212,14 @@ pub fn test_this_integer_point( this_point : Vec4Int, coordinate_basis: Mat4 , e
 pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  -> Option::<(Loc,Loc)>
 {
     prime_factorization_of_loc(our_num);
-    todo!();
+    return None;
 }
 
 
+// collection.push(Vec4Int::new( i1, i2, i3, i4));
 // Return a complete unitary, if it can be returned
 // Else return none
-pub fn attempt_to_figure_out_gate_given_that_this_point_is_feasible( this_point: Vec4Int, exactlogdep: LogDepInt) -> Option::<CompLoc>
+pub fn attempt_to_figure_out_gate_given_that_this_point_is_feasible( this_point: Vec4Int, exactlogdep: LogDepInt) -> Option::<Sunimatloc>
 {
     
     let get_coord =  extract_gate_coordinate_in_local_ring(this_point);
@@ -239,14 +248,32 @@ pub fn attempt_to_figure_out_gate_given_that_this_point_is_feasible( this_point:
 
         attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num);
 
-        todo!();
+        return None;
+
     }
     
 
 }
 
 
-pub fn test_integer_points_in_ball_around_integer_center_of_radius(radius: Float, int_center: Vec4Int, direction_of_rotation: Comp, epsilon_a: Float, exactlogdep: LogDepInt) -> ()
+pub fn consider(radius: Float, direction_of_rotation: Comp, epsilon_a: Float, exactlogdep: LogDepInt, int_center: Vec4Int, coordinate_basis: Mat4, this_point: Vec4Int) -> Option::<Sunimatloc>
+{
+
+    if test_this_integer_point( int_center+this_point, coordinate_basis, epsilon_a, direction_of_rotation, exactlogdep)
+    {
+
+
+        return attempt_to_figure_out_gate_given_that_this_point_is_feasible(int_center+this_point, exactlogdep);
+    }
+    else
+    {
+        return None;
+    }
+}
+
+
+
+pub fn test_integer_points_in_ball_around_integer_center_of_radius(radius: Float, direction_of_rotation: Comp, epsilon_a: Float, coordinate_basis: Mat4, exactlogdep: LogDepInt, int_center: Vec4Int) -> Option<Sunimatloc>
 {
     let mut collection = Vec::<Vec4Int>::new();
 
@@ -259,22 +286,22 @@ pub fn test_integer_points_in_ball_around_integer_center_of_radius(radius: Float
     let mut i3 : Int;
     let mut i4 : Int;
 
-
     i1 = 0;
-    while i1*i1 < n
+    while i1*i1 < n 
     {
         i2 = 0;
-        while i2*i2 < n - i1*i1
+        while i2*i2 < n - i1*i1 
         {
             i3 = 0;
-            while i3*i3 < n - i1*i1 - i2*i2
+            while i3*i3 < n - i1*i1 - i2*i2 
             {
 
                 i4 = 0;
-                while i4*i4 < n - i1*i1 - i2*i2 - i3*i3
+                while i4*i4 < n - i1*i1 - i2*i2 - i3*i3 
                 {
                     if i1==0 && i2==0 && i3==0 && i4==0 
                     {
+                        collection.push(Vec4Int::new( i1, i2, i3, i4));
                         collection.push(Vec4Int::new( i1, i2, i3, i4));
                     }
                     else if i1!=0 && i2==0 && i3==0 && i4==0 
@@ -403,19 +430,49 @@ pub fn test_integer_points_in_ball_around_integer_center_of_radius(radius: Float
                         collection.push(Vec4Int::new(-i1,-i2,-i3,-i4));
                     }
 
+                    // Check all the points in the collection and empty it
+                    while let Some(last_point) = collection.pop() 
+                    {
+
+                        // println!(" --------- HELLO --------------");
+                        let mut possible_answer =  consider(radius, direction_of_rotation, epsilon_a, exactlogdep, int_center, coordinate_basis ,last_point);
+
+                        if possible_answer != None
+                        {
+                            return possible_answer;
+                        }
+
+                    }
+
+                    ///////////// DEBUG ZONE /////////////////
+                    //
+                    
+                    if collection.len()>0
+                    {
+                        panic!("Something is wrong");
+                    }
+
+                    ///////////// END OF DEBUG ZONE /////////////
+
+
+                    // Iterate
                     i4 = i4 +1
                 }
 
+                // Iterate
                 i3 = i3+1;
 
             }
 
+            //Iterate
             i2 = i2+1;
         }
 
+        //Iterate 
         i1= i1+1;
     }
 
+    return None;
 
     // return collection;
 }
@@ -435,7 +492,7 @@ pub fn pseudo_nearest_neighbour_integer_coordinates(lattice_matrix_orthognal_par
 
 
 // This is an implementation of Proposition 5.22
-pub fn grid_problem( direction: Comp, epsilon_a: Float,  exactlogdep: LogDepInt )-> ()
+pub fn grid_problem_given_depth( direction: Comp, epsilon_a: Float,  exactlogdep: LogDepInt )-> ()
 {
 
     // Trying to find the lattice points in the intersection of a disc and a half plane
@@ -498,12 +555,12 @@ pub fn grid_problem( direction: Comp, epsilon_a: Float,  exactlogdep: LogDepInt 
     let mut reducable = mat_big*mat_lattice;
 
     let reduced = call_lll_on_nalgebra_matrix(reducable);
-    
-    
+
+
     let center4d = reduced.try_inverse().unwrap()*Vec4::new(center.re,center.im,0.0,0.0);
     let radius_big = 1.0;
 
-    
+
 
     let operatornorm = find_operator_norm(reduced);
     let reduced_orthogonal_part_inverse = reduced.qr().q().try_inverse().unwrap();
@@ -514,7 +571,7 @@ pub fn grid_problem( direction: Comp, epsilon_a: Float,  exactlogdep: LogDepInt 
     // stream out lattice points by communicating messages.
     // and in parallel another one testing that it works
     let integer_center = pseudo_nearest_neighbour_integer_coordinates(reduced_orthogonal_part_inverse, centervec*SQRT2.pow(exactlogdep));
-    test_integer_points_in_ball_around_integer_center_of_radius(operatornorm*SQRT2.pow(exactlogdep), integer_center, direction,epsilon_a,exactlogdep);
+    test_integer_points_in_ball_around_integer_center_of_radius(operatornorm*SQRT2.pow(exactlogdep),  direction,epsilon_a, reducable , exactlogdep, integer_center);
 
 
     //////////////////// DEBUG ZONE  /////////////////////
@@ -522,5 +579,15 @@ pub fn grid_problem( direction: Comp, epsilon_a: Float,  exactlogdep: LogDepInt 
     //
     ///////////////////END OF DEBUG ZONE /////////////////
 
+}
+
+
+
+pub fn grid_problem( direction: Comp, epsilon_a: Float)-> ()
+{
+    for i in 0..9
+    {
+        grid_problem_given_depth(direction, epsilon_a, i);
+    }
 }
 

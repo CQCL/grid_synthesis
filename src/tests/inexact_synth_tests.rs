@@ -8,7 +8,7 @@ type Comp = num_complex::Complex<Float>;
 #[test]
 pub fn inexact_synth_testing() 
 {
-    grid_problem(Comp::one(), 0.2, 7);
+    grid_problem(Comp::one(), 0.99,3);
     // TO be removed
     panic!();
 }

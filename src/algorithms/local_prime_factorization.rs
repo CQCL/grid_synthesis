@@ -18,14 +18,21 @@ use crate::structs::rings::zroot2::Zroot2;
 
 
 
-pub fn prime_factorization_of_int_local( input : Local::<Int> ) -> ()
+pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  -> Option::<(Loc,Loc)>
 {
-    let number  = input.num as u32;
-    let factorvec = Factorization::run(number);
+    prime_factorization_of_loc(our_num);
+    return None;
 }
 
 
 pub fn prime_factorization_of_loc( input: Local::<Zroot2> ) -> ()
 {
-    todo!();
+        let num = input.num.norm() as u128;
+        let factorvec = Factorization::run(num).prime_factor_repr();
+    
+        for (prime,power) in factorvec
+        {
+            todo!();
+        }
+
 }

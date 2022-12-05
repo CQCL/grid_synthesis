@@ -160,7 +160,7 @@ impl Localizable for Zroot2
 }
 impl Zroot2
 {
-    fn norm(self) -> Int
+    pub fn norm(self) -> Int
     {
         return self.0*self.0-2*self.1*self.1;
     }

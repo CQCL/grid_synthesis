@@ -3,6 +3,9 @@
 // Cautions: Comments could look pretentious
 
 
+//TO BE REMOVED
+#![allow(warnings)]
+
 pub mod structs;
 pub mod tests;
 pub mod algorithms;
@@ -29,6 +32,7 @@ use crate::structs::rings::quaternion::Quaternion;
 // use crate::structs::rings::Fixable;
 // use crate::structs::rings::Localizable;
 use crate::structs::rings::Int;
+use crate::structs::rings::Float;
 // use crate::structs::rings::Conj;
 // use crate::structs::rings::cyclotomic::Cyclotomic; 
 use crate::structs::rings::pow;
@@ -41,6 +45,7 @@ use crate::structs::rings::special_values::sqrt2;
 use num_complex::Complex;
 
 use crate::algorithms::exact_synth::exact_synth_given_norm_1;
+use crate::algorithms::inexact_synth::grid_problem;
 
 // use crate::tests::basic_identities;
 // use crate::tests::basic_identities_with_conj;
@@ -85,5 +90,11 @@ fn main() {
     let (gate_sequence,output)  = exact_synth_given_norm_1(g);
 
     println!("{}", gate_sequence);
+
+
+
+    grid_problem(Complex::<Float>::one(), 0.24);
+
+
 
 }
