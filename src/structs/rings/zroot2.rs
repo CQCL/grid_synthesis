@@ -274,7 +274,7 @@ impl Div for Zroot2
         // Zroot2 is norm-Euclidean
         // Therefore a division algorithm is very much possible for Zroot2
         // Will look in to this: TODO
-        let nor = other.norm();
+        let mut nor = other.norm();
         if nor==1 || nor==-1
         {
             let norself = Self{
@@ -283,16 +283,75 @@ impl Div for Zroot2
             };
             return self*other.conj()*norself;
         }
-        else
+        else if nor!=0
+        {
+            // WARNING: This is bad mathematics is bad mathematics 
+            //          because when self/other is not exactly in Zroot2
+            //          the output of this will be self = q*other + r
+            //          where absolute value of r.norm() is less than
+            //          absolute value of other.norm().
+            //
+            //          Basically, this does Euclidean division
+            //          and finds q given above
+            let numerator = self*other.conj();
+            let denominator = nor;
+
+
+            return Zroot2( nearest_integer(numerator.0,nor),  nearest_integer(numerator.1, nor) );
+
+            todo!();
+
+        }
+        else 
         {
             println!("Wanted to divide {} with {}",self,other);
             panic!("Division impossible");
         }
-        
-    }
 
+    }
 }
 
+
+// Return closest integer to top/bottom
+// Will send halfs to the ceiling
+// Probably shouldn't matter
+// TODO: Optimize this function
+pub fn nearest_integer(top :Int, bottom: Int) -> Int
+{
+    if bottom == 0
+    {
+        panic!("What do you think?");
+    }
+    else if top ==0
+    {
+        return 0;
+    }
+    else if ( top > 0 && bottom > 0 )     
+    { 
+        let twice = (top << 1)/bottom;
+        if twice%2==0
+        {
+            return twice>>1;
+        }
+        else 
+        {
+            return (twice+1)>>1  ;
+        }
+
+    }
+    else if ( top < 0 && bottom < 0 ) 
+    {
+        return nearest_integer(-top, -bottom);
+    }
+    else if ( top > 0 && bottom < 0 ) 
+    {
+        return -nearest_integer(top, -bottom);
+    }
+    else 
+    {
+        return -nearest_integer(-top, bottom);
+    }
+}
 
 impl Num for Zroot2
 {
@@ -329,11 +388,11 @@ impl NumCast for Zroot2
 {
     fn from<T>(given: T) -> Option<Self>
         where T: ToPrimitive
-    {
-        return Some(Self
-                    {
-                        0: given.to_i64().unwrap(),
-                        1: 0
-                    });
-    }
+        {
+            return Some(Self
+                        {
+                            0: given.to_i64().unwrap(),
+                            1: 0
+                        });
+        }
 }

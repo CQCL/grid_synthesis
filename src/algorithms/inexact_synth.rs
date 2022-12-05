@@ -208,7 +208,6 @@ pub fn test_this_integer_point( this_point : Vec4Int, coordinate_basis: Mat4 , e
 }
 
 
-
 pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  -> Option::<(Loc,Loc)>
 {
     prime_factorization_of_loc(our_num);

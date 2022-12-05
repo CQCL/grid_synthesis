@@ -516,3 +516,59 @@ pub fn check_that_rings_work()
 }
 
 
+use crate::structs::rings::zroot2::nearest_integer;
+#[test]
+pub fn checking_that_nearest_int_works()
+{
+    assert_eq!( 2 ,nearest_integer(5,3)); 
+    assert_eq!( 2 ,nearest_integer(7,3)); 
+    assert_eq!( 3 ,nearest_integer(8,3)); 
+    assert_eq!( 3 ,nearest_integer(22,7)); 
+    assert_eq!( -3 ,nearest_integer(-8,3)); 
+    assert_eq!( -3 ,nearest_integer(8,-3)); 
+    assert_eq!( 3 ,nearest_integer(-8,-3)); 
+}
+
+
+#[test]
+pub fn testing_euclidean_division_in_zroot2_randomly()
+{
+
+    let mut rng = thread_rng();
+    let u1 :i64 = rng.gen_range(-1000..1000);
+    let u2 :i64 = rng.gen_range(-1000..1000);
+    let v1 :i64 = rng.gen_range(-1000..1000);
+    let v2 :i64 = rng.gen_range(-1000..1000);
+
+    let u = Zroot2(u1,u2);
+    let v = Zroot2(v1,v2);
+    let q = u/v;
+    let r = u-q*v;
+    // println!("{} {} {} {}",u,v, q,r);
+    // println!("{} {}",r.norm().abs(), v.norm().abs());
+    assert_eq!(u,q*v+r );
+    assert_eq!(true, r.norm().abs() < v.norm().abs() );
+
+
+}
+
+#[test]
+pub fn testing_randomly_euclidean_division_many_times()
+{
+    testing_euclidean_division_in_zroot2_randomly();
+    testing_euclidean_division_in_zroot2_randomly();
+    testing_euclidean_division_in_zroot2_randomly();
+    testing_euclidean_division_in_zroot2_randomly();
+    testing_euclidean_division_in_zroot2_randomly();
+    testing_euclidean_division_in_zroot2_randomly();
+    testing_euclidean_division_in_zroot2_randomly();
+    testing_euclidean_division_in_zroot2_randomly();
+    testing_euclidean_division_in_zroot2_randomly();
+    testing_euclidean_division_in_zroot2_randomly();
+    testing_euclidean_division_in_zroot2_randomly();
+    testing_euclidean_division_in_zroot2_randomly();
+    testing_euclidean_division_in_zroot2_randomly();
+    testing_euclidean_division_in_zroot2_randomly();
+    testing_euclidean_division_in_zroot2_randomly();
+
+}

@@ -31,6 +31,16 @@ pub fn onebyroot2comp() -> Comp
 
 }
 
+pub fn sqrt2loc() -> Loc
+{
+    return Loc
+        {
+            num: Zroot2::one(),
+            log_den: -1
+        };
+
+}
+
 pub fn onebyroot2loc() -> Loc
 {
     return Loc
