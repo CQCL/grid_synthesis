@@ -261,7 +261,8 @@ impl Rem for Zroot2
     type Output = Self;
     fn rem(self, other: Self) -> Self
     {
-        panic!("TODO");
+        let q = self/other;
+        return self-q*other;
     }
 
 }

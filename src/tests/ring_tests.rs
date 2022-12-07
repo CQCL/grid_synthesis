@@ -42,52 +42,52 @@ pub fn basic_identities<T>() -> ()
           T: NumCast
 {
 
-    println!("Testing basic identities");
-    println!("Type is {}", std::any::type_name::<T>());
-    println!("--------------------------------------");
+    // println!("Testing basic identities");
+    // println!("Type is {}", std::any::type_name::<T>());
+    // println!("--------------------------------------");
 
-    println!("Test 1: 1*1 == 1");
+    // println!("Test 1: 1*1 == 1");
     let u=T::from(1).unwrap();
     assert_eq!(u,u*u,"Failed to check that {} =\n {}\n*\n{}",u,u,u);
 
 
-    println!("Test 2: 0+0 == 0");
+    // println!("Test 2: 0+0 == 0");
     let u= T::from(0).unwrap();
     // println!("{}",u);
     // println!("{}",u+u);
     assert_eq!(u,u+u," \n--------------\n Failed to check that \n{} \n= \n{} + \n{}",u,u,u);
 
-    println!("Test 3: 2+3 == 5");
+    // println!("Test 3: 2+3 == 5");
     let u=T::from(2).unwrap();
     let v=T::from(3).unwrap();
     let w=T::from(5).unwrap();
     assert_eq!(w,v+u,"Failed to check that {} =\n {}\n+\n{}",w,v,u);
 
-    println!("test 4: 1-1 == 0");
+    // println!("test 4: 1-1 == 0");
     let u= T::from(1).unwrap();
     let z= T::from(0).unwrap();
     // // println!("{}",z);
     // // println!("{}",u-u);
     assert_eq!(z,u-u,"Failed to check that {} =\n {}\n-\n{}",z,u,u);
 
-    println!("Test 5: 2-3 == -1");
+    // println!("Test 5: 2-3 == -1");
     let u=T::from(2).unwrap();
     let v=T::from(3).unwrap();
     let w=T::from(-1).unwrap();
     assert_eq!(w,u-v,"Failed to check that {} =\n {}\n-\n{}",w,u,v);
 
-    println!("Test 6: -2*2 == -4");
+    // println!("Test 6: -2*2 == -4");
     let u=T::from(2).unwrap();
     let v=T::from(-2).unwrap();
     let w=T::from(-4).unwrap();
     assert_eq!(w,u*v,"Failed to check that {} =\n{}*\n{}",w,v,u);
 
-    println!("Test 6: -3*-3*-3 == -27");
+    // println!("Test 6: -3*-3*-3 == -27");
     let u=T::from(-3).unwrap();
     let w=T::from(-27).unwrap();
     assert_eq!(w,u*u*u,"Failed to check that {} ={}*\n{}*\n{}",w,u,u,u);
     
-    println!("Test 6: 4*-1*2 == -8");
+    // println!("Test 6: 4*-1*2 == -8");
     let u=T::from(4).unwrap();
     let v=T::from(-1).unwrap();
     let w=T::from(2).unwrap();
@@ -103,12 +103,12 @@ pub fn basic_identities_with_div<T>() -> ()
           T: PartialEq,
 {
 
-    println!("Test 1: 2/2 == 1");
+    // println!("Test 1: 2/2 == 1");
     let u=T::from(2).unwrap();
     let w=T::from(2).unwrap();
     assert_eq!(T::one(),u/w,"Failed to check that 1={} /\n{}",u,w);
     
-    println!("Test 2: 4/2 == 2");
+
     let u=T::from(64).unwrap();
     let w=T::from(8).unwrap();
     assert_eq!(w,u/w,"Failed to check that {}={} /\n{}",w,u,w);
@@ -124,10 +124,10 @@ pub fn basic_identities_with_conj<T>() -> ()
           T: One
 {
 
-    println!("Testing conjugation on {}", std::any::type_name::<T>());
-    println!("--------------------------------------");
-    println!("Test 1: u.conj.conj = u");
-    println!("        When u = 2");
+    // println!("Testing conjugation on {}", std::any::type_name::<T>());
+    // println!("--------------------------------------");
+    // println!("Test 1: u.conj.conj = u");
+    // println!("        When u = 2");
     let u = T::one()+T::one();
     assert_eq!(u,u.conj().conj(),"Failed to check that {} =\n {}",u,u);
 
@@ -268,28 +268,28 @@ pub fn broke_arithmetic_until_26_10_2022()
         t: q1.w()
     };
 
-    println!("Before square g: \n {}", g);
-    println!("det g: \n {}", g.det());
-    println!("Value of q: {}", q);
-    println!("rsqnorm q: {}", q.rsqnorm());
+    // println!("Before square g: \n {}", g);
+    // println!("det g: \n {}", g.det());
+    // println!("Value of q: {}", q);
+    // println!("rsqnorm q: {}", q.rsqnorm());
 
     let gsq =g*g; 
     let qsq =q*q;
-    println!("After square g: \n {}", gsq);
-    println!("det g: \n {}", gsq.det());
-    println!("Value of square q: {}", qsq);
-    println!("rsqnorm q: {}", qsq.rsqnorm());
-    println!("This is the value of u: {}",g.u*g.u-g.t.conj()*g.t);
-    println!("u1 = {}",u1);
-    println!("u1*u1 = {}",u1*u1);
-    println!("t1 = {}",t1);
-    println!("t1.conj*t1 = {}",t1.conj()*t1);
-    println!("t1.norm = {}",t1.norm_sqr());
-    println!("t1.0*t1.0 = {}",t1.re*t1.re);
-    println!("t1.1*t1.1 = {}",t1.im*t1.im);
-    println!("t1.0*t1.0+t1.1+t1.1 = {}",t1.re*t1.re+t1.im*t1.im);
-    println!("------------------------------");
-    println!("u1^2-t1.conj*t1 = {}",u1*u1-t1.conj()*t1);
+    // println!("After square g: \n {}", gsq);
+    // println!("det g: \n {}", gsq.det());
+    // println!("Value of square q: {}", qsq);
+    // println!("rsqnorm q: {}", qsq.rsqnorm());
+    // println!("This is the value of u: {}",g.u*g.u-g.t.conj()*g.t);
+    // println!("u1 = {}",u1);
+    // println!("u1*u1 = {}",u1*u1);
+    // println!("t1 = {}",t1);
+    // println!("t1.conj*t1 = {}",t1.conj()*t1);
+    // println!("t1.norm = {}",t1.norm_sqr());
+    // println!("t1.0*t1.0 = {}",t1.re*t1.re);
+    // println!("t1.1*t1.1 = {}",t1.im*t1.im);
+    // println!("t1.0*t1.0+t1.1+t1.1 = {}",t1.re*t1.re+t1.im*t1.im);
+    // println!("------------------------------");
+    // println!("u1^2-t1.conj*t1 = {}",u1*u1-t1.conj()*t1);
 
 
     assert_eq!(gsq.u.re,qsq.0,"This causes a panic (as on 26-10-2022)");
@@ -314,9 +314,9 @@ pub fn should_break_arithmetic_26_10_2022() -> ()
         log_den: -1,
     };
 
-    println!("{}", left);
-    println!("{}", right);
-    println!("{}", left+right);
+    // println!("{}", left);
+    // println!("{}", right);
+    // println!("{}", left+right);
     let expected = Loc::one()+Loc::one()+Loc::one();
 
     assert_eq!(left+right,expected,"Should create a panic in versions before 26-10-2022");
@@ -340,8 +340,8 @@ pub fn break_division_in_loc_26_10_2022() {
 
 
 
-    println!("{}", omega);
-    println!("{}", (omega)/root2);
+    // println!("{}", omega);
+    // println!("{}", (omega)/root2);
 
 }
 
@@ -459,14 +459,14 @@ pub fn random_local_arithmetic()
     let v = Loc::from_base(vzrt2);
     let o = Loc::zero();
 
-    println!("{}", u);
-    println!("{}", v);
+    // println!("{}", u);
+    // println!("{}", v);
 
-    println!("Test 1: ---------");
+    // println!("Test 1: ---------");
     assert_eq!((u*v)-(v*u),o);
 
-    println!("Test 2: ---------");
-    println!("This used to break arithmetic (see above)");
+    // println!("Test 2: ---------");
+    // println!("This used to break arithmetic (see above)");
     let left = Loc{
         num: Zroot2(1,1),
         log_den: 0,
@@ -477,12 +477,12 @@ pub fn random_local_arithmetic()
         log_den: -1,
     };
 
-    println!("{}", left);
-    println!("{}", right);
-    println!("{}", left+right);
+    // println!("{}", left);
+    // println!("{}", right);
+    // println!("{}", left+right);
     assert_eq!((u*left)+(u*right),u*(left+right));
 
-    println!("Test 3: ---------");
+    // println!("Test 3: ---------");
     let z = Loc::from_base(Zroot2(rng.gen_range(-1000..1000),rng.gen_range(-1000..1000)));
     assert_eq!(z*u-z*v,z*(u-v));
 }

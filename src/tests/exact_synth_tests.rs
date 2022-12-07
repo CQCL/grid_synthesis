@@ -24,7 +24,7 @@ pub fn apply_gate_string_to_states_and_check_output()
 {
     let g = Mat::one();
 
-    println!("Test 1:");
+    // println!("Test 1:");
     let mut g1 = apply_gate_string_to_state("H".to_string(), g);
     let mut g2 = apply_gate_string_to_state("H".to_string(), g1);
 
@@ -34,7 +34,7 @@ pub fn apply_gate_string_to_states_and_check_output()
     assert_eq!(g,g2prime);
     assert_eq!(g,g2);
 
-    println!("Test 2:");
+    // println!("Test 2:");
     g1 = apply_gate_string_to_state("H".to_string(), g);
     g2 = apply_gate_string_to_state("TTT".to_string(), g1);
 
@@ -44,7 +44,7 @@ pub fn apply_gate_string_to_states_and_check_output()
     assert_eq!(g2,g2prime);
 
 
-    println!("Test 3:");
+    // println!("Test 3:");
     g1 = apply_gate_string_to_state("TTTTTTHTTTHTH".to_string(), g);
     g2 = apply_gate_string_to_state("TTH".to_string(), g1);
 
@@ -53,7 +53,7 @@ pub fn apply_gate_string_to_states_and_check_output()
     // println!("{}", g2prime);
     assert_eq!(g2,g2prime);
 
-    println!("Test 4:");
+    // println!("Test 4:");
     g1 = apply_gate_string_to_state("TTTTT".to_string(), g);
     g2 = apply_gate_string_to_state("TTT".to_string(), g1);
 
