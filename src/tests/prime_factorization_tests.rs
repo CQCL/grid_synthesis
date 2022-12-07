@@ -1,7 +1,7 @@
 
 use prime_factorization::Factorization;
 use crate::algorithms::local_prime_factorization::tonelli_shanks;
-use crate::algorithms::local_prime_factorization::find_quad_residue;
+use crate::algorithms::local_prime_factorization::find_quad_nonresidue;
 use crate::algorithms::local_prime_factorization::power_mod_p;
 
 use crate::structs::rings::Int;
@@ -30,18 +30,28 @@ pub fn generate_random_prime(N : Int) -> Int
     return generate_random_prime(N);
 }
 
-#[test]
-pub fn testing_quad_residue_function()
+pub fn testing_quad_nonresidue_function()
 {
-    let p = generate_random_prime(3000);
+    let p = generate_random_prime(4000);
+    // let p = 17;
 
-    let x = find_quad_residue(p);
+    let x = find_quad_nonresidue(p);
     // println!("--------------------");
     // println!("(x,p) = ({},{})", x,p);
     // println!("--------------------");
     
-    assert_eq!(power_mod_p(x,(p-1)/2,p),1);
+    assert_eq!(power_mod_p(x,(p-1)/2,p),p-1);
 
+
+}
+
+#[test]
+pub fn testing_a_lot_of_non_residues()
+{
+    for i in 1..1000
+    {
+        testing_quad_nonresidue_function();
+    }
 
 }
 
@@ -49,9 +59,10 @@ pub fn testing_quad_residue_function()
 #[test]
 pub fn test_power_mod_n()
 {
-    let p = generate_random_prime(2000);
+    let mut rng = thread_rng();
+    let p = rng.gen_range(-1000..1000);
 
-    let x = generate_random_prime(400)%p;
+    let x = rng.gen_range(-1000..1000);
     
     // println!("--------------------");
     // println!("{} {}", x,p);
@@ -67,21 +78,21 @@ pub fn test_power_mod_n()
 
 }
 
+// #[test]
 pub fn testing_tonelli_shanks()
 {
     println!("Testing Tonelli Shanks");
     
-    
     let mut rng = thread_rng();
 
     //random prime
-    // let p = generate_random_prime(3000);
-    let p = 17;
+    let p = generate_random_prime(30);
+    // let p = 17;
 
 
     // random x
-    // let x :Int = rng.gen_range(100..1000);
-    let x = 3;
+    let x :Int = rng.gen_range(100..1000);
+    // let x = 3;
     let xsq = x*x;
     
     let ts = tonelli_shanks(xsq, p);
@@ -89,14 +100,15 @@ pub fn testing_tonelli_shanks()
     println!("Prime: {}", p);
     println!("Left: {}", x%p);
     println!("Right: {}", ts%p);
+    
     assert_eq!( true,  ts%p == x%p || ts%p == p - (x%p) );
 
 }
 
-#[test]
+// #[test]
 pub fn testing_rapidly_tonelli_shanks()
 {
-    tonelli_shanks(4,5);
+    tonelli_shanks(4,17);
     // for i in 1..100
     // {
     //     testing_tonelli_shanks();

@@ -54,7 +54,7 @@ pub fn power_mod_p(xorig: Int, m: Int, p: Int ) -> Int
 
     let mut result = 1;
     let mut x = xorig%p;
-    let mut n =m%(p-1);
+    let mut n = m ;
 
     if x==0
     {
@@ -96,12 +96,17 @@ pub fn tonelli_shanks(n: Int, p: Int) -> Int {
 
     let mut s = 0;
     let mut q = p - 1;
-    while q % 2 == 0 {
+    while q % 2 == 0 
+    {
+        println!("STUCK HERE WITH q= {}",q);
+
         s += 1;
         q /= 2;
     }
 
-    let mut z = find_quad_residue(p);
+    let mut z = find_quad_nonresidue(p);
+
+
     let mut m = s;
     let mut c = power_mod_p(z, q, p);
     let mut t = power_mod_p(n, q, p);
@@ -123,10 +128,10 @@ pub fn tonelli_shanks(n: Int, p: Int) -> Int {
 
         let b = power_mod_p(c, power_mod_p(2, m - i - 1, p-1), p);
         m = i;
-        z = (b * b) % p;
-        // c = (b * b) % p;
-        c = (z * z) % p;
-        t = (t * z) % p;
+        // z = (b * b) % p;
+        c = (b * b) % p;
+        // c = (z * z) % p;
+        t = (t * c) % p;
         r = (r * b) % p;
 
         if t == 0 
@@ -138,6 +143,25 @@ pub fn tonelli_shanks(n: Int, p: Int) -> Int {
     return r;
 }
 
+pub fn find_quad_nonresidue(p: Int) -> Int
+{
+    // We assume that p is prime and odd
+    // assert!(p % 2 == 1 && is_prime(p));
+
+    // if p % 8 == 1 || p % 8 == 7 
+    // {
+    //     return power_mod_p(p - 1, (p - 1) / 2, p);
+    // }
+
+    let mut a = 2;
+    
+    while legendre_symbol(a,p)==1
+    {
+        a += 1;
+    }
+
+    return a;
+}
 
 pub fn find_quad_residue(p: Int) -> Int
 {
