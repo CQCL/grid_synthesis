@@ -10,6 +10,12 @@ pub trait Conj{
     fn conj(&self) -> Self;
 }
 
+// Supertrait
+// They become various conjugation operators on our rings
+pub trait LocalizableNorm{
+    fn norm(&self) -> Int;
+}
+
 
 // Supertrait
 // Allows you to define a possible prime ideal for localization
@@ -43,11 +49,11 @@ pub trait Localizable{
 
 
 pub mod zroot2;
+pub mod zomega;
 pub mod int_localization;
 pub mod local_ring;
 pub mod special_values;
 pub mod quaternion;
-pub mod domega;
 
 use std::ops::Mul;
 

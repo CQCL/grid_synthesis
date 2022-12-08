@@ -12,9 +12,11 @@ use std::fmt::Display;
 use std::fmt::Debug;
 
 use crate::structs::rings::Conj;
+use crate::structs::rings::LocalizableNorm;
 use crate::structs::rings::local_ring::Local; 
 use crate::structs::rings::zroot2::Zroot2;
 use crate::structs::rings::quaternion::Quaternion;
+use crate::structs::rings::zomega::Zomega;
 use crate::structs::rings::special_values::mu_8;
 use crate::structs::rings::special_values::onebyroot2comp;
 use crate::structs::rings::special_values::sqrt2;
@@ -401,6 +403,7 @@ pub fn type_conversion_testing()
     checking_conversion_from_int::<num_complex::Complex::<Int>>();
     checking_conversion_from_int::<num_complex::Complex::<Float>>();
     checking_conversion_from_int::<Zroot2>();
+    checking_conversion_from_int::<Zomega>();
     checking_conversion_from_int::<Local::<Zroot2>>();
     checking_conversion_from_int::<num_complex::Complex::<Local::<Zroot2>>>();
 }
@@ -418,6 +421,7 @@ pub fn sanity_checks_for_my_rings()
     basic_identities::<num_complex::Complex::<Local::<Zroot2>>>();
 
     basic_identities::<Local::<Int>>();
+    basic_identities::<Zomega>();
 }
 
 
@@ -433,9 +437,8 @@ pub fn division_checks_for_some_rings()
     
     basic_identities_with_div::<Local::<Int>>();
 
-    // This should fail:
-    // As on 08-11-2022
-    // basic_identities_with_div::<Zroot2>();
+    basic_identities_with_div::<Zroot2>();
+    basic_identities_with_div::<Zomega>();
 }
 
 use rand::thread_rng;
@@ -516,7 +519,7 @@ pub fn check_that_rings_work()
 }
 
 
-use crate::structs::rings::zroot2::nearest_integer;
+use crate::algorithms::near_int::nearest_integer;
 #[test]
 pub fn checking_that_nearest_int_works()
 {

@@ -1,5 +1,7 @@
 use crate::structs::rings::Localizable; //Localizing trait
 use crate::structs::rings::Conj; //Conjugation trait
+use crate::structs::rings::LocalizableNorm; //Norm trait
+use crate::algorithms::near_int::nearest_integer;
 
 
 // We bring them in so that we can overload the operators
@@ -158,12 +160,20 @@ impl Localizable for Zroot2
     }
 
 }
-impl Zroot2
+
+
+impl LocalizableNorm for Zroot2
 {
-    pub fn norm(self) -> Int
+    
+    fn norm(&self) -> Int
     {
         return self.0*self.0-2*self.1*self.1;
     }
+
+}
+
+impl Zroot2
+{
 
     // Should check if norm is a unit 
     fn is_unit(self) -> bool
@@ -208,8 +218,6 @@ impl One for Zroot2
     {
         return Zroot2(1,0);
     }
-
-
 }
 
 
@@ -313,46 +321,6 @@ impl Div for Zroot2
 }
 
 
-// Return closest integer to top/bottom
-// Will send halfs to the ceiling
-// Probably shouldn't matter
-// TODO: Optimize this function
-pub fn nearest_integer(top :Int, bottom: Int) -> Int
-{
-    if bottom == 0
-    {
-        panic!("What do you think?");
-    }
-    else if top ==0
-    {
-        return 0;
-    }
-    else if ( top > 0 && bottom > 0 )     
-    { 
-        let twice = (top << 1)/bottom;
-        if twice%2==0
-        {
-            return twice>>1;
-        }
-        else 
-        {
-            return (twice+1)>>1  ;
-        }
-
-    }
-    else if ( top < 0 && bottom < 0 ) 
-    {
-        return nearest_integer(-top, -bottom);
-    }
-    else if ( top > 0 && bottom < 0 ) 
-    {
-        return -nearest_integer(top, -bottom);
-    }
-    else 
-    {
-        return -nearest_integer(-top, bottom);
-    }
-}
 
 impl Num for Zroot2
 {
@@ -397,3 +365,7 @@ impl NumCast for Zroot2
                         });
         }
 }
+
+
+
+

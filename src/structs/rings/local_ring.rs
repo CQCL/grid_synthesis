@@ -8,6 +8,7 @@
 // description of sqrt(2)
 
 
+
 // We bring them in so that we can overload the operators
 // Rust must learn how to do arithmetics in our rings
 use std::ops::Neg; 
@@ -35,7 +36,9 @@ use num_traits::NumCast;
 // See mod.rs for some info
 // Or Zroot2
 use crate::structs::rings::Localizable; 
+use crate::structs::rings::Int; 
 use crate::structs::rings::Conj; //Conjugation trait
+use crate::structs::rings::LocalizableNorm; //Norm trait
 
 //Integer type is set globally
 // use crate::structs::rings::Int; 
@@ -279,8 +282,8 @@ where T: Display+PartialEq,
 
 
 
- impl<T> ToPrimitive for Local<T>
- {
+impl<T> ToPrimitive for Local<T>
+{
     // Rust needs this. 
     // The NumCast library does not work otherwise
     // Honestly, I cannot convert Local<T> to i64 or u64
@@ -293,28 +296,28 @@ where T: Display+PartialEq,
     { 
         return None;
     }
-    
- }
- 
+
+}
+
 impl<T> NumCast for Local<T>
 where T: NumCast,
       T: Localizable,
       T: PartialEq,
       T: Copy,
       T: Num
- {
+{
     fn from<E>(given: E) -> Option<Self>
         where E: ToPrimitive
-    {
-        let mut temp = Self
         {
-            num: T::from(given).unwrap(),
-            log_den:0
-        };
-        temp = temp.fix();
-        return Some(temp);
-    }
- }
+            let mut temp = Self
+            {
+                num: T::from(given).unwrap(),
+                log_den:0
+            };
+            temp = temp.fix();
+            return Some(temp);
+        }
+}
 
 
 
@@ -395,7 +398,6 @@ where T: Num,
         {
             return Self::zero();
         }
-
         else if other.num.is_zero()
         {
             panic!("Division by zero")
@@ -413,7 +415,6 @@ where T: Num,
             // temp.fix(); 
             return temp;
         }
-
     }
 }
 
@@ -491,5 +492,18 @@ where T: Num,
 
 
 
+impl<T> Local<T>
+where T: LocalizableNorm
+{
+    pub fn norm(&self) -> Local::<Int>
+    {
+        return Local::<Int>
+        {
+            num: self.num.norm(),
+            log_den: 2*self.log_den
+        }
+    }
+
+}
 
 
