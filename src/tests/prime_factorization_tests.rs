@@ -1,6 +1,7 @@
 
 use prime_factorization::Factorization;
 use crate::algorithms::local_prime_factorization::tonelli_shanks;
+use crate::algorithms::local_prime_factorization::attempt_to_write_this_number_as_sum_of_two_squares_in_loc;
 use crate::algorithms::local_prime_factorization::prime_factorization_of_loc;
 use crate::algorithms::local_prime_factorization::find_quad_nonresidue;
 use crate::algorithms::local_prime_factorization::power_mod_p;
@@ -11,6 +12,7 @@ use crate::structs::rings::Int;
 use crate::structs::rings::LogDepInt;
 use crate::structs::rings::LocalizableNorm;
 use crate::structs::rings::zroot2::Zroot2;
+use crate::structs::rings::zomega::Zomega;
 use crate::structs::rings::local_ring::Local;
 use crate::structs::rings::special_values::onebyroot2loc;
 use crate::structs::rings::special_values::sqrt2loc;
@@ -108,7 +110,7 @@ pub fn test_lots_of_powers_mod_n()
 
 }
 
-// #[test]
+#[test]
 pub fn testing_tonelli_shanks()
 {
     // println!("Testing Tonelli Shanks");
@@ -136,6 +138,34 @@ pub fn testing_tonelli_shanks()
 }
 
 #[test]
+pub fn testing_gcd_of_zomega()
+{
+    let N = 10000;
+    let mut rng = thread_rng();
+
+    let a1 :Int = rng.gen_range(-N..N);
+    let a2 :Int = rng.gen_range(-N..N);
+    let a3 :Int = rng.gen_range(-N..N);
+    let a4 :Int = rng.gen_range(-N..N);
+    let n1 = Zomega(a1,a2,a3,a4);
+    
+
+    let a1 :Int = rng.gen_range(-N..N);
+    let a2 :Int = rng.gen_range(-N..N);
+    let a3 :Int = rng.gen_range(-N..N);
+    let a4 :Int = rng.gen_range(-N..N);
+    let n2 = Zomega(a1,a2,a3,a4);
+
+
+    let gcd = compute_gcd(n1,n2);
+
+    assert!( n1%gcd == Zomega::zero() && n2%gcd == Zomega::zero() );
+
+}
+
+
+
+#[test]
 pub fn testing_gcd_of_zrt2()
 {
     let N = 10000;
@@ -158,12 +188,24 @@ pub fn testing_gcd_of_zrt2()
     let gcd = compute_gcd(n1,n2);
 
     assert!( n1%gcd == Zroot2::zero() && n2%gcd == Zroot2::zero() );
-    
 
 }
 
+
 #[test]
-pub fn testing_lots_of_gcd()
+pub fn testing_lots_of_gcd_in_zomega()
+{
+    // tonelli_shanks(4,17);
+    for i in 1..100
+    {
+        testing_gcd_of_zomega();
+    }
+
+}
+
+
+#[test]
+pub fn testing_lots_of_gcd_in_sqrt2()
 {
     assert_eq!(compute_gcd(5,10),5);
     assert_eq!(compute_gcd(7,10),1);
@@ -254,6 +296,6 @@ pub fn testing_prime_factorization_in_loc()
 
 pub fn testing_if_sum_of_locs_work()
 {
+    attempt_to_write_this_number_as_sum_of_two_squares_in_loc( sqrt2loc());
     todo!();
-
 }

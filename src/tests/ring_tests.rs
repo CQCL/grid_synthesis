@@ -438,6 +438,8 @@ pub fn division_checks_for_some_rings()
     basic_identities_with_div::<Local::<Int>>();
 
     basic_identities_with_div::<Zroot2>();
+    
+
     basic_identities_with_div::<Zomega>();
 }
 

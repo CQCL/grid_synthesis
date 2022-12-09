@@ -22,8 +22,11 @@ use crate::structs::rings::Int;
 use crate::structs::rings::LogDepInt; 
 use crate::structs::rings::LocalizableNorm; 
 use crate::structs::rings::local_ring::Local; 
+use crate::structs::rings::zomega::Zomega;
 use crate::structs::rings::zroot2::Zroot2; 
 use crate::structs::rings::special_values::sqrt2loc;
+use crate::structs::rings::special_values::onebyroot2loc;
+use crate::structs::rings::special_values::omega;
 
 type Loc = Local::<Zroot2>;
 
@@ -39,7 +42,6 @@ where T: Rem<Output=T>+Copy+Zero+PartialEq
     // Repeatedly apply the Euclidean algorithm until the remainder is 0
     while b != T::zero()
     {
-
 
         // Divide a by b and find the remainder
         // CAUTION: a % b does not exist uniquely
@@ -99,12 +101,12 @@ pub fn tonelli_shanks(n: Int, p: Int) -> Int {
         return n % 2;
     }
 
-    if legendre_symbol(n,p) != 1
-    {
-        println!(" ---------- This is unexpected input ------------");
-        println!("------- THE INPUT IS {} {} ------------",n,p);
-        panic!();
-    }
+    // if legendre_symbol(n,p) != 1
+    // {
+    //     println!(" ---------- This is unexpected input ------------");
+    //     println!("------- THE INPUT IS {} {} ------------",n,p);
+    //     panic!();
+    // }
 
     // We assume that p is prime
     // assert!(p % 2 == 1 && Factorization::is_prime(p));
@@ -230,7 +232,17 @@ pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  
     {
         if power%2==1
         {
-            if prime%8==7
+            if prime==2
+            {
+                if power > 0 
+                {
+                    let delta = Zomega::one() + omega();
+                    let deltapower = pow( delta, power.try_into().unwrap());
+
+
+                }
+            }
+            else if prime%8==7
             {
                 return None;
             }
@@ -300,7 +312,7 @@ pub fn prime_factorization_of_loc( input: Local::<Zroot2> ) -> Vec::<( FactorInt
             let u = tonelli_shanks(2,pint);
             let x = Zroot2(u,1);
 
-            let primezr2 = compute_gcd::<Zroot2>(p,x);
+            let primezr2 = compute_gcd(p,x);
             let primeloc = Local::from_base(primezr2);
             let primelocconj = Local::from_base(primezr2.conj());
 
