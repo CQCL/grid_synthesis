@@ -24,7 +24,8 @@ pub fn read_hash_table(filename: &str) -> std::io::Result<HashMap<i32, i32>> {
 pub fn save_hash_table(table: &HashMap<i32, i32>, filename: &str) -> std::io::Result<()> {
     let mut file = File::create(filename)?;
 
-    for (key, value) in table {
+    for (key, value) in table 
+    {
         writeln!(file, "{} {}", key, value)?;
     }
 
@@ -42,9 +43,12 @@ pub fn save_hash_table(table: &HashMap<i32, i32>, filename: &str) -> std::io::Re
 
 pub fn generate_gate_table() {
     let mut gatetable = HashMap::new();
+    let file_to_be_saved_at = "data/gates_with_small_t_count.dat";
+
+
     gatetable.insert(1, 2);
     gatetable.insert(3, 4);
     gatetable.insert(5, 6);
 
-    save_hash_table(&gatetable, "gates_with_small_t_count.txt").unwrap();
+    save_hash_table(&gatetable, file_to_be_saved_at ).unwrap();
 }
