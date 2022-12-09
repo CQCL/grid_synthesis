@@ -83,18 +83,12 @@ fn main() {
         u : u1,
         t : t1
     };
-
-
+    
     g=g*g*g*g*g*g; //*g*g*g*g*g;
 
     let (gate_sequence,output)  = exact_synth_given_norm_1(g);
 
     println!("{}", gate_sequence);
 
-
-
     grid_problem(Complex::<Float>::one(), 0.24);
-
-
-
 }

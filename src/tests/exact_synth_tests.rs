@@ -13,6 +13,9 @@ use crate::structs::sunimat::UniMat;
 use crate::structs::rings::Int;
 use crate::structs::rings::Float;
 use crate::algorithms::exact_synth::apply_gate_string_to_state;
+use crate::algorithms::exact_synth::pow;
+
+use num_traits::One;
 
 type Loc = Local<Zroot2>;
 type Comp = Complex<Loc>;
@@ -67,5 +70,13 @@ pub fn apply_gate_string_to_states_and_check_output()
 
 }
 
+#[test]
+pub fn comp_pow_test() {
+    let one = Comp::one();
+    for exponent in 1..5 {
+        assert_eq!(pow(one, exponent), one);
+    }
 
-
+    let root2 = sqrt2();
+    assert_eq!(pow(root2, 3), root2 * root2 * root2);
+}
