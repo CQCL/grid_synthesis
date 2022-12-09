@@ -1,5 +1,6 @@
 use crate::structs::rings::local_ring::Local;
 use crate::structs::rings::zroot2::Zroot2;
+use crate::structs::rings::zomega::Zomega;
 use num_complex::Complex;
 
 use num_traits::One;
@@ -39,6 +40,11 @@ pub fn sqrt2loc() -> Loc
             log_den: -1
         };
 
+}
+
+pub fn omega() -> Zomega
+{
+    return Zomega(0,1,0,0);
 }
 
 pub fn onebyroot2loc() -> Loc
