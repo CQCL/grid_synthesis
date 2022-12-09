@@ -24,7 +24,6 @@ pub fn print_hashtable()
     for (key,value) in hashtable_from_file 
     {
         println!("Table Entry: {} \t {}", key,value);
-
     }
 
 

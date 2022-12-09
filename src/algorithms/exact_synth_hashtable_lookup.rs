@@ -3,6 +3,9 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::io::{BufRead, BufReader};
 
+
+type unsigned_16_bits = u16;
+
 pub fn read_hash_table(filename: &str) -> std::io::Result<HashMap<i32, i32>> {
     let file = File::open(filename)?;
     let reader = BufReader::new(file);
@@ -32,23 +35,41 @@ pub fn save_hash_table(table: &HashMap<i32, i32>, filename: &str) -> std::io::Re
     Ok(())
 }
 
-//fn main() {
-//    let table = read_hash_table("table.txt").unwrap();
-//    println!("{:?}", table);
-//    // Output:
-//    //     // {1: 2, 3: 4, 5: 6}
-//    //     }
-//    //
+
+
+fn has_repeated_zeroes(n: unsigned_16_bits) -> bool {
+    // Convert the integer to a binary string
+    let binary_str = format!("{:b}", n);
+
+    let n= binary_str.len();
+    for i in 1..n
+    {
+        if binary_str[i] == 0 && binary_str[i-1] == 0 
+        {
+            return true;
+        }
+    }
+
+    return false;
+
+}
+
 
 
 pub fn generate_gate_table() {
     let mut gatetable = HashMap::new();
     let file_to_be_saved_at = "data/gates_with_small_t_count.dat";
 
+    let mut i : unsigned_16_bits = 0;
+    while i < 65535
+    {   
 
-    gatetable.insert(1, 2);
-    gatetable.insert(3, 4);
-    gatetable.insert(5, 6);
+
+
+        gatetable.insert(i as i32 , i as i32);
+        i = i+1;
+
+    }
 
     save_hash_table(&gatetable, file_to_be_saved_at ).unwrap();
 }
