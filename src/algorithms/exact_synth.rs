@@ -55,18 +55,20 @@ type Comp = Complex<Loc>;
 
 type Mat = UniMat<Comp>;
 
+// Note (12 Dec 2022): Output doesn't depend on `k` and
+// act_upon_by_htpowk isn't used anywhere
 
-pub fn act_upon_by_htpowk(gamma: Mat, k: Int) -> Mat
-{
-    let omega = mu_8();
-    let sqrt2 = sqrt2();
-    let z=gamma.u;
-    let w=gamma.t;
-    return Mat{
-        u: (z+omega*w)/sqrt2,
-        t: (z-omega*w)/sqrt2,
-    };
-}
+// pub fn act_upon_by_htpowk(gamma: Mat, k: Int) -> Mat
+// {
+//     let omega = mu_8();
+//     let sqrt2 = sqrt2();
+//     let z=gamma.u;
+//     let w=gamma.t;
+//     return Mat{
+//         u: (z+omega*w)/sqrt2,
+//         t: (z-omega*w)/sqrt2,
+//     };
+// }
 
 pub fn pow(t: Comp, n: Int) -> Comp
 {
@@ -96,7 +98,7 @@ pub fn pow(t: Comp, n: Int) -> Comp
 }
 
 
-fn multiply_H_times_T_to_n( gamma: Mat, n: Int) -> Mat
+pub fn multiply_H_times_T_to_n( gamma: Mat, n: Int) -> Mat
 {
     if n==0
     {     
@@ -110,27 +112,6 @@ fn multiply_H_times_T_to_n( gamma: Mat, n: Int) -> Mat
         let t1 = gamma.t;
         let u2 = ( u1+pow(omega,n)*t1 )/sqrt2;
         let t2 = ( u1-pow(omega,n)*t1 )/sqrt2;
-        
-        // {
-        //     // ----- DEBUG ZONE --------
-
-        //     let mut debug = gamma;
-        //     for i in 0..n 
-        //     {
-        //         debug = apply_t_gate(debug);
-        //     }
-        //     debug = apply_h_gate(debug);
-        //     if debug.u != u2 || debug.t != t2
-        //     {
-        //         println!("Set out to multiply HT^{}",n );
-        //         println!("To the matrix \n{}",gamma );
-        //         println!("Got the entries \n {} \n {}", u2,t2 );
-        //         println!("instead of \n {}", debug);
-        //         panic!("Nihar does not understand his code");
-        //     }
-        //
-        //     // -----  END OF DEBUG ZONE -------
-        // }
         
         return Mat{
             u: u2,
