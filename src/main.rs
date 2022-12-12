@@ -37,10 +37,7 @@ use crate::structs::rings::Float;
 // use crate::structs::rings::cyclotomic::Cyclotomic; 
 use crate::structs::rings::pow;
 
-use crate::structs::rings::special_values::mu_8;
-use crate::structs::rings::special_values::onebyroot2comp;
-use crate::structs::rings::special_values::sqrt2;
-
+use crate::structs::rings::special_values::{mu_8, onebyroot2comp, sqrt2, sqrtminus1};
 
 use num_complex::Complex;
 
@@ -75,7 +72,7 @@ fn main() {
     let root2 = sqrt2();
     let one = Comp::one();
     let zero = Comp::zero();
-    
+
     let u1 = ( one+omega )*onebyroot2*onebyroot2;
     let t1 = ( one-omega )*onebyroot2*onebyroot2; 
 
@@ -91,4 +88,19 @@ fn main() {
     println!("{}", gate_sequence);
 
     grid_problem(Complex::<Float>::one(), 0.24);
+
+    let hadamard = Mat{
+        u: sqrtminus1() / sqrt2(),
+        t: sqrtminus1() / sqrt2(),
+    };
+
+    let t_gate = Mat{
+        u: mu_8(),
+        t: Comp::zero(),
+    };
+
+    let p = 3;
+    for val in 1..(p-1){
+        println!("{}", val);
+    }
 }

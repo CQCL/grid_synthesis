@@ -11,6 +11,7 @@ use std::cmp::PartialEq;
 use std::fmt::Display;
 use std::fmt::Debug;
 
+use crate::structs::rings::pow;
 use crate::structs::rings::Conj;
 use crate::structs::rings::LocalizableNorm;
 use crate::structs::rings::local_ring::Local; 
@@ -20,8 +21,6 @@ use crate::structs::rings::zomega::Zomega;
 use crate::structs::rings::special_values::mu_8;
 use crate::structs::rings::special_values::onebyroot2comp;
 use crate::structs::rings::special_values::sqrt2;
-
-
 
 use num_complex::Complex;
 use crate::structs::sunimat::UniMat; 
@@ -48,48 +47,51 @@ pub fn basic_identities<T>() -> ()
     // println!("Type is {}", std::any::type_name::<T>());
     // println!("--------------------------------------");
 
-    // println!("Test 1: 1*1 == 1");
+    // println!("1*1 == 1");
     let u=T::from(1).unwrap();
     assert_eq!(u,u*u,"Failed to check that {} =\n {}\n*\n{}",u,u,u);
 
 
-    // println!("Test 2: 0+0 == 0");
+    // println!("0+0 == 0");
     let u= T::from(0).unwrap();
     // println!("{}",u);
     // println!("{}",u+u);
     assert_eq!(u,u+u," \n--------------\n Failed to check that \n{} \n= \n{} + \n{}",u,u,u);
 
-    // println!("Test 3: 2+3 == 5");
+    // println!("2+3 == 5");
     let u=T::from(2).unwrap();
     let v=T::from(3).unwrap();
     let w=T::from(5).unwrap();
     assert_eq!(w,v+u,"Failed to check that {} =\n {}\n+\n{}",w,v,u);
 
-    // println!("test 4: 1-1 == 0");
+    // println!("1-1 == 0");
     let u= T::from(1).unwrap();
     let z= T::from(0).unwrap();
     // // println!("{}",z);
     // // println!("{}",u-u);
     assert_eq!(z,u-u,"Failed to check that {} =\n {}\n-\n{}",z,u,u);
 
-    // println!("Test 5: 2-3 == -1");
+    // println!("2-3 == -1");
     let u=T::from(2).unwrap();
     let v=T::from(3).unwrap();
     let w=T::from(-1).unwrap();
     assert_eq!(w,u-v,"Failed to check that {} =\n {}\n-\n{}",w,u,v);
 
-    // println!("Test 6: -2*2 == -4");
+    // println!("-2*2 == -4");
     let u=T::from(2).unwrap();
     let v=T::from(-2).unwrap();
     let w=T::from(-4).unwrap();
     assert_eq!(w,u*v,"Failed to check that {} =\n{}*\n{}",w,v,u);
 
-    // println!("Test 6: -3*-3*-3 == -27");
+    // println!("-3*-3*-3 == -27");
     let u=T::from(-3).unwrap();
     let w=T::from(-27).unwrap();
     assert_eq!(w,u*u*u,"Failed to check that {} ={}*\n{}*\n{}",w,u,u,u);
     
-    // println!("Test 6: 4*-1*2 == -8");
+    // println!("(-3)^3 == -27")
+    assert_eq!(w, pow(u, 3));
+    
+    // println!("4*-1*2 == -8");
     let u=T::from(4).unwrap();
     let v=T::from(-1).unwrap();
     let w=T::from(2).unwrap();
@@ -575,5 +577,4 @@ pub fn testing_randomly_euclidean_division_many_times()
     testing_euclidean_division_in_zroot2_randomly();
     testing_euclidean_division_in_zroot2_randomly();
     testing_euclidean_division_in_zroot2_randomly();
-
 }

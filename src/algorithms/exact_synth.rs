@@ -258,7 +258,7 @@ pub fn exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
 
     }
 
-    return (gate_string,h);
+    return (gate_string, h);
 }
 
 
