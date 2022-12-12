@@ -41,17 +41,17 @@ fn has_repeated_zeroes(n: unsigned_16_bits) -> bool {
     // Convert the integer to a binary string
     let binary_str = format!("{:b}", n);
 
-    let n= binary_str.len();
-    for i in 1..n
-    {
-        if binary_str[i] == 0 && binary_str[i-1] == 0 
-        {
-            return true;
-        }
-    }
+    // let n= binary_str.len();
+    // for i in 1..n
+    // {
+    //     if binary_str[i] == 0 && binary_str[i-1] == 0 
+    //     {
+    //         return true;
+    //     }
+    // }
 
-    return false;
-
+    // return false;
+    binary_str.contains("00")
 }
 
 
