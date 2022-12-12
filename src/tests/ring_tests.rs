@@ -51,7 +51,6 @@ pub fn basic_identities<T>() -> ()
     let u=T::from(1).unwrap();
     assert_eq!(u,u*u,"Failed to check that {} =\n {}\n*\n{}",u,u,u);
 
-
     // println!("0+0 == 0");
     let u= T::from(0).unwrap();
     // println!("{}",u);
@@ -577,4 +576,15 @@ pub fn testing_randomly_euclidean_division_many_times()
     testing_euclidean_division_in_zroot2_randomly();
     testing_euclidean_division_in_zroot2_randomly();
     testing_euclidean_division_in_zroot2_randomly();
+}
+
+#[test]
+pub fn is_zero_test() {
+    let zroot2_zero = Zroot2::zero();
+    let zomega_zero = Zomega::zero();
+    let local_zroot2_zero = Local::<Zroot2>::zero();
+    
+    assert!(zroot2_zero.is_zero());
+    assert!(zomega_zero.is_zero());
+    assert!(local_zroot2_zero.is_zero());
 }

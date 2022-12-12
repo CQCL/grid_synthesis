@@ -37,7 +37,7 @@ pub fn save_hash_table(table: &HashMap<i32, i32>, filename: &str) -> std::io::Re
 
 
 
-fn has_repeated_zeroes(n: unsigned_16_bits) -> bool {
+pub fn has_repeated_zeroes(n: unsigned_16_bits) -> bool {
     // Convert the integer to a binary string
     let binary_str = format!("{:b}", n);
 

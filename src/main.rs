@@ -44,6 +44,8 @@ use num_complex::Complex;
 use crate::algorithms::exact_synth::exact_synth_given_norm_1;
 use crate::algorithms::inexact_synth::grid_problem;
 
+use crate::algorithms::exact_synth_hashtable_lookup::has_repeated_zeroes;
+
 // use crate::tests::basic_identities;
 // use crate::tests::basic_identities_with_conj;
 // use crate::tests::basic_identities_with_unimat_over;
@@ -89,18 +91,5 @@ fn main() {
 
     grid_problem(Complex::<Float>::one(), 0.24);
 
-    let hadamard = Mat{
-        u: sqrtminus1() / sqrt2(),
-        t: sqrtminus1() / sqrt2(),
-    };
-
-    let t_gate = Mat{
-        u: mu_8(),
-        t: Comp::zero(),
-    };
-
-    let p = 3;
-    for val in 1..(p-1){
-        println!("{}", val);
-    }
+    println!("{}", has_repeated_zeroes(0b0000000000000001));
 }
