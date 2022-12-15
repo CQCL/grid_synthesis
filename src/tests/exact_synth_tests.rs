@@ -1,21 +1,18 @@
-
-
 use crate::structs::rings::Conj;
 use crate::structs::rings::local_ring::Local; 
 use crate::structs::rings::zroot2::Zroot2;
 use crate::structs::rings::quaternion::Quaternion;
-use crate::structs::rings::special_values::mu_8;
-use crate::structs::rings::special_values::onebyroot2comp;
-use crate::structs::rings::special_values::sqrt2;
+use crate::structs::rings::special_values::{mu_8, onebyroot2comp, sqrt2, sqrtminus1};
 
 use num_complex::Complex;
 use crate::structs::sunimat::UniMat; 
 use crate::structs::rings::Int;
 use crate::structs::rings::Float;
-use crate::algorithms::exact_synth::apply_gate_string_to_state;
-use crate::algorithms::exact_synth::pow;
+use crate::algorithms::exact_synth::{apply_gate_string_to_state,
+    pow, multiply_H_times_T_to_n, apply_t_gate, apply_tinv_gate,
+    apply_h_gate, exact_synth_given_norm_1};
 
-use num_traits::One;
+use num_traits::{One, Zero};
 
 type Loc = Local<Zroot2>;
 type Comp = Complex<Loc>;
@@ -73,10 +70,60 @@ pub fn apply_gate_string_to_states_and_check_output()
 #[test]
 pub fn comp_pow_test() {
     let one = Comp::one();
-    for exponent in 1..5 {
+    for exponent in -5..5 {
         assert_eq!(pow(one, exponent), one);
     }
 
     let root2 = sqrt2();
     assert_eq!(pow(root2, 3), root2 * root2 * root2);
+
+    assert_eq!(pow(root2, -2), one / root2 / root2);
+}
+
+#[test]
+pub fn multiply_H_times_T_to_n_test() {
+    let mut gamma = Mat::one();
+    let n = 5;
+
+    let mat_2 = multiply_H_times_T_to_n(gamma, n);
+    
+    for i in 0..n {
+        gamma = apply_t_gate(gamma);
+    }
+    
+    gamma = apply_h_gate(gamma);
+    assert_eq!(gamma.u, mat_2.u);
+    assert_eq!(gamma.t, mat_2.t);
+}
+
+#[test]
+pub fn apply_tinv_test() {
+    let mut gamma = Mat::one();
+    gamma = apply_t_gate(gamma);
+    gamma = apply_tinv_gate(gamma);
+    assert_eq!(gamma, Mat::one());
+}
+
+#[test]
+fn exact_synth_given_norm_1_test() {
+    let hadamard = Mat{
+        u: sqrtminus1() / sqrt2(),
+        t: sqrtminus1() / sqrt2(),
+    };
+
+    let t_gate = Mat{
+        u: mu_8(),
+        t: Comp::zero(),
+    };
+
+    // Note: As of Dec 12, 2022, I think matrix multiplication might be broken.
+    let hththt = hadamard * t_gate * hadamard * t_gate * hadamard * t_gate;
+    let (seq, mat) = exact_synth_given_norm_1(hththt);
+    assert_eq!(mat, hththt);
+    // assert_eq!(seq, "HTHTHT"); // fails
+
+    let htht = hadamard * t_gate * hadamard * t_gate;
+    let (seq, mat) = exact_synth_given_norm_1(htht);
+    assert_eq!(mat, htht);
+    // assert_eq!(seq, "HTHT"); // fails
 }

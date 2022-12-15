@@ -88,3 +88,10 @@ pub fn sqrt2() -> Comp
     };
 }
 
+pub fn sqrtminus1() -> Comp
+{
+    return Comp{
+        re: Loc::zero(),
+        im: Loc::one(),
+    }
+}

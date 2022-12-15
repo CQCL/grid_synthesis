@@ -40,19 +40,7 @@ pub fn save_hash_table(table: &HashMap<i32, i32>, filename: &str) -> std::io::Re
 
 
 pub fn has_repeated_zeroes(n: UnsignedBits, size: SizeOfBits ) -> bool {
-    // Convert the integer to a binary string
-
-    for i in 0..(size-1)
-    {
-        let mask1 = 1 << i;
-        let mask2 = 1 << i+1;
-        if mask1 & n == 0 && mask2 & n == 0
-        {
-            return true;
-        }
-    }
-
-    return false;
+    binary_str.contains("00")
 }
 
 

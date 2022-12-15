@@ -68,7 +68,7 @@ where T: Mul<Output=T>+Copy
     let mut out = t;
     // TODO: Smarter implementation using 
     // binary expansion of p is possible here
-    for i in 1..(p-1)
+    for i in 1..p
     {
         out=out*t;
     }
