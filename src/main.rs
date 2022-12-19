@@ -91,5 +91,5 @@ fn main() {
 
     grid_problem(Complex::<Float>::one(), 0.24);
 
-    println!("{}", has_repeated_zeroes(0b0000000000000001));
+    // println!("{}", has_repeated_zeroes(0b0000000000000001));
 }
