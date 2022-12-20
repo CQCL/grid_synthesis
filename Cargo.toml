@@ -22,7 +22,6 @@ nalgebra = "0.31.4" # standard matrix ops
 
 prime_factorization = "1.0.3" # Might replace it by a lookup table
 
-bincode = "1.3.3"
 
 
 # For testing
