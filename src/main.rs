@@ -44,7 +44,6 @@ use num_complex::Complex;
 use crate::algorithms::exact_synth::exact_synth_given_norm_1;
 use crate::algorithms::inexact_synth::grid_problem;
 
-use crate::algorithms::exact_synth_hashtable_lookup::has_repeated_zeroes;
 
 // use crate::tests::basic_identities;
 // use crate::tests::basic_identities_with_conj;

@@ -70,6 +70,9 @@ type Mat = UniMat<Comp>;
 //     };
 // }
 
+
+// SHOULD BE DEPRECATED
+// Instead should use inbuild pow of comp
 pub fn pow(t: Comp, n: Int) -> Comp
 {
     // TODO

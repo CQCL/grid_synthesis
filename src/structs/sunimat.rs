@@ -2,7 +2,7 @@
 // That's what quantum gates are
 // It is a Lie group over the reals of dimension 3
 // It is equivalently, also the space of unit quaternions
-// We are interested in unitary matrices over the ring D[\omega]
+// We are interested in unitary matrices over the ring Local<Zroot2>
 
 
 use crate::structs::rings::Conj; //Conjugation trait
@@ -29,6 +29,7 @@ use num_traits::Zero;
 use num_traits::One;
 use num_traits::NumCast;
 use num_traits::FromPrimitive;
+
 
 
 // Unitary matrices of determinant 1. They are of the form
