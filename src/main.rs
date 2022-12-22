@@ -44,7 +44,6 @@ use num_complex::Complex;
 use crate::algorithms::exact_synth::exact_synth_given_norm_1;
 use crate::algorithms::inexact_synth::grid_problem;
 
-use crate::algorithms::exact_synth_hashtable_lookup::has_repeated_zeroes;
 
 // use crate::tests::basic_identities;
 // use crate::tests::basic_identities_with_conj;
@@ -91,5 +90,5 @@ fn main() {
 
     grid_problem(Complex::<Float>::one(), 0.24);
 
-    println!("{}", has_repeated_zeroes(0b0000000000000001));
+    // println!("{}", has_repeated_zeroes(0b0000000000000001));
 }

@@ -2,6 +2,7 @@
 
 eval "$(ssh-agent)"
 ssh-add ~/.ssh/github_nihargargava_solovay
+ssh-add ~/.ssh/github_gargava
 ssh-add ~/.ssh/nihargargava_github_minkowski
 
 
