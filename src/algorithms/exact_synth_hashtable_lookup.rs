@@ -25,7 +25,7 @@ type State = ExactGate;
 
 
 type GateString = String; // String of H and T
-pub const GATE_STRING_LENGTH : usize = 24;  // This is the number of H and T gates to be multiplied
+pub const GATE_STRING_LENGTH : usize = 15;  // This is the number of H and T gates to be multiplied
 
 
 // Hash table. It will store gatestring and corresponding exact gate
@@ -184,11 +184,25 @@ pub fn generate_hashtable_of_gate_sequence_recursively(final_length: &usize, seq
             generate_hashtable_of_gate_sequence_recursively(final_length,  sequence, table);
         }
     }
+    {
+        generate_hashtable_of_gate_sequence_recursively(final_length,  sequence, table);
+    }
 
     pop_sequence(sequence);
+    
     push_t_gate(sequence);
 
-    generate_hashtable_of_gate_sequence_recursively(final_length, sequence, table);
+    if len > 7
+    {
+        if sequence[(len-8)..(len)] != "TTTTTTTT".to_string()
+        {
+            generate_hashtable_of_gate_sequence_recursively(final_length,  sequence, table);
+        }
+    }
+    else
+    {
+        generate_hashtable_of_gate_sequence_recursively(final_length,  sequence, table);
+    }
 
     pop_sequence(sequence);
 }
@@ -205,6 +219,7 @@ pub fn generate_gate_table() {
     for i in 0..GATE_STRING_LENGTH
     {
         let gatelength = GATE_STRING_LENGTH -i ; // This reverse length makes shorter gate sequences overwrite longer ones
+
         generate_hashtable_of_gate_sequence_recursively( &gatelength  ,  &mut "".to_string(), &mut gatetable);
     }
     

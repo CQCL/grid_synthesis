@@ -211,8 +211,19 @@ pub fn exact_synth_given_norm_1( gamma: Mat) -> (String)
     {
         let file_saved_at = "data/gates_with_small_t_count.dat";
         let gatetable = read_hash_table(file_saved_at).unwrap();
-        let to_be_added = gatetable.get(&to_be_looked_up).unwrap();
-        seq.push_str(to_be_added);
+        let possible_answer = gatetable.get(&to_be_looked_up);
+
+        if possible_answer==None
+        {
+            println!("LOOKUP FAILED TO FIND SOLUTION FOR: \n{}", to_be_looked_up);
+            panic!();
+        }
+        else
+        {
+            let to_be_added = possible_answer.unwrap();
+            seq.push_str(to_be_added);
+        }
+
     }
 
     return seq;
@@ -230,7 +241,6 @@ pub fn exact_synth_given_norm_1( gamma: Mat) -> (String)
 pub fn partial_exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
 {
 
-    println!("------ COMMENCING ALGORITHM ON ---------- \n {}  \n ----------------", gamma );
     let mut gate_string = "".to_string();
 
     if gamma.det()!= Comp::one()
