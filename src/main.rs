@@ -84,7 +84,7 @@ fn main() {
     
     g=g*g*g*g*g*g; //*g*g*g*g*g;
 
-    let (gate_sequence,output)  = exact_synth_given_norm_1(g);
+    let gate_sequence  = exact_synth_given_norm_1(g);
 
     println!("{}", gate_sequence);
 
