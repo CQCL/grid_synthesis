@@ -55,6 +55,13 @@ type Comp = Complex<Loc>;
 
 type Mat = UniMat<Comp>;
 
+// A state is also a matrix technically
+type State = Mat;
+
+// Look up table stuff
+use crate::algorithms::exact_synth_hashtable_lookup::GateTable;
+use crate::algorithms::exact_synth_hashtable_lookup::read_hash_table;
+
 // Note (12 Dec 2022): Output doesn't depend on `k` and
 // act_upon_by_htpowk isn't used anywhere
 
@@ -126,6 +133,9 @@ pub fn multiply_H_times_T_to_n( gamma: Mat, n: Int) -> Mat
     }
 }
 
+
+
+
 pub fn apply_gate_string_to_state( gate_string: String ,  gamma: Mat) -> Mat
 {
 
@@ -182,22 +192,56 @@ pub fn apply_t_gate( gamma: Mat) -> Mat
     return state;
 }
 
-// This is an implementation of 1206.5236 
-// The table saying Algorithm 1 contains the pseudocode
-pub fn exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
+
+
+
+
+
+pub fn exact_synth_given_norm_1( gamma: Mat) -> (String)
 {
 
+    let (mut seq , to_be_looked_up) = partial_exact_synth_given_norm_1(gamma);
+    
+    if to_be_looked_up == Mat::one()
+    {
+        return "".to_string();
+    }
+    
+    else
+    {
+        let file_saved_at = "data/gates_with_small_t_count.dat";
+        let gatetable = read_hash_table(file_saved_at).unwrap();
+        let to_be_added = gatetable.get(&to_be_looked_up).unwrap();
+        seq.push_str(to_be_added);
+    }
+
+    return seq;
+
+}
+
+
+
+
+
+
+
+
+// This will get the sdeq small enough so that we can then use a look up table
+pub fn partial_exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
+{
+
+    println!("------ COMMENCING ALGORITHM ON ---------- \n {}  \n ----------------", gamma );
     let mut gate_string = "".to_string();
 
     if gamma.det()!= Comp::one()
     {
         panic!("I was promised norm 1");
     }
+    
     if gamma.u.norm_sqr().log_den != gamma.t.norm_sqr().log_den
     {
         panic!("Mathematics is wrong");
     }
-    // println!("This is the det: {}", gamma.u.norm_sqr()+gamma.t.norm_sqr());
     let mut g: Mat;
     let mut h = gamma;
     let mut sdeq= h.u.norm_sqr().log_den;
@@ -253,6 +297,7 @@ pub fn exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
             }
             i=i+1;
         }
+
 
         if nevercalled
         {

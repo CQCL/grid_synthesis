@@ -36,7 +36,7 @@ use num_traits::ToPrimitive;
 // Quadratic number field with root 2
 // This struct assumes that you are going to localize it 
 // at sqrt(2)
-#[derive(Copy,Debug,Clone,PartialEq,PartialOrd)]
+#[derive(Copy,Debug,Clone,PartialEq,PartialOrd,Hash,Eq)]
 pub struct Zroot2(pub Int,pub Int); //a+b\sqrt(2)
 
 // Rust must know how to diplay elements of this ring

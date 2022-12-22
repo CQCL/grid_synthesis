@@ -39,7 +39,7 @@ use num_traits::FromPrimitive;
 // \         /
 // where u and t are in giventype
 // It is required that giventype has implementations of Add,Sub,Mult,Neg,conj
-#[derive(Debug,Copy,Clone)]
+#[derive(Debug,Copy,Clone,Hash,Eq)]
 pub struct UniMat<T>
 {
     pub u: T,

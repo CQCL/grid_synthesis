@@ -47,7 +47,7 @@ use crate::structs::rings::LogDepInt;
 // Ring of numbers of the form a/2^n for integers a and n
 // These are dyadic integers
 // Each integer looks something like
-#[derive(Debug, Copy, Clone, PartialEq, PartialOrd)]
+#[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Hash, Eq)]
 pub struct Local<T> 
 {
     pub num: T,
