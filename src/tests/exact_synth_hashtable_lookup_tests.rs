@@ -6,7 +6,7 @@ use crate::algorithms::exact_synth_hashtable_lookup::GATE_STRING_LENGTH;
 use crate::structs::rings::zroot2::Zroot2;
 type Loc = crate::structs::rings::local_ring::Local::<Zroot2>;
 use num_complex::Complex;
-type ExactGate = crate::structs::sunimat::UniMat<Complex<Loc>>;
+type ExactGate = crate::structs::sunimat::SUniMat<Complex<Loc>>;
 
 // Matrix multiplication
 use crate::algorithms::exact_synth::apply_gate_string_to_state;

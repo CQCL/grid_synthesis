@@ -24,7 +24,7 @@ use num_traits::FromPrimitive;
 //the compiler suggested this (and wouldn't compile otherwise)
 // use crate::structs::rings::dyad::Dyad; 
 // use crate::structs::rings::domega::DOmega; 
-use crate::structs::sunimat::UniMat; 
+use crate::structs::sunimat::SUniMat; 
 // use crate::structs::rings::complex::Complex; 
 use crate::structs::rings::local_ring::Local; 
 use crate::structs::rings::zroot2::Zroot2; 
@@ -57,7 +57,7 @@ use crate::algorithms::inexact_synth::grid_problem;
 // Better looking code
 type Loc = Local<Zroot2>;
 type Comp = Complex<Loc>;
-type Mat = UniMat<Comp>;
+type Mat = SUniMat<Comp>;
 // type Quat = Quaternion<Loc>;
 
 
@@ -82,13 +82,16 @@ fn main() {
         t : t1
     };
     
+
+    crate::algorithms::exact_synth_hashtable_lookup::generate_gate_table();
+    
     g=g*g*g*g*g*g; //*g*g*g*g*g;
 
-    let gate_sequence  = exact_synth_given_norm_1(g);
+    // let gate_sequence  = exact_synth_given_norm_1(g);
 
-    println!("{}", gate_sequence);
+    // println!("{}", gate_sequence);
 
-    grid_problem(Complex::<Float>::one(), 0.24);
+    // grid_problem(Complex::<Float>::one(), 0.24);
 
     // println!("{}", has_repeated_zeroes(0b0000000000000001));
 }

@@ -1,5 +1,5 @@
 // Importing some ring elements
-// use crate::structs::unimat::UniMat; 
+// use crate::structs::unimat::SUniMat; 
 use crate::structs::rings::Localizable; 
 // use crate::structs::rings::Fixable; 
 use std::ops::Neg; 
@@ -23,7 +23,7 @@ use crate::structs::rings::special_values::onebyroot2comp;
 use crate::structs::rings::special_values::sqrt2;
 
 use num_complex::Complex;
-use crate::structs::sunimat::UniMat; 
+use crate::structs::sunimat::SUniMat; 
 use crate::structs::rings::Int;
 use crate::structs::rings::Float;
 use crate::algorithms::exact_synth::apply_gate_string_to_state;
@@ -144,10 +144,10 @@ pub fn basic_identities_with_conj<T>() -> ()
 // //           T: PartialEq+From<Int>
 // // {
 
-// //     println!("Testing UniMat over {}", std::any::type_name::<T>());
+// //     println!("Testing SUniMat over {}", std::any::type_name::<T>());
 // //     println!("--------------------------------------");
 // //     println!("Test 1: Id.Id = Id");
-// //     let u = UniMat::<T>::one();
+// //     let u = SUniMat::<T>::one();
 // //     assert_eq!(u,u*u,"Failed to check that {} =\n {}\n*\n{}",u,u,u);
 
 // // }
@@ -241,7 +241,7 @@ pub fn broke_arithmetic_until_26_10_2022()
     type Loc = Local<Zroot2>;
     type Quat = Quaternion<Loc>;
     type Comp = Complex<Loc>;
-    type Mat = UniMat<Comp>;
+    type Mat = SUniMat<Comp>;
 
     let omega = mu_8();
     let onebyroot2 = onebyroot2comp();
@@ -332,7 +332,7 @@ pub fn break_division_in_loc_26_10_2022() {
 
     type Loc = Local<Zroot2>;
     type Comp = Complex<Loc>;
-    // type Mat = UniMat<Comp>;
+    // type Mat = SUniMat<Comp>;
     // type Quat = Quaternion<Loc>;
 
     let omega = mu_8();
@@ -354,7 +354,7 @@ pub fn doesnt_break_matrices_27_10_2022()
 {
     type Loc = Local<Zroot2>;
     type Comp = Complex<Loc>;
-    type Mat = UniMat<Comp>;
+    type Mat = SUniMat<Comp>;
     // type Quat = Quaternion<Loc>;
 
     let omega = mu_8();
@@ -382,7 +382,7 @@ pub fn doesnt_break_matrices_27_10_2022()
 
 type Loc = Local<Zroot2>;
 type Comp = Complex<Loc>;
-type Mat = UniMat<Comp>;
+type Mat = SUniMat<Comp>;
 // type Quat = Quaternion<Loc>;
 pub fn checking_conversion_from_int<T>()
 where T:One,

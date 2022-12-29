@@ -32,7 +32,7 @@ use crate::structs::rings::local_ring::Local;
 use crate::structs::rings::Int;
 use crate::structs::rings::Conj;
 use crate::structs::rings::zroot2::Zroot2;
-use crate::structs::sunimat::UniMat;
+use crate::structs::sunimat::SUniMat;
 use crate::structs::rings::special_values::mu_8;
 use crate::structs::rings::special_values::sqrt2;
 
@@ -53,7 +53,7 @@ type Loc = Local<Zroot2>;
 
 type Comp = Complex<Loc>;
 
-type Mat = UniMat<Comp>;
+type Mat = SUniMat<Comp>;
 
 // A state is also a matrix technically
 type State = Mat;
@@ -200,7 +200,11 @@ pub fn apply_t_gate( gamma: Mat) -> Mat
 pub fn exact_synth_given_norm_1( gamma: Mat) -> (String)
 {
 
+    println!("INPUT IS \n {}",  gamma);
     let (mut seq , to_be_looked_up) = partial_exact_synth_given_norm_1(gamma);
+
+    println!("REDUCED IT TO \n {}",  to_be_looked_up);
+
     
     if to_be_looked_up == Mat::one()
     {
@@ -220,7 +224,9 @@ pub fn exact_synth_given_norm_1( gamma: Mat) -> (String)
         }
         else
         {
+
             let to_be_added = possible_answer.unwrap();
+            println!("HASH TABLE FOUND {}", to_be_added);
             seq.push_str(to_be_added);
         }
 

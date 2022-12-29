@@ -16,7 +16,7 @@ use crate::structs::rings::special_values::sqrt2;
 use crate::structs::rings::zroot2::Zroot2;
 type Loc = crate::structs::rings::local_ring::Local::<Zroot2>;
 use num_complex::Complex;
-type ExactGate = crate::structs::sunimat::UniMat<Complex<Loc>>;
+type ExactGate = crate::structs::sunimat::SUniMat<Complex<Loc>>;
 
 // A state is a complex linear combination of |0> and |1>
 // such that the sum of norm_sq is 1

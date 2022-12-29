@@ -32,15 +32,21 @@ use num_traits::FromPrimitive;
 
 
 
-// Unitary matrices of determinant 1. They are of the form
+// Special Unitary matrices of determinant 1. They are of the form
 // /         \
 // | u  -t^* |
 // | t   u^* |
 // \         /
 // where u and t are in giventype
 // It is required that giventype has implementations of Add,Sub,Mult,Neg,conj
+//
+// WARNING: Not every unitary is of this form, but every unitary is of this form
+// upto a global phase
+//
+// for an actual unitary implementation, go to unimat.rs
+// 
 #[derive(Debug,Copy,Clone,Hash,Eq)]
-pub struct UniMat<T>
+pub struct SUniMat<T>
 {
     pub u: T,
     pub t: T,
@@ -48,7 +54,7 @@ pub struct UniMat<T>
 
 
 // Nicely display Unitary Matrices
-impl<T> Display for UniMat<T>
+impl<T> Display for SUniMat<T>
 where T:Neg<Output=T>+Conj+Display+Copy
 {
     fn fmt(&self, f: &mut Formatter) -> Result{
@@ -58,12 +64,12 @@ where T:Neg<Output=T>+Conj+Display+Copy
     }
 }
 
-// Conjugate-transpose UniMat<T> elements
+// Conjugate-transpose SUniMat<T> elements
 // Same as taking an inverse
-impl<T> UniMat<T> 
+impl<T> SUniMat<T> 
 where T: Neg<Output=T>+Conj
 {
-    pub fn inv(self) -> UniMat<T> {
+    pub fn inv(self) -> SUniMat<T> {
         Self{
             u : self.u.conj(),
             t : -self.t
@@ -72,19 +78,19 @@ where T: Neg<Output=T>+Conj
 }
 
 
-// Teaching rust how to multiply UniMat<T> elements
+// Teaching rust how to multiply SUniMat<T> elements
 // Also see this for why it looks so weird:
 // https://stackoverflow.com/questions/39169795/error-when-using-operators-with-a-generic-type
-impl<T> Mul for UniMat<T> 
+impl<T> Mul for SUniMat<T> 
 where T: Copy,
       T: Conj,
       T: Mul<Output=T>,
       T: Add<Output=T>,
       T: Sub<Output=T>
 {
-    type Output = UniMat<T>;
-    fn mul(self, other: UniMat<T>) 
-        -> UniMat<T>
+    type Output = SUniMat<T>;
+    fn mul(self, other: SUniMat<T>) 
+        -> SUniMat<T>
     {
         Self{
             u: self.u*other.u-self.t.conj()*other.t,
@@ -96,7 +102,7 @@ where T: Copy,
 
 
 // Get zero and one as Unitary matrices
-impl<T> UniMat<T>
+impl<T> SUniMat<T>
 where T: Zero,
       T: Copy
 {
@@ -108,7 +114,7 @@ where T: Zero,
     }
 }
 
-impl<T> UniMat<T>
+impl<T> SUniMat<T>
 where T: Zero+One,
       T: Copy
 {
@@ -117,7 +123,7 @@ where T: Zero+One,
     }
 }
 
-impl<T> UniMat<T>
+impl<T> SUniMat<T>
 {
     pub fn h_gate() -> Self 
     {
@@ -132,7 +138,7 @@ impl<T> UniMat<T>
 
 }
 
-impl<T> UniMat<T>
+impl<T> SUniMat<T>
 where T: Mul<Output=T>+Add<Output=T>+Conj,
       T: Copy
 {
@@ -143,7 +149,7 @@ where T: Mul<Output=T>+Add<Output=T>+Conj,
 }
 
 // Teaching rust how to compare these ring elements
-impl<T> PartialEq for UniMat<T> 
+impl<T> PartialEq for SUniMat<T> 
 where T: PartialEq
 {
     fn eq(&self, other: &Self) -> bool {

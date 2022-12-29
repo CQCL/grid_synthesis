@@ -20,16 +20,18 @@ use std::fmt::Formatter;
 
 // Unitary matrices. They are the form 
 // /                \
-// | u  -t^*(omega) |
-// | t   u^*(omega) |
+// | u  -t^* * (omega) |
+// | t   u^* * (omega) |
 // \                /
 // where u and t are in giventype
-// and omega is a unit norm object
+// and omega is such that abs(omega) = 1
+//
+type SUniMat = crate::structs::sunimat::SUniMat;
+
 #[derive(Debug,Copy,Clone)]
 pub struct UniMat<T>
 {
-    pub u: T,
-    pub t: T,
+    pub struct SUniMat
 }
 
 

@@ -5,7 +5,7 @@ use crate::structs::rings::quaternion::Quaternion;
 use crate::structs::rings::special_values::{mu_8, onebyroot2comp, sqrt2, sqrtminus1};
 
 use num_complex::Complex;
-use crate::structs::sunimat::UniMat; 
+use crate::structs::sunimat::SUniMat; 
 use crate::structs::rings::Int;
 use crate::structs::rings::Float;
 use crate::algorithms::exact_synth::{apply_gate_string_to_state,
@@ -16,7 +16,7 @@ use num_traits::{One, Zero};
 
 type Loc = Local<Zroot2>;
 type Comp = Complex<Loc>;
-type Mat = UniMat<Comp>;
+type Mat = SUniMat<Comp>;
 // type Quat = Quaternion<Loc>;
 
 // Want to check if my gate_string gives output when applied to gamma
@@ -143,26 +143,34 @@ pub fn apply_tinv_test() {
 // }
 
 
-// #[test]
-// fn exact_synth_tests() {
-//     let hadamard = Mat{
-//         u: Comp::one() / sqrt2(),
-//         t: Comp::one() / sqrt2(),
-//     };
+// #[test] //passes
+fn exact_synth_tests_single_h() {
 
-//     let t_gate = Mat{
-//         u: mu_8(),
-//         t: Comp::zero(),
-//     };
+    let inputseq  = "H".to_string();
+    let inputgate  = apply_gate_string_to_state(inputseq, Mat::one());
+    let outputseq = exact_synth_given_norm_1(inputgate);
+    
+    assert_eq!(outputseq, "H");
+    
+    let output = apply_gate_string_to_state(outputseq,Mat::one());
 
+    assert_eq!(output, inputgate);
 
-//     // println!("-- AND THIS? ---------------- \n {}", hadamard );
-//     let seq = exact_synth_given_norm_1(hadamard);
-//     let output = apply_gate_string_to_state(seq,Mat::one());
+}
 
+#[test]
+fn exact_synth_tests_single_t() {
 
-//     let hththt = hadamard * t_gate * hadamard * t_gate * hadamard * t_gate;
-//     // let seq = exact_synth_given_norm_1(t_gate);
-//     println!("------ THIS GATE IS  HTHTHT  = \n {} -------", hththt ); 
-//     let seq  = exact_synth_given_norm_1(hththt);
-// }
+    let inputseq  = "T".to_string();
+    let inputgate  = apply_gate_string_to_state(inputseq, Mat::one());
+    let outputseq = exact_synth_given_norm_1(inputgate);
+
+    println!("OUTPUT SEQ = {}",outputseq );
+    
+    assert_eq!(outputseq, "T");
+    
+    let output = apply_gate_string_to_state(outputseq,Mat::one());
+
+    assert_eq!(output, inputgate);
+
+}

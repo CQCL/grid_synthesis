@@ -15,7 +15,7 @@ use crate::structs::rings::Localizable;
 
 
 use crate::algorithms::local_prime_factorization::prime_factorization_of_loc;
-use crate::structs::sunimat::UniMat;
+use crate::structs::sunimat::SUniMat;
 
 
 use num_traits::Pow;
@@ -32,8 +32,8 @@ type Mat2 = nalgebra::Matrix2<Float>;
 type Mat4 = nalgebra::Matrix4<Float>;
 type Vec4 = nalgebra::Matrix4x1<Float>;
 type Vec4Int = nalgebra::Matrix4x1<Int>;
-type Sunimat = UniMat<Float>;
-type Sunimatloc = UniMat<Loc>;
+type Sunimat = SUniMat<Float>;
+type Sunimatloc = SUniMat<Loc>;
 
 // See comments for output idea
 pub fn ellipse_parameters_for_region_a(direction: Comp, epsilon_a: Float ) -> (Comp, Mat2, Float)
