@@ -43,6 +43,30 @@ pub fn basic_identies()
     assert_eq!( (temp)  *  (t_gate.inv() * h_gate * t_gate.inv() * h_gate * t_gate.inv() ), one);
 }
 
+pub fn exact_test_with_string(test_seq: String) 
+{
+
+    let prod_gate = ExactUniMat::from_string(&test_seq );
+    let state_expected = apply_gate_string_to_state(test_seq , Mat::one());
+
+    println!("{}", prod_gate.mat);
+    println!("{}", prod_gate);
+    println!("{}", state_expected);
+
+    // let guess = 5;
+    // assert_eq!(prod_gate.omega_exp, guess);
+
+    assert_eq!(prod_gate.mat, state_expected);
+}
+
+#[test]
+pub fn exact_test_with_some_strings()
+{
+    exact_test_with_string("TH".to_string() );
+}
+
+
+
 #[test]
 pub fn multiply_h_and_t() 
 {
@@ -63,6 +87,5 @@ pub fn multiply_h_and_t()
     assert_eq!(ht_state, prod.mat);
 
     assert_eq!(prod, ExactUniMat::from_string(&"HT".to_string()) );
-
 
 }

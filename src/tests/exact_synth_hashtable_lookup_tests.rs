@@ -34,7 +34,7 @@ pub fn print_hashtable()
 
 
 #[test]
-pub fn checking_hashtable_values() 
+pub fn checking_hashtable_values_easy_cases() 
 {
     // Assuming that hashtable exists
     // we will check that some values are what we expect
@@ -66,8 +66,32 @@ pub fn checking_hashtable_values()
     let state = apply_gate_string_to_state("TH".to_string(), ExactState::one());
     let seq = hashtable.get(&state).unwrap();
     assert_eq!(seq, "TH");
+    
+
 }
 
+#[test]
+pub fn checking_hashtable_values_more_difficult_cases()
+{
+    let filename = "data/gates_with_small_t_count.dat";
+    let hashtable = read_hash_table(filename).unwrap();
+
+
+
+    let input_string = "TTHT";
+    let expected_answer = "TTH";
+    let state = apply_gate_string_to_state(input_string.to_string(), ExactState::one());
+    let seq = hashtable.get(&state).unwrap();
+    assert_eq!(seq, expected_answer);
+
+
+    let input_string = "TTTHTT";
+    let expected_answer = "TTTH";
+    let state = apply_gate_string_to_state(input_string.to_string(), ExactState::one());
+    let seq = hashtable.get(&state).unwrap();
+    assert_eq!(seq, expected_answer);
+
+}
 
 
 

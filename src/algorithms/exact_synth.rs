@@ -193,15 +193,20 @@ pub fn exact_synth( gamma: ExactUniMat) -> (String)
 
     let gammamat = gamma.mat; 
 
+    // assert_eq!(gamma, ExactUniMat::from_string(&"HTHT".to_string() ) );
+    // assert_eq!(gamma.omega_exp, 2);
+    // let expect_to_be = apply_gate_string_to_state("HTHT".to_string(), Mat::one() );
+
+    // println!("NEXT LINE IS BUST!");
+    // assert_eq!(gammamat, expect_to_be );
+
 
     let (mut seq , to_be_looked_up) = partial_exact_synth_given_norm_1(gammamat);
 
-    // println!("PARTIAL REDUCTION GAVE SEQUENCE = {}",seq );
+    println!("PARTIAL REDUCTION GAVE SEQUENCE = {}",seq );
     
+    println!("WILL LOOK UP =  \n  {}", to_be_looked_up);
 
-
-
-    // println!("WILL LOOK UP =  \n  {}", to_be_looked_up);
 
     
     if to_be_looked_up != Mat::one()
@@ -278,7 +283,7 @@ pub fn partial_exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
 
     // This is what we want to reduce
     let mut sdeq= h.u.norm_sqr().log_den;
-    println!("SDEQ VALUE = {}", sdeq);
+    // println!("SDEQ VALUE = {}", sdeq);
 
     while sdeq>3
     {
