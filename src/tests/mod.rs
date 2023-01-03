@@ -10,3 +10,4 @@ pub mod prime_factorization_tests;
 pub mod matrix_tests;
 
 
+pub mod exact_gate_tests;

@@ -69,6 +69,7 @@ where T:Neg<Output=T>+Conj+Display+Copy
 impl<T> SUniMat<T> 
 where T: Neg<Output=T>+Conj
 {
+    // Assumes that u*u.conj() + t*t.conj()  = 1
     pub fn inv(self) -> SUniMat<T> {
         Self{
             u : self.u.conj(),
