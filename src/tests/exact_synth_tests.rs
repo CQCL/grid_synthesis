@@ -18,6 +18,10 @@ type Loc = Local<Zroot2>;
 type Comp = Complex<Loc>;
 type Mat = SUniMat<Comp>;
 // type Quat = Quaternion<Loc>;
+//
+
+
+use crate::structs::unimat::ExactUniMat;
 
 // Want to check if my gate_string gives output when applied to gamma
 #[test]
@@ -147,12 +151,12 @@ pub fn apply_tinv_test() {
 fn exact_synth_tests_single_h() {
 
     let inputseq  = "H".to_string();
-    let inputgate  = apply_gate_string_to_state(inputseq, Mat::one());
+    let inputgate  = ExactUniMat::from_string(inputseq);
     let outputseq = exact_synth_given_norm_1(inputgate);
     
     assert_eq!(outputseq, "H");
     
-    let output = apply_gate_string_to_state(outputseq,Mat::one());
+    let output = ExactUniMat::from_string(outputseq);
 
     assert_eq!(output, inputgate);
 
@@ -162,14 +166,36 @@ fn exact_synth_tests_single_h() {
 fn exact_synth_tests_single_t() {
 
     let inputseq  = "T".to_string();
-    let inputgate  = apply_gate_string_to_state(inputseq, Mat::one());
+    let inputgate  = ExactUniMat::from_string(inputseq);
+    
+    
     let outputseq = exact_synth_given_norm_1(inputgate);
 
     println!("OUTPUT SEQ = {}",outputseq );
     
     assert_eq!(outputseq, "T");
     
-    let output = apply_gate_string_to_state(outputseq,Mat::one());
+    let output = ExactUniMat::from_string(outputseq);
+
+    assert_eq!(output, inputgate);
+
+}
+
+
+#[test]
+fn exact_synth_tests_ht() {
+
+    let inputseq  = "HT".to_string();
+    let inputgate  = ExactUniMat::from_string(inputseq);
+    
+    
+    let outputseq = exact_synth_given_norm_1(inputgate);
+
+    println!("OUTPUT SEQ = {}",outputseq );
+    
+    assert_eq!(outputseq, "HT");
+    
+    let output = ExactUniMat::from_string(outputseq);
 
     assert_eq!(output, inputgate);
 

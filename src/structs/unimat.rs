@@ -156,6 +156,33 @@ impl ExactUniMat
             omega_exp : 1
         };
     }
+
+    pub fn from_string(gate_string : String) -> Self
+    {
+
+        let mut output = ExactUniMat::one();
+
+        for i in gate_string.chars()
+        {
+            if i == 'H'
+            {
+                output = ExactUniMat::h_gate()*output;
+            }
+
+            else if i == 'T'
+            {
+                output = ExactUniMat::t_gate()*output;
+            }
+            
+            else 
+            {
+                panic!("Gates other than H or T in the sequence");
+            }
+
+        }
+
+        return output;
+    }
 }
 
 
@@ -166,3 +193,8 @@ impl PartialEq for ExactUniMat
         return self.mat == other.mat && self.omega_exp%8 == other.omega_exp%8;
     }
 }
+
+
+
+
+

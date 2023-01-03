@@ -7,23 +7,17 @@
 
 
 // Some notes:
-// I have implemented unitary matrices as quaternions instead
-// This is because I feel that is the more generalizable setting
-// Here is how the two groups are related
+// Unitary matrices come from the ExactUniMat struct in unimat.rs in structs
 //
+// They look like 
 // 
-// /         \
-// | u  -t^* |             
-// | t   u^* |
-// \         /
-//
-// are in bijection with 
-//
-// u + vJ
-// where u = u_1 + u_2 I 
-// and   v = v_1 + v_2 I
-// where u and t are in giventype
-//
+// /                    \
+// | u      -t^* omega^i|             
+// | t       u^* omega^i|
+// \                    /
+//  where omega is the eight root of unity
+//  and u and t are in the KMMring as defined there
+//  
 
 use crate::structs::rings::quaternion::Quaternion;
 // use crate::structs::rings::Int;
@@ -50,10 +44,9 @@ use num_complex::Complex;
 // Better looking code
 // type Quat = Quaternion<Local<Zroot2>>;
 type Loc = Local<Zroot2>;
-
 type Comp = Complex<Loc>;
-
 type Mat = SUniMat<Comp>;
+use crate::structs::unimat::ExactUniMat;
 
 // A state is also a matrix technically
 type State = Mat;
@@ -114,6 +107,7 @@ pub fn multiply_H_times_T_to_n( gamma: Mat, n: Int) -> Mat
     {     
         return gamma;
     }
+    
     else
     {
         let omega = mu_8();
@@ -128,14 +122,13 @@ pub fn multiply_H_times_T_to_n( gamma: Mat, n: Int) -> Mat
             t: t2
         };
 
-
-
     }
 }
 
 
 
-
+// Shoud be deprecated
+// Instead, we should use ExactUniMat::from_string(...)*gamma
 pub fn apply_gate_string_to_state( gate_string: String ,  gamma: Mat) -> Mat
 {
 
@@ -144,7 +137,9 @@ pub fn apply_gate_string_to_state( gate_string: String ,  gamma: Mat) -> Mat
 
 
     let mut state = gamma;
-    for i in gate_string.chars().rev()
+    
+    // Why is it rev? We apply gates right to left in the string
+    for i in gate_string.chars().rev() 
     {
         // print!("->{}",i);
         if i=='H' 
@@ -197,21 +192,19 @@ pub fn apply_t_gate( gamma: Mat) -> Mat
 
 
 
-pub fn exact_synth_given_norm_1( gamma: Mat) -> (String)
+pub fn exact_synth_given_norm_1( gamma: ExactUniMat) -> (String)
 {
 
-    println!("INPUT IS \n {}",  gamma);
-    let (mut seq , to_be_looked_up) = partial_exact_synth_given_norm_1(gamma);
 
-    println!("REDUCED IT TO \n {}",  to_be_looked_up);
+
+    let gammamat = gamma.mat;
+
+    let tailing_t_gates = gamma.omega_exp;
+    
+    let (mut seq , to_be_looked_up) = partial_exact_synth_given_norm_1(gammamat);
 
     
-    if to_be_looked_up == Mat::one()
-    {
-        return "".to_string();
-    }
-    
-    else
+    if to_be_looked_up != Mat::one()
     {
         let file_saved_at = "data/gates_with_small_t_count.dat";
         let gatetable = read_hash_table(file_saved_at).unwrap();
@@ -230,6 +223,11 @@ pub fn exact_synth_given_norm_1( gamma: Mat) -> (String)
             seq.push_str(to_be_added);
         }
 
+    }
+
+    for i in 0..tailing_t_gates
+    {
+        seq.push_str("T");
     }
 
     return seq;
