@@ -157,10 +157,12 @@ impl ExactUniMat
         };
     }
 
-    pub fn from_string(gate_string : String) -> Self
+    pub fn from_string(gate_string : &String) -> Self
     {
 
         let mut output = ExactUniMat::one();
+
+
 
         for i in gate_string.chars()
         {

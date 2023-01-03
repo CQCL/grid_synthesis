@@ -199,9 +199,11 @@ pub fn exact_synth_given_norm_1( gamma: ExactUniMat) -> (String)
 
     let gammamat = gamma.mat;
 
-    let tailing_t_gates = gamma.omega_exp;
     
     let (mut seq , to_be_looked_up) = partial_exact_synth_given_norm_1(gammamat);
+    println!("PARTIAL REDUCTION GAVE SEQUENCE = {}",seq );
+
+    println!("WILL LOOK UP =  \n  {}", to_be_looked_up);
 
     
     if to_be_looked_up != Mat::one()
@@ -224,6 +226,18 @@ pub fn exact_synth_given_norm_1( gamma: ExactUniMat) -> (String)
         }
 
     }
+
+    // We would think that we have composed the gate
+    // but unitary matrices are different from special unitary matrices
+    let almost_answer = ExactUniMat::from_string(&seq);
+
+    let difference = almost_answer.inv()*gamma;
+
+    println!("THE DIFFERENCE OF GATES IS  = \n {}", difference);
+    
+    let tailing_t_gates = difference.omega_exp;
+
+    println!("TAILING T GATES =  {}", tailing_t_gates);
 
     for i in 0..tailing_t_gates
     {
@@ -256,22 +270,25 @@ pub fn partial_exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
     {
         panic!("Mathematics is wrong");
     }
+    
     let mut g: Mat;
     let mut h = gamma;
-    let mut sdeq= h.u.norm_sqr().log_den;
+    
+
     let mut nevercalled : bool;
     let mut i: Int;
 
+    // This is what we want to reduce
+    let mut sdeq= h.u.norm_sqr().log_den;
+    println!("SDEQ VALUE = {}", sdeq);
 
     while sdeq>3
     {
-        // println!("One while in");
         nevercalled = true;
         i = 1;
 
         while nevercalled && i<5
         {
-            // println!("Iteration number: {}",i );
 
 
             sdeq= h.u.norm_sqr().log_den;
@@ -304,6 +321,7 @@ pub fn partial_exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
                 h = g;
                 
                 gate_string.push_str("H");
+                
                 for j in 0..i
                 {
                     gate_string.push_str("T");
@@ -311,8 +329,6 @@ pub fn partial_exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
             }
             i=i+1;
         }
-
-
         if nevercalled
         {
             panic!("Could not decrease sdeq");
