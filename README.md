@@ -3,8 +3,6 @@
 
 Implementing Ross/Selinger's z-rotation synthesis (1403.2975v3) in Rust for real-time profiling purposes. 
 
-
-
 WARNING: Nihar is an amatuer coder. You have been warned.
 
 
@@ -18,35 +16,22 @@ WARNING: Nihar is an amatuer coder. You have been warned.
 
 # Running
 
-Do `cargo run` in the repository. That's it really (for now)
+Do `cargo test -- --nocapture` in the repository for debugging, testing. 
+Do `cargo run` in the repository for running some code. 
 
 
 # Plan of implementation
 
 Section 7.3 of [1] outlines the main algorithm.
 
-- [.] Write a struct to store gates with entries in $\mathbb{D}[\omega]$.
-	- [X] Write a struct for $\mathbb{Z}[\sqrt{2}]$
-	- [X] Write a struct for $\mathbb{D}$ (uses only two integers)
-	- [X] Write a struct for $\mathbb{D}[\omega]$
-	- [X] Write a struct for unitary operators
-	- [ ] Plan additional functionality
-- [X] Write some ring tests
-	- [X] DEBUG!
-- [ ] Write an exact synthesis library (to do Step 3 as in the outline)
-	- Personal deadline: 
-		- Will finish this before 17-10-2022
-		- Will make it absolutely vanilla
-- [ ] Figure out prime factorization (implement or include)
-- [ ] Write a Step 2 to extend to floating point gate synthesis
+- [X] Write an exact synthesis library (to do Step 3 as in the outline)
+- [X] Figure out prime factorization (implement or include)
+- [o] Debug exact synthesis
+	- [X] Works for single H gate
+	- [X] Works for single T gate
+	- [ ] Fails for HT gate!
 - [ ] Generalize to gates like $X_{\pi/2},Y_{\pi/2},Z_{\pi/2}$.
 
-
-# Tips
-
-- Don't use unsigned integer
-- Keep floating point errors as custom types that can be changed later
-- Don't optimize prematurely
 
 # References
 
