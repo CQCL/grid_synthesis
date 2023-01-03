@@ -41,7 +41,7 @@ use crate::structs::rings::special_values::{mu_8, onebyroot2comp, sqrt2, sqrtmin
 
 use num_complex::Complex;
 
-use crate::algorithms::exact_synth::exact_synth_given_norm_1;
+use crate::algorithms::exact_synth::exact_synth;
 use crate::algorithms::inexact_synth::grid_problem;
 
 

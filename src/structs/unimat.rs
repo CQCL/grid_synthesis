@@ -164,7 +164,7 @@ impl ExactUniMat
 
 
 
-        for i in gate_string.chars()
+        for i in gate_string.chars().rev()
         {
             if i == 'H'
             {
@@ -175,7 +175,11 @@ impl ExactUniMat
             {
                 output = ExactUniMat::t_gate()*output;
             }
-            
+
+            else if i == 'I'
+            {
+                output = output;
+            }
             else 
             {
                 panic!("Gates other than H or T in the sequence");
@@ -185,6 +189,17 @@ impl ExactUniMat
 
         return output;
     }
+
+
+    pub fn from_sunimat(input: SUniMat::<KMMring> ) -> Self
+    {
+        return Self
+        {
+            mat: input,
+            omega_exp: 0
+        }
+    }
+
 }
 
 

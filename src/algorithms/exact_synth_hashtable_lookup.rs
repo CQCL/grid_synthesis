@@ -158,6 +158,7 @@ pub fn pop_sequence( sequence: &mut GateString)
 }
 
 // WARNING: final_length given should be less than 8*size_of(GateString)
+// otherwise there shall be overflow
 pub fn generate_hashtable_of_gate_sequence_recursively(final_length: &usize, sequence: &mut GateString, table: &mut GateTable )
 {
 
@@ -170,13 +171,13 @@ pub fn generate_hashtable_of_gate_sequence_recursively(final_length: &usize, seq
 
         table.insert(temp, sequence.to_string());
 
-
         return;
     }
 
     push_h_gate(sequence);
     len = len+1;
     
+    // avoiding HH in gate sequence
     if len > 1
     {
         if sequence[(len-2)..(len)] != "HH".to_string()
@@ -192,6 +193,7 @@ pub fn generate_hashtable_of_gate_sequence_recursively(final_length: &usize, seq
     
     push_t_gate(sequence);
 
+    // Avoiding TTTTTTTT in gate sequence
     if len > 7
     {
         if sequence[(len-8)..(len)] != "TTTTTTTT".to_string()
@@ -209,8 +211,6 @@ pub fn generate_hashtable_of_gate_sequence_recursively(final_length: &usize, seq
 
 
 
-
-
 pub fn generate_gate_table() {
     let mut gatetable = GateTable::new();
     let file_to_be_saved_at = "data/gates_with_small_t_count.dat";
@@ -223,6 +223,12 @@ pub fn generate_gate_table() {
         generate_hashtable_of_gate_sequence_recursively( &gatelength  ,  &mut "".to_string(), &mut gatetable);
     }
     
+    // Updating the value of the identity state
+    let option = gatetable.insert(ExactGate::one(), "I".to_string());
+
+    
     save_hash_table(&gatetable, file_to_be_saved_at ).unwrap();
+        
+    // Adding the empty gate sequence
 
 }

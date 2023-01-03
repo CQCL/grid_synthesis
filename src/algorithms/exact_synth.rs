@@ -134,8 +134,6 @@ pub fn apply_gate_string_to_state( gate_string: String ,  gamma: Mat) -> Mat
 
     let rt2 = sqrt2();
     let omega = mu_8();
-
-
     let mut state = gamma;
     
     // Why is it rev? We apply gates right to left in the string
@@ -176,6 +174,7 @@ pub fn apply_tinv_gate( gamma: Mat) -> Mat
     };
     return state;
 }
+
 pub fn apply_t_gate( gamma: Mat) -> Mat
 {
     let omega = mu_8();
@@ -185,25 +184,24 @@ pub fn apply_t_gate( gamma: Mat) -> Mat
         t: gamma.t*omega,
     };
     return state;
-}
+} 
 
 
+// The main deal
+pub fn exact_synth( gamma: ExactUniMat) -> (String) 
+{ 
+
+    let gammamat = gamma.mat; 
 
 
-
-
-pub fn exact_synth_given_norm_1( gamma: ExactUniMat) -> (String)
-{
-
-
-
-    let gammamat = gamma.mat;
-
-    
     let (mut seq , to_be_looked_up) = partial_exact_synth_given_norm_1(gammamat);
-    println!("PARTIAL REDUCTION GAVE SEQUENCE = {}",seq );
 
-    println!("WILL LOOK UP =  \n  {}", to_be_looked_up);
+    // println!("PARTIAL REDUCTION GAVE SEQUENCE = {}",seq );
+    
+
+
+
+    // println!("WILL LOOK UP =  \n  {}", to_be_looked_up);
 
     
     if to_be_looked_up != Mat::one()
@@ -221,7 +219,7 @@ pub fn exact_synth_given_norm_1( gamma: ExactUniMat) -> (String)
         {
 
             let to_be_added = possible_answer.unwrap();
-            println!("HASH TABLE FOUND {}", to_be_added);
+            // println!("HASH TABLE FOUND {}", to_be_added);
             seq.push_str(to_be_added);
         }
 
@@ -233,11 +231,11 @@ pub fn exact_synth_given_norm_1( gamma: ExactUniMat) -> (String)
 
     let difference = almost_answer.inv()*gamma;
 
-    println!("THE DIFFERENCE OF GATES IS  = \n {}", difference);
+    // println!("THE DIFFERENCE OF GATES IS  = \n {}", difference);
     
     let tailing_t_gates = difference.omega_exp;
 
-    println!("TAILING T GATES =  {}", tailing_t_gates);
+    // println!("TAILING T GATES =  {}", tailing_t_gates);
 
     for i in 0..tailing_t_gates
     {

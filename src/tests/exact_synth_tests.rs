@@ -3,14 +3,13 @@ use crate::structs::rings::local_ring::Local;
 use crate::structs::rings::zroot2::Zroot2;
 use crate::structs::rings::quaternion::Quaternion;
 use crate::structs::rings::special_values::{mu_8, onebyroot2comp, sqrt2, sqrtminus1};
-
 use num_complex::Complex;
 use crate::structs::sunimat::SUniMat; 
 use crate::structs::rings::Int;
 use crate::structs::rings::Float;
 use crate::algorithms::exact_synth::{apply_gate_string_to_state,
     pow, multiply_H_times_T_to_n, apply_t_gate, apply_tinv_gate,
-    apply_h_gate, exact_synth_given_norm_1};
+    apply_h_gate, exact_synth};
 
 use num_traits::{One, Zero};
 
@@ -42,7 +41,6 @@ pub fn apply_gate_string_to_states_and_check_output()
     // println!("Test 2:");
     g1 = apply_gate_string_to_state("H".to_string(), g);
     g2 = apply_gate_string_to_state("TTT".to_string(), g1);
-
     g2prime = apply_gate_string_to_state("TTTH".to_string(), g);
     // println!("{}", g2);
     // println!("{}", g2prime);
@@ -152,7 +150,7 @@ fn exact_synth_tests_single_h() {
 
     let inputseq  = "H".to_string();
     let inputgate  = ExactUniMat::from_string(&inputseq);
-    let outputseq = exact_synth_given_norm_1(inputgate);
+    let outputseq = exact_synth(inputgate);
     
     assert_eq!(outputseq, "H");
     
@@ -169,7 +167,7 @@ fn exact_synth_tests_single_t() {
     let inputgate  = ExactUniMat::from_string(&inputseq);
     
     
-    let outputseq = exact_synth_given_norm_1(inputgate);
+    let outputseq = exact_synth(inputgate);
 
     assert_eq!(outputseq, "T");
     
@@ -186,9 +184,9 @@ fn exact_synth_tests_ht() {
     let inputseq  = "HT".to_string();
     let inputgate  = ExactUniMat::from_string(&inputseq);
 
-    println!("{}", inputgate);
+    // println!("This is the input \n : {}", inputgate);
     
-    let outputseq = exact_synth_given_norm_1(inputgate);
+    let outputseq = exact_synth(inputgate);
     
     let output = ExactUniMat::from_string(&outputseq);
 
