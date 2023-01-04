@@ -14,7 +14,7 @@ use crate::algorithms::exact_synth::apply_gate_string_to_state;
 
 
 // This test will also generate the gate table
-#[test]
+// #[test]
 pub fn print_hashtable()
 {
     generate_gate_table();

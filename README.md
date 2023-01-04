@@ -17,7 +17,7 @@ WARNING: Nihar is an amatuer coder. You have been warned.
 # Running
 
 Do `cargo test -- --nocapture` in the repository for debugging, testing. 
-Do `cargo run` in the repository for running some code. 
+Do `cargo run` in the repository for running the hashtable generating algorithm.
 
 Run the following for some nice output. ;)
 ```

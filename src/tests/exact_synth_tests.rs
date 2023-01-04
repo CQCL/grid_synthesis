@@ -183,6 +183,8 @@ pub fn exact_synth_tests_with_longer_sequence( inputseq : String) {
 
     assert_eq!(output, inputgate);
 
+    println!("And it checks out after multiplication");
+    println!("-------------------------------- ");
 }
 
 
