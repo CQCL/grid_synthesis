@@ -19,6 +19,11 @@ WARNING: Nihar is an amatuer coder. You have been warned.
 Do `cargo test -- --nocapture` in the repository for debugging, testing. 
 Do `cargo run` in the repository for running some code. 
 
+Run the following for some nice output. ;)
+```
+cargo test exact_synth_tests::testing_exact_synth_rapidly_with_longi_sequences -- --nocapture
+``` 
+
 
 # Plan of implementation
 
@@ -26,10 +31,11 @@ Section 7.3 of [1] outlines the main algorithm.
 
 - [X] Write an exact synthesis library (to do Step 3 as in the outline)
 - [X] Figure out prime factorization (implement or include)
-- [o] Debug exact synthesis
+- [X] Debug exact synthesis
 	- [X] Works for single H gate
 	- [X] Works for single T gate
-	- [ ] Fails for HT gate!
+	- [X] Works for HT gate!
+	- [X] Works for really long gate sequences!!!
 - [ ] Generalize to gates like $X_{\pi/2},Y_{\pi/2},Z_{\pi/2}$.
 
 

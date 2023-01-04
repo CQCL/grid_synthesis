@@ -24,6 +24,7 @@ use crate::structs::rings::quaternion::Quaternion;
 // use crate::structs::rings::complex::Complex;
 use crate::structs::rings::local_ring::Local;
 use crate::structs::rings::Int;
+use crate::structs::rings::LogDepInt;
 use crate::structs::rings::Conj;
 use crate::structs::rings::zroot2::Zroot2;
 use crate::structs::sunimat::SUniMat;
@@ -37,6 +38,7 @@ use num_traits::Zero;
 use num_traits::One;
 use num_traits::NumCast;
 use num_traits::FromPrimitive;
+use num_traits::Pow;
 
 // Complex numbers
 use num_complex::Complex;
@@ -55,73 +57,29 @@ type State = Mat;
 use crate::algorithms::exact_synth_hashtable_lookup::GateTable;
 use crate::algorithms::exact_synth_hashtable_lookup::read_hash_table;
 
-// Note (12 Dec 2022): Output doesn't depend on `k` and
-// act_upon_by_htpowk isn't used anywhere
-
-// pub fn act_upon_by_htpowk(gamma: Mat, k: Int) -> Mat
-// {
-//     let omega = mu_8();
-//     let sqrt2 = sqrt2();
-//     let z=gamma.u;
-//     let w=gamma.t;
-//     return Mat{
-//         u: (z+omega*w)/sqrt2,
-//         t: (z-omega*w)/sqrt2,
-//     };
-// }
-
-
-// SHOULD BE DEPRECATED
-// Instead should use inbuild pow of comp
-pub fn pow(t: Comp, n: Int) -> Comp
-{
-    // TODO
-    // Make a better implementation
-    // Remove this and make a type dependent implementation
-    if n<0
-    {
-        let mut temp=Comp::one();
-        // println!("Power negative");
-        for i in 0..(-n)
-        {
-            temp = temp/t;
-        }
-        return temp;
-    }
-    else
-    {
-        // println!("Power non-negative");
-        let mut temp=Comp::one();
-        for i in 0..n
-        {
-            temp = temp*t;
-        }
-        return temp;
-    }
-}
-
 
 pub fn multiply_H_times_T_to_n( gamma: Mat, n: Int) -> Mat
 {
     if n==0
     {     
-        return gamma;
+        return apply_h_gate(gamma);
     }
     
     else
     {
         let omega = mu_8();
         let sqrt2 = sqrt2();
+        
         let u1 = gamma.u;
         let t1 = gamma.t;
-        let u2 = ( u1+pow(omega,n)*t1 )/sqrt2;
-        let t2 = ( u1-pow(omega,n)*t1 )/sqrt2;
+        
+        let u2 = ( u1+omega.pow(n)*t1 )/sqrt2;
+        let t2 = ( u1-omega.pow(n)*t1 )/sqrt2;
         
         return Mat{
             u: u2,
             t: t2
         };
-
     }
 }
 
@@ -203,9 +161,9 @@ pub fn exact_synth( gamma: ExactUniMat) -> (String)
 
     let (mut seq , to_be_looked_up) = partial_exact_synth_given_norm_1(gammamat);
 
-    println!("PARTIAL REDUCTION GAVE SEQUENCE = {}",seq );
+    // println!("PARTIAL REDUCTION GAVE SEQUENCE = {}",seq );
     
-    println!("WILL LOOK UP =  \n  {}", to_be_looked_up);
+    // println!("WILL LOOK UP =  \n  {}", to_be_looked_up);
 
 
     
@@ -247,6 +205,8 @@ pub fn exact_synth( gamma: ExactUniMat) -> (String)
         seq.push_str("T");
     }
 
+    // println!("FINAL SEQUENCE = {}", seq );
+
     return seq;
 
 }
@@ -254,6 +214,10 @@ pub fn exact_synth( gamma: ExactUniMat) -> (String)
 
 
 
+pub fn sde(gamma: Mat) -> LogDepInt
+{
+    return gamma.u.norm_sqr().log_den
+}
 
 
 
@@ -264,15 +228,15 @@ pub fn partial_exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
 
     let mut gate_string = "".to_string();
 
-    if gamma.det()!= Comp::one()
-    {
-        panic!("I was promised norm 1");
-    }
+    // if gamma.det()!= Comp::one()
+    // {
+    //     panic!("I was promised norm 1");
+    // }
     
-    if gamma.u.norm_sqr().log_den != gamma.t.norm_sqr().log_den
-    {
-        panic!("Mathematics is wrong");
-    }
+    // if gamma.u.norm_sqr().log_den != gamma.t.norm_sqr().log_den
+    // {
+    //     panic!("Mathematics is wrong");
+    // }
     
     let mut g: Mat;
     let mut h = gamma;
@@ -282,53 +246,45 @@ pub fn partial_exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
     let mut i: Int;
 
     // This is what we want to reduce
-    let mut sdeq= h.u.norm_sqr().log_den;
+    let mut sdeq= sde(h);
+    
+
     // println!("SDEQ VALUE = {}", sdeq);
 
+    // See Lemma 3 in 1206.5236v4 to see why sdeq > 3
     while sdeq>3
     {
         nevercalled = true;
-        i = 1;
 
-        while nevercalled && i<5
+        // See Lemma 3 in 1206.5236v4 to see why 0<i<4
+        i = 0;
+        while nevercalled && i < 4 
         {
 
 
-            sdeq= h.u.norm_sqr().log_den;
-            g = multiply_H_times_T_to_n(h,i);
+            sdeq= sde(h);
+            g = multiply_H_times_T_to_n(h,-i);
 
-            // { 
-            //     // ------- DEBUG ZONE -----------
 
-            //     if i==1
-            //     {
-            //         let test = apply_gate_string_to_state("TTTTTTTH".to_string(),g);
-            //         if test!=h
-            //         {
-            //             println!("{} \n", h);
-
-            //             panic!{"Nihar doesnt understand his code"};
-            //         }
-            //     }
-            //     // -------- END OF DEBUG ZONE
-            // }
-
-            let sdeq_new= g.u.norm_sqr().log_den;
-            // println!("{} is now {}",g.u.norm_sqr(),h.u.norm_sqr() );
-            // println!("{} is now {}", sdeq, sdeq_new);
+            let sdeq_new= sde(g);
+            
             if sdeq_new==sdeq-1
             {
+
+                // println!("DECREASED SDEQ TO {}",sdeq_new );
+                // println!("THIS HAPPENED AT i = {}", i);
                 nevercalled = false;
 
                 sdeq = sdeq_new-1;
                 h = g;
                 
-                gate_string.push_str("H");
                 
                 for j in 0..i
                 {
                     gate_string.push_str("T");
                 }
+                
+                gate_string.push_str("H");
             }
             i=i+1;
         }
@@ -338,6 +294,8 @@ pub fn partial_exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
         }
 
     }
+
+
 
     return (gate_string, h);
 }

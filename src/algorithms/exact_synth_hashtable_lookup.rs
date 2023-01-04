@@ -25,7 +25,9 @@ type State = ExactGate;
 
 
 type GateString = String; // String of H and T
-pub const GATE_STRING_LENGTH : usize = 15;  // This is the number of H and T gates to be multiplied
+pub const GATE_STRING_LENGTH : usize = 30;  // This is the number of H and T gates to be multiplied
+                                            // This number is recommended to be 30
+                                            //
 
 
 // Hash table. It will store gatestring and corresponding exact gate
@@ -169,7 +171,13 @@ pub fn generate_hashtable_of_gate_sequence_recursively(final_length: &usize, seq
         let ident = ExactGate::one();
         let temp = apply_gate_string_to_state(sequence.to_string(), ident);
 
-        table.insert(temp, sequence.to_string());
+        let sde = temp.u.norm_sqr().log_den;
+        
+        if sde < 5
+        {
+            println!("Writing gate sequence {} in the hash table with sde {}", sequence, sde);
+            table.insert(temp, sequence.to_string());
+        }
 
         return;
     }
@@ -185,6 +193,7 @@ pub fn generate_hashtable_of_gate_sequence_recursively(final_length: &usize, seq
             generate_hashtable_of_gate_sequence_recursively(final_length,  sequence, table);
         }
     }
+    else
     {
         generate_hashtable_of_gate_sequence_recursively(final_length,  sequence, table);
     }
@@ -224,6 +233,9 @@ pub fn generate_gate_table() {
     }
     
     // Updating the value of the identity state
+    println!("Writing identity in the hashtable");
+
+
     let option = gatetable.insert(ExactGate::one(), "I".to_string());
 
     

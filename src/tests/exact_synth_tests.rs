@@ -7,11 +7,15 @@ use num_complex::Complex;
 use crate::structs::sunimat::SUniMat; 
 use crate::structs::rings::Int;
 use crate::structs::rings::Float;
-use crate::algorithms::exact_synth::{apply_gate_string_to_state,
-    pow, multiply_H_times_T_to_n, apply_t_gate, apply_tinv_gate,
-    apply_h_gate, exact_synth};
+use crate::algorithms::exact_synth::apply_gate_string_to_state;
+use crate::algorithms::exact_synth::multiply_H_times_T_to_n;
+use crate::algorithms::exact_synth::apply_t_gate;
+use crate::algorithms::exact_synth::apply_tinv_gate;
+use crate::algorithms::exact_synth::apply_h_gate;
+use crate::algorithms::exact_synth::exact_synth;
 
 use num_traits::{One, Zero};
+use num_traits::Pow;
 
 type Loc = Local<Zroot2>;
 type Comp = Complex<Loc>;
@@ -73,13 +77,13 @@ pub fn apply_gate_string_to_states_and_check_output()
 pub fn comp_pow_test() {
     let one = Comp::one();
     for exponent in -5..5 {
-        assert_eq!(pow(one, exponent), one);
+        assert_eq!(one.pow(exponent), one);
     }
 
     let root2 = sqrt2();
-    assert_eq!(pow(root2, 3), root2 * root2 * root2);
+    assert_eq!(root2.pow( 3), root2 * root2 * root2);
 
-    assert_eq!(pow(root2, -2), one / root2 / root2);
+    assert_eq!(root2.pow( -2), one / root2 / root2);
 }
 
 #[test]
@@ -88,11 +92,11 @@ pub fn multiply_H_times_T_to_n_test() {
     let n = 5;
 
     let mat_2 = multiply_H_times_T_to_n(gamma, n);
-    
+
     for i in 0..n {
         gamma = apply_t_gate(gamma);
     }
-    
+
     gamma = apply_h_gate(gamma);
     assert_eq!(gamma.u, mat_2.u);
     assert_eq!(gamma.t, mat_2.t);
@@ -108,126 +112,127 @@ pub fn apply_tinv_test() {
 
 
 
-// WILL GET BACK HERE
-// #[test]
-// fn exact_synth_given_norm_1_test() 
-// {
-//     let hadamard = Mat{
-//         u: sqrtminus1() / sqrt2(),
-//         t: sqrtminus1() / sqrt2(),
-//     };
-
-//     let t_gate = Mat{
-//         u: mu_8(),
-//         t: Comp::zero(),
-//     };
-
-//     // Note: As of Dec 12, 2022, I think matrix multiplication might be broken.
-//     let hththt = hadamard * t_gate * hadamard * t_gate * hadamard * t_gate;
-//     // let seq  = exact_synth_given_norm_1(hththt);
-//     println!(" ------ HADAMARD ------- \n  {} \n --------------------", hadamard);
-    
-//     println!("----- ------");
-    
-//     println!(" ------ T_Gate ------- \n  {} \n --------------------", t_gate);
-//     // assert_eq!(mat, hththt);
-//     // assert_eq!(seq, "HTHTHT"); // fails
-//     println!("{}", hththt);
-//     assert_eq!(Mat::one(), hththt);
-//     assert_eq!(Mat::one(), t_gate *t_gate *t_gate *t_gate *t_gate *t_gate * t_gate * t_gate);
-//     println!("{}", t_gate * t_gate * t_gate * t_gate);
-//     // assert_eq!(Mat::one(),t_gate *t_gate * t_gate * t_gate); // fails
-
-//     // let htht = hadamard * t_gate * hadamard * t_gate;
-//     // let seq = exact_synth_given_norm_1(htht);
-//     // let test_mat = apply_gate_string_to_state("HTHT".to_string(),Mat::one())* htht.inv() ;
-//     // // assert_eq!(seq, "HTHT"); // fails
-// }
-
-
-// #[test] //passes
-fn exact_synth_tests_single_h() {
-
-    let inputseq  = "H".to_string();
-    let inputgate  = ExactUniMat::from_string(&inputseq);
-    let outputseq = exact_synth(inputgate);
-    
-    assert_eq!(outputseq, "H");
-    
-    let output = ExactUniMat::from_string(&outputseq);
-
-    assert_eq!(output, inputgate);
-
-}
-
 #[test]
-fn exact_synth_tests_single_t() {
+fn exact_synth_given_norm_1_test_old() 
+{
+    let hadamard = Mat{
+        u: sqrtminus1() / sqrt2(),
+        t: sqrtminus1() / sqrt2(),
+    };
 
-    let inputseq  = "T".to_string();
-    let inputgate  = ExactUniMat::from_string(&inputseq);
-    
-    
-    let outputseq = exact_synth(inputgate);
+    let t_gate = Mat{
+        u: mu_8(),
+        t: Comp::zero(),
+    };
 
-    assert_eq!(outputseq, "T");
-    
-    let output = ExactUniMat::from_string(&outputseq);
+    // Note: As of Dec 12, 2022, I think matrix multiplication might be broken.
+    let hththt = hadamard * t_gate * hadamard * t_gate * hadamard * t_gate;
+    // let seq  = exact_synth_given_norm_1(hththt);
+    println!(" ------ HADAMARD ------- \n  {} \n --------------------", hadamard);
 
-    assert_eq!(output, inputgate);
+    println!("----- ------");
 
+    println!(" ------ T_Gate ------- \n  {} \n --------------------", t_gate);
+    // assert_eq!(mat, hththt);
+    // assert_eq!(seq, "HTHTHT"); // fails
+    println!("{}", hththt);
+    assert_eq!(Mat::one(), hththt);
+    assert_eq!(Mat::one(), t_gate *t_gate *t_gate *t_gate *t_gate *t_gate * t_gate * t_gate);
+    println!("{}", t_gate * t_gate * t_gate * t_gate);
+    // assert_eq!(Mat::one(),t_gate *t_gate * t_gate * t_gate); // fails
+
+    // let htht = hadamard * t_gate * hadamard * t_gate;
+    // let seq = exact_synth_given_norm_1(htht);
+    // let test_mat = apply_gate_string_to_state("HTHT".to_string(),Mat::one())* htht.inv() ;
+    // // assert_eq!(seq, "HTHT"); // fails
 }
 
 
-#[test]
-fn exact_synth_tests_ht() {
 
-    let inputseq  = "HT".to_string();
+
+
+pub fn exact_synth_tests_with_short_sequence( inputseq : String) {
+
     let inputgate  = ExactUniMat::from_string(&inputseq);
 
     // println!("This is the input \n : {}", inputgate);
-    
+
     let outputseq = exact_synth(inputgate);
-    
+
     let output = ExactUniMat::from_string(&outputseq);
 
+    assert_eq!(outputseq, inputseq); // short sequences should be recovered optimally
+
     assert_eq!(output, inputgate);
-    assert_eq!(outputseq, "HT");
 
 }
 
+pub fn exact_synth_tests_with_longer_sequence( inputseq : String) {
 
-// THIS TEST FAILS
-// #[test]
-fn exact_synth_tests_ttthtt() {
-
-    let inputseq  = "TTTHTT".to_string();
     let inputgate  = ExactUniMat::from_string(&inputseq);
 
-    // println!("This is the input \n : {}", inputgate);
-    
+
     let outputseq = exact_synth(inputgate);
-    
+
     let output = ExactUniMat::from_string(&outputseq);
 
-    assert_eq!(outputseq, "TTTHTT");
+    // assert_eq!(outputseq, inputseq); // this may or may not fail for long sequences
+    println!("\n \n -------------------------- \n This is the input sequence: \n {}", inputseq);
+    println!(" \n This is the gate I found!  : \n {}", outputseq);
+    println!("-------------------------------- ");
+
     assert_eq!(output, inputgate);
 
 }
+
 
 #[test]
-fn exact_synth_tests_htht() {
+pub fn testing_exact_synth_rapidly_with_short_sequences() 
+{
 
-    let testseq = "HTHT";
-    let inputseq  = testseq.to_string();
-    let inputgate  = ExactUniMat::from_string(&inputseq);
+    exact_synth_tests_with_short_sequence( "H".to_string() ) ;
+    exact_synth_tests_with_short_sequence( "T".to_string() ) ;
+    exact_synth_tests_with_short_sequence( "HT".to_string() ) ;
+    exact_synth_tests_with_short_sequence( "HTHT".to_string() ) ;
+    exact_synth_tests_with_short_sequence( "TTTHTT".to_string() ) ;
+    exact_synth_tests_with_short_sequence( "TTTHTT".to_string() ) ;
+    exact_synth_tests_with_short_sequence( "TTTHTT".to_string() ) ;
+    exact_synth_tests_with_short_sequence( "TTTHTT".to_string() ) ;
 
-    // println!("This is the input \n : {}", inputgate);
-    
-    let outputseq = exact_synth(inputgate);
-    
-    let output = ExactUniMat::from_string(&outputseq);
+}
 
-    // assert_eq!(outputseq, testseq);
-    // assert_eq!(output, inputgate);
+
+#[test]
+pub fn testing_exact_synth_rapidly_with_long_sequences() 
+{
+
+
+    // Lookup is failing for these
+    exact_synth_tests_with_short_sequence( "HTTTHTTTHTT".to_string() ) ;
+    exact_synth_tests_with_short_sequence( "HTTTHTTTHTTTH".to_string() ) ;
+    exact_synth_tests_with_longer_sequence( "THTTTHTHTTTTTTTHTHT".to_string() ) ;
+    exact_synth_tests_with_longer_sequence( "TTTHTTHTTTHTTTHTTTH".to_string() ) ;
+    exact_synth_tests_with_longer_sequence( "TTTHTTHTTTHTTHTTTHTHTTTH".to_string() ) ;
+    exact_synth_tests_with_longer_sequence( "TTTHTHTTTHTTTHTTTHTHTTTHTTHTTTHTHTTTH".to_string() ) ;
+    exact_synth_tests_with_longer_sequence( "TTTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTH".to_string() ) ;
+    exact_synth_tests_with_longer_sequence( "THTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTHTTTTTTTHTHT".to_string() ) ;
+
+    exact_synth_tests_with_longer_sequence( "THTTHTTTHTTHTTTHTTHTTTHTHTTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTH".to_string() ) ;
+
+    exact_synth_tests_with_longer_sequence( "TTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTH".to_string() ) ;
+
+    exact_synth_tests_with_longer_sequence( "THTTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTHTTTTTTTHTHTHTTTHTTHTTTHTTHTTTHTHTTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTH".to_string() ) ;
+
+    exact_synth_tests_with_longer_sequence( "TTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTHTTTTTTTHTHTTTHTTHTTHTTTHTTTHTTH".to_string() ) ;
+
+    exact_synth_tests_with_longer_sequence( "THTTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTHTTTTTTTHTHTHTTTHTTHTTTHTTHTTTHTHTTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTH".to_string() ) ;
+
+    exact_synth_tests_with_longer_sequence( "THTTTHTTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTHTTTTTTTHTHTHTTTHTTHTTTHTTHTTTHTHTTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTHTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTHTTTTTTTHTHTHTTTHTTHTTTHTTHTTTHTHTTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTH".to_string() ) ;
+
+    exact_synth_tests_with_longer_sequence( "THTTHTTHTTTHTTTHTTTHTTHTTTHTTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTHTTTTTTTHTHTHTTTHTTHTTTHTTHTTTHTHTTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTHHTTTHTTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTTHTTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTHTTTTTTTHTHTHTTTHTTHTTTHTTHTTTHTHTTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTHTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTHTTTTTTTHTHTHTTTHTTHTTTHTTHTTTHTHTTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTH".to_string() ) ;
+
+    exact_synth_tests_with_longer_sequence( "THTTHTTHTTTHTTTHTTTHTTHTTTHTTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTTHTHTTTHTTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTHTTTTTTTHTHTHTTTHTTHTTTHTTHTTTHTHTTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTHTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTHTTTTTTTHTHTHTTTHTTHTTTHTTHTTTHTHTTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTHTTTHTTTHTTHTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTHTTTTTTTHTHTHTTTHTTHTTTHTTHTTTHTHTTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTHHTTTHTTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTTHTTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTHTTTTTTTHTHTHTTTHTTHTTTHTTHTTTHTHTTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTHTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTHTTTTHTHTHTTTTTHTTHTTHTHTTTTTTTHTHTHTTTHTTHTTTHTTHTTTHTHTTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTH".to_string() );
+
+    exact_synth_tests_with_longer_sequence( "THTTHTTHTTTHTTTHTTTHTTHTTTHTTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTTTHHTTTHTTHTHTHTTTTTHTTTHTTTTTHHHHTHTHTHTTTHTTHTTTHTTTHTTTHTHTTTHTTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTHTTTTTTTHTHTHTTTHTTHTTTHTTHTTTHTHTTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTHTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTHTTTTTTTHTHTHTTTHTTHTTTHTTHTTTHTHTTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTHTTTHTTTHTTHTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTHTTTTTTTHTHTHTTTHTTHTTTHTTHTTTHTHTTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTHHTTTHTTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTTHTTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTHTTTTTTTHTHTHTTTHTTHTTTHTTHTTTHTHTTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTHTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTTTHTTHTTHTTHTTHTTTHTTTHTTTHTTHTTHTTTHTHTTTTHTHTHTTTTTHTTHTTHTHTTTTTTTHTHTHTTTHTTHTTTHTTHTTTHTHTTTHTTHTTTHTTTHTTHTTHTTTHTTTHTTH".to_string() );
 
 }

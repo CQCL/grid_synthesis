@@ -68,30 +68,7 @@ fn main() {
     println!("-------------CODE IS RUNNING--------------");
     println!("------------------------------------------");
 
-    let omega = mu_8();
-    let onebyroot2 = onebyroot2comp();
-    let root2 = sqrt2();
-    let one = Comp::one();
-    let zero = Comp::zero();
-
-    let u1 = ( one+omega )*onebyroot2*onebyroot2;
-    let t1 = ( one-omega )*onebyroot2*onebyroot2; 
-
-    let mut g = Mat{
-        u : u1,
-        t : t1
-    };
-    
-
+    // Create the hash table
     crate::algorithms::exact_synth_hashtable_lookup::generate_gate_table();
     
-    g=g*g*g*g*g*g; //*g*g*g*g*g;
-
-    // let gate_sequence  = exact_synth_given_norm_1(g);
-
-    // println!("{}", gate_sequence);
-
-    // grid_problem(Complex::<Float>::one(), 0.24);
-
-    // println!("{}", has_repeated_zeroes(0b0000000000000001));
 }
