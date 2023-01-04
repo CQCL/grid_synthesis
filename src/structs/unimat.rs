@@ -87,9 +87,16 @@ impl ExactUniMat
     {
         return ExactUniMat
         {
-            mat: self.mat.inv().twist(self.omega_exp),
-            omega_exp: 8-self.omega_exp,
+            mat: self.mat.inv().twist(8 - self.omega_exp),
+            omega_exp: ( 8-self.omega_exp ),
         }
+    }
+
+    pub fn det(self) -> KMMring
+    {
+    
+        return (self.mat.det())*mu_8().pow(self.omega_exp);
+    
     }
 }
 
@@ -103,7 +110,7 @@ impl Mul for ExactUniMat
     fn mul(self, other: ExactUniMat) -> ExactUniMat
     {
         Self{
-            mat: self.mat*other.mat.twist(8-self.omega_exp),
+            mat: self.mat*other.mat.twist(self.omega_exp),
             omega_exp: (self.omega_exp+other.omega_exp)%8,
         }
     }

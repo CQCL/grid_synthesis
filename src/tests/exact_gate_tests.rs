@@ -10,7 +10,6 @@ type Comp = Complex<Loc>;
 type Mat = SUniMat<Comp>;
 
 
-
 #[test]
 pub fn basic_identies() 
 {
@@ -32,15 +31,26 @@ pub fn basic_identies()
     assert_eq!(t_gate * t_gate * t_gate * t_gate * t_gate * t_gate * t_gate * t_gate , one);
 
 
-    let temp = t_gate * h_gate;
-    assert_eq!( (temp).inv()  *  (temp), one);
-    
-    
-    let temp = t_gate * h_gate * t_gate * h_gate;
-    assert_eq!( (temp).inv()  *  (temp), one);
     
     let temp = t_gate * h_gate * t_gate * h_gate * t_gate ;
     assert_eq!( (temp)  *  (t_gate.inv() * h_gate * t_gate.inv() * h_gate * t_gate.inv() ), one);
+}
+
+#[test]
+pub fn more_identities()
+{
+    let h_gate = ExactUniMat::h_gate();
+    let t_gate = ExactUniMat::t_gate();
+
+    let temp = t_gate * t_gate;
+
+    assert_eq!( (temp).inv()  *  (temp), ExactUniMat::one());
+
+    
+    
+    let temp = t_gate * h_gate * t_gate * h_gate;
+    assert_eq!( (temp).inv()  *  (temp), ExactUniMat::one());
+
 }
 
 pub fn exact_test_with_string(test_seq: String) 
@@ -63,6 +73,11 @@ pub fn exact_test_with_string(test_seq: String)
 pub fn exact_test_with_some_strings()
 {
     exact_test_with_string("TH".to_string() );
+    exact_test_with_string("TT".to_string() );
+    exact_test_with_string("HH".to_string() );
+    exact_test_with_string("HT".to_string() );
+    exact_test_with_string("TTHHTTTTTH".to_string() );
+    exact_test_with_string("TTHHTTHTTTHTHTTTH".to_string() );
 }
 
 
