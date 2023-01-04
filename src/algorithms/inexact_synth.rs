@@ -12,9 +12,11 @@ use crate::structs::rings::zroot2::Zroot2;
 use crate::structs::rings::Int;
 use crate::structs::rings::LogDepInt;
 use crate::structs::rings::Localizable;
+use crate::structs::unimat::ExactUniMat;
 
 
 use crate::algorithms::local_prime_factorization::prime_factorization_of_loc;
+use crate::algorithms::local_prime_factorization::attempt_to_write_this_number_as_sum_of_two_squares_in_loc;
 use crate::structs::sunimat::SUniMat;
 
 
@@ -168,16 +170,23 @@ pub fn extract_gate_coordinate_in_local_ring(integer_coords: Vec4Int) -> Option:
 }
 
 
-// Integer point should be useful
+// this tests if this_point is in the correct vicinity
 // That is, if it roughly lies in the region close to the required place,,
 // Here we make sure that it is truly within the region we want
+// and only then we take the trouble of all the prime factorization
 pub fn test_this_integer_point( this_point : Vec4Int, coordinate_basis: Mat4 , epsilon_a: Float, direction: Comp, exactlogdep: LogDepInt  ) -> bool
 {
 
+    println!("{}", this_point);
+    println!("{}", coordinate_basis);
+
     // take the input and mutiply coordinate change matrix
     // and scale the vector by sqrt2^exactlogdep
+    // This will give the actual point in 4d-space
     let actual_point = coordinate_basis*Vec4::new(this_point[0] as Float,this_point[1] as Float,this_point[2] as Float,this_point[3] as Float) * SQRT2.pow(-exactlogdep);
 
+    println!("{}", actual_point);
+    
     let complex_point = Comp
     { 
         re: actual_point[0]+SQRT2*actual_point[1],
@@ -190,14 +199,21 @@ pub fn test_this_integer_point( this_point : Vec4Int, coordinate_basis: Mat4 , e
         im: actual_point[2]-SQRT2*actual_point[3],
     };
 
-    if complex_point_dot_conj.norm_sqr() < 1.0
+
+    println!("{}", complex_point);
+
+
+    if complex_point_dot_conj.norm_sqr() <= 1.0
     {
+        println!("Norm squared in control ");
         if complex_point.re*direction.re+complex_point.im*direction.im > 1.0- epsilon_a
         {
+            println!("Found a feasible point");
             return true;
         }
         else 
         {
+            println!("Direction is bad");
             return false;
         }
     }
@@ -208,17 +224,23 @@ pub fn test_this_integer_point( this_point : Vec4Int, coordinate_basis: Mat4 , e
 }
 
 
-pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  -> Option::<(Loc,Loc)>
+
+pub fn make_exact_gate_from(left: Loc ,right: Loc, left_scaled: Loc, right_scaled: Loc) -> ExactUniMat
 {
-    prime_factorization_of_loc(our_num);
-    return None;
+
+    if left*left + right*right + left_scaled*left_scaled + right_scaled*right_scaled != Loc::one()
+    {
+        panic!("You have bugs in your work, Nihar");
+    }
+
+    todo!("You got this far! Bravo");
 }
 
 
 // collection.push(Vec4Int::new( i1, i2, i3, i4));
 // Return a complete unitary, if it can be returned
 // Else return none
-pub fn attempt_to_figure_out_gate_given_that_this_point_is_feasible( this_point: Vec4Int, exactlogdep: LogDepInt) -> Option::<Sunimatloc>
+pub fn attempt_to_figure_out_gate_given_that_this_point_is_feasible( this_point: Vec4Int, exactlogdep: LogDepInt) -> Option::<ExactUniMat>
 {
     
     let get_coord =  extract_gate_coordinate_in_local_ring(this_point);
@@ -245,9 +267,19 @@ pub fn attempt_to_figure_out_gate_given_that_this_point_is_feasible( this_point:
 
         let our_num = Loc::one() - left_scaled*left_scaled - right_scaled*right_scaled;
 
-        attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num);
+        let sum_of_square = attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num);
 
-        return None;
+        if sum_of_square != None
+        {
+            let (left,right) = sum_of_square.unwrap();
+            return Some(make_exact_gate_from(left,right,left_scaled,right_scaled));
+        }
+        else
+        {
+            return None;
+        }
+
+
 
     }
     
@@ -255,13 +287,12 @@ pub fn attempt_to_figure_out_gate_given_that_this_point_is_feasible( this_point:
 }
 
 
-pub fn consider(radius: Float, direction_of_rotation: Comp, epsilon_a: Float, exactlogdep: LogDepInt, int_center: Vec4Int, coordinate_basis: Mat4, this_point: Vec4Int) -> Option::<Sunimatloc>
+pub fn consider(radius: Float, direction_of_rotation: Comp, epsilon_a: Float, exactlogdep: LogDepInt, int_center: Vec4Int, coordinate_basis: Mat4, this_point: Vec4Int) -> Option::<ExactUniMat>
 {
 
+    panic!("Reached this far");
     if test_this_integer_point( int_center+this_point, coordinate_basis, epsilon_a, direction_of_rotation, exactlogdep)
     {
-
-
         return attempt_to_figure_out_gate_given_that_this_point_is_feasible(int_center+this_point, exactlogdep);
     }
     else
@@ -272,7 +303,7 @@ pub fn consider(radius: Float, direction_of_rotation: Comp, epsilon_a: Float, ex
 
 
 
-pub fn test_integer_points_in_ball_around_integer_center_of_radius(radius: Float, direction_of_rotation: Comp, epsilon_a: Float, coordinate_basis: Mat4, exactlogdep: LogDepInt, int_center: Vec4Int) -> Option<Sunimatloc>
+pub fn test_integer_points_in_ball_around_integer_center_of_radius(radius: Float, direction_of_rotation: Comp, epsilon_a: Float, coordinate_basis: Mat4, exactlogdep: LogDepInt, int_center: Vec4Int) -> Option<ExactUniMat>
 {
     let mut collection = Vec::<Vec4Int>::new();
 
@@ -433,7 +464,6 @@ pub fn test_integer_points_in_ball_around_integer_center_of_radius(radius: Float
                     while let Some(last_point) = collection.pop() 
                     {
 
-                        // println!(" --------- HELLO --------------");
                         let mut possible_answer =  consider(radius, direction_of_rotation, epsilon_a, exactlogdep, int_center, coordinate_basis ,last_point);
 
                         if possible_answer != None
@@ -491,7 +521,7 @@ pub fn pseudo_nearest_neighbour_integer_coordinates(lattice_matrix_orthognal_par
 
 
 // This is an implementation of Proposition 5.22
-pub fn grid_problem_given_depth( direction: Comp, epsilon_a: Float,  exactlogdep: LogDepInt )-> ()
+pub fn grid_problem_given_depth( direction: Comp, epsilon_a: Float,  exactlogdep: LogDepInt )-> Option::<ExactUniMat>
 {
 
     // Trying to find the lattice points in the intersection of a disc and a half plane
@@ -565,13 +595,17 @@ pub fn grid_problem_given_depth( direction: Comp, epsilon_a: Float,  exactlogdep
     let reduced_orthogonal_part_inverse = reduced.qr().q().try_inverse().unwrap();
 
 
-
     // Instead of this, we could have a rust thread
     // stream out lattice points by communicating messages.
     // and in parallel another one testing that it works
+    
     let integer_center = pseudo_nearest_neighbour_integer_coordinates(reduced_orthogonal_part_inverse, centervec*SQRT2.pow(exactlogdep));
-    test_integer_points_in_ball_around_integer_center_of_radius(operatornorm*SQRT2.pow(exactlogdep),  direction,epsilon_a, reducable , exactlogdep, integer_center);
+    
 
+    let possible_output =  test_integer_points_in_ball_around_integer_center_of_radius(operatornorm*SQRT2.pow(exactlogdep),  direction,epsilon_a, reducable , exactlogdep, integer_center);
+
+
+    return possible_output;
 
     //////////////////// DEBUG ZONE  /////////////////////
     //
@@ -582,11 +616,18 @@ pub fn grid_problem_given_depth( direction: Comp, epsilon_a: Float,  exactlogdep
 
 
 
-pub fn grid_problem( direction: Comp, epsilon_a: Float)-> ()
+pub fn grid_problem( direction: Comp, epsilon_a: Float)-> ExactUniMat
 {
+    let mut answer: Option::<ExactUniMat>;
     for i in 0..9
     {
-        grid_problem_given_depth(direction, epsilon_a, i);
+        answer = grid_problem_given_depth(direction, epsilon_a, i);
+        if answer !=None
+        {
+            return answer.unwrap();
+        }
     }
+
+    panic!("Nothing found?");
 }
 
