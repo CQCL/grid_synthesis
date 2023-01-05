@@ -24,7 +24,7 @@ use num_traits::FromPrimitive;
 //the compiler suggested this (and wouldn't compile otherwise)
 // use crate::structs::rings::dyad::Dyad; 
 // use crate::structs::rings::domega::DOmega; 
-use crate::structs::sunimat::UniMat; 
+use crate::structs::sunimat::SUniMat; 
 // use crate::structs::rings::complex::Complex; 
 use crate::structs::rings::local_ring::Local; 
 use crate::structs::rings::zroot2::Zroot2; 
@@ -41,7 +41,7 @@ use crate::structs::rings::special_values::{mu_8, onebyroot2comp, sqrt2, sqrtmin
 
 use num_complex::Complex;
 
-use crate::algorithms::exact_synth::exact_synth_given_norm_1;
+use crate::algorithms::exact_synth::exact_synth;
 use crate::algorithms::inexact_synth::grid_problem;
 
 
@@ -57,7 +57,7 @@ use crate::algorithms::inexact_synth::grid_problem;
 // Better looking code
 type Loc = Local<Zroot2>;
 type Comp = Complex<Loc>;
-type Mat = UniMat<Comp>;
+type Mat = SUniMat<Comp>;
 // type Quat = Quaternion<Loc>;
 
 
@@ -68,19 +68,8 @@ fn main() {
     println!("-------------CODE IS RUNNING--------------");
     println!("------------------------------------------");
 
-    let omega = mu_8();
-    let onebyroot2 = onebyroot2comp();
-    let root2 = sqrt2();
-    let one = Comp::one();
-    let zero = Comp::zero();
-
-    let u1 = ( one+omega )*onebyroot2*onebyroot2;
-    let t1 = ( one-omega )*onebyroot2*onebyroot2; 
-
-    let mut g = Mat{
-        u : u1,
-        t : t1
-    };
+    // Create the hash table
+    crate::algorithms::exact_synth_hashtable_lookup::generate_gate_table();
     
     g=g*g*g*g*g*g; //*g*g*g*g*g;
 

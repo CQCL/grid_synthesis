@@ -16,7 +16,7 @@ use crate::structs::rings::special_values::sqrt2;
 use crate::structs::rings::zroot2::Zroot2;
 type Loc = crate::structs::rings::local_ring::Local::<Zroot2>;
 use num_complex::Complex;
-type ExactGate = crate::structs::sunimat::UniMat<Complex<Loc>>;
+type ExactGate = crate::structs::sunimat::SUniMat<Complex<Loc>>;
 
 // A state is a complex linear combination of |0> and |1>
 // such that the sum of norm_sq is 1
@@ -25,7 +25,9 @@ type State = ExactGate;
 
 
 type GateString = String; // String of H and T
-pub const GATE_STRING_LENGTH : usize = 24;  // This is the number of H and T gates to be multiplied
+pub const GATE_STRING_LENGTH : usize = 30;  // This is the number of H and T gates to be multiplied
+                                            // This number is recommended to be 30
+                                            //
 
 
 // Hash table. It will store gatestring and corresponding exact gate
@@ -158,6 +160,7 @@ pub fn pop_sequence( sequence: &mut GateString)
 }
 
 // WARNING: final_length given should be less than 8*size_of(GateString)
+// otherwise there shall be overflow
 pub fn generate_hashtable_of_gate_sequence_recursively(final_length: &usize, sequence: &mut GateString, table: &mut GateTable )
 {
 
@@ -168,8 +171,13 @@ pub fn generate_hashtable_of_gate_sequence_recursively(final_length: &usize, seq
         let ident = ExactGate::one();
         let temp = apply_gate_string_to_state(sequence.to_string(), ident);
 
-        table.insert(temp, sequence.to_string());
-
+        let sde = temp.u.norm_sqr().log_den;
+        
+        if sde < 5
+        {
+            println!("Writing gate sequence {} in the hash table with sde {}", sequence, sde);
+            table.insert(temp, sequence.to_string());
+        }
 
         return;
     }
@@ -177,6 +185,7 @@ pub fn generate_hashtable_of_gate_sequence_recursively(final_length: &usize, seq
     push_h_gate(sequence);
     len = len+1;
     
+    // avoiding HH in gate sequence
     if len > 1
     {
         if sequence[(len-2)..(len)] != "HH".to_string()
@@ -184,16 +193,30 @@ pub fn generate_hashtable_of_gate_sequence_recursively(final_length: &usize, seq
             generate_hashtable_of_gate_sequence_recursively(final_length,  sequence, table);
         }
     }
+    else
+    {
+        generate_hashtable_of_gate_sequence_recursively(final_length,  sequence, table);
+    }
 
     pop_sequence(sequence);
+    
     push_t_gate(sequence);
 
-    generate_hashtable_of_gate_sequence_recursively(final_length, sequence, table);
+    // Avoiding TTTTTTTT in gate sequence
+    if len > 7
+    {
+        if sequence[(len-8)..(len)] != "TTTTTTTT".to_string()
+        {
+            generate_hashtable_of_gate_sequence_recursively(final_length,  sequence, table);
+        }
+    }
+    else
+    {
+        generate_hashtable_of_gate_sequence_recursively(final_length,  sequence, table);
+    }
 
     pop_sequence(sequence);
 }
-
-
 
 
 
@@ -205,9 +228,19 @@ pub fn generate_gate_table() {
     for i in 0..GATE_STRING_LENGTH
     {
         let gatelength = GATE_STRING_LENGTH -i ; // This reverse length makes shorter gate sequences overwrite longer ones
+
         generate_hashtable_of_gate_sequence_recursively( &gatelength  ,  &mut "".to_string(), &mut gatetable);
     }
     
+    // Updating the value of the identity state
+    println!("Writing identity in the hashtable");
+
+
+    let option = gatetable.insert(ExactGate::one(), "I".to_string());
+
+    
     save_hash_table(&gatetable, file_to_be_saved_at ).unwrap();
+        
+    // Adding the empty gate sequence
 
 }

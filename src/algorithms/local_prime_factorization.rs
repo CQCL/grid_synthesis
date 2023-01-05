@@ -228,6 +228,8 @@ pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  
     let mut left = Loc::one();
     let mut right= Loc::one();
 
+    todo!();
+
     for (prime, locprime,power) in factorvec
     {
         if power%2==1
@@ -239,16 +241,16 @@ pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  
                     let delta = Zomega::one() + omega();
                     let deltapower = pow( delta, power.try_into().unwrap());
 
-
                 }
+                todo!();
             }
             else if prime%8==7
             {
-                return None;
+                todo!();
             }
             else
             {
-                return None;
+                todo!();
             }
 
 
@@ -258,11 +260,18 @@ pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  
             let powerby2 = (power >> 1);
             left = left*pow(locprime,powerby2.try_into().unwrap());
             right = right*pow(locprime,powerby2.try_into().unwrap());
+            
+
+            todo!();
         }
     }
-    return None;
+
+
+    todo!();
 
 }
+
+
 
 // Will keep track of base primes, prime above in Zroot2 and the multiplicty it has
 // Warning: Prime factorization does not mean that you will get back your answer if you multiply
@@ -332,3 +341,7 @@ pub fn prime_factorization_of_loc( input: Local::<Zroot2> ) -> Vec::<( FactorInt
     return factorvecloc;
 
 }
+
+
+
+
