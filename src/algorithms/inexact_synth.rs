@@ -291,6 +291,7 @@ pub fn consider(radius: Float, direction_of_rotation: Comp, epsilon_a: Float, ex
 {
 
     panic!("Reached this far");
+
     if test_this_integer_point( int_center+this_point, coordinate_basis, epsilon_a, direction_of_rotation, exactlogdep)
     {
         return attempt_to_figure_out_gate_given_that_this_point_is_feasible(int_center+this_point, exactlogdep);
