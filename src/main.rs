@@ -91,4 +91,11 @@ fn main() {
     grid_problem(Complex::<Float>::one(), 0.24);
 
     // println!("{}", has_repeated_zeroes(0b0000000000000001));
+
+    let hadamard = Mat{
+        u: sqrtminus1() / sqrt2(),
+        t: sqrtminus1() / sqrt2(),
+    };
+
+    println!("{}", hadamard);
 }
