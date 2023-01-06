@@ -17,7 +17,10 @@ WARNING: Nihar is an amateur coder. You have been warned.
 # Running
 
 Do `cargo test -- --nocapture` in the repository for debugging, testing. 
+
 Do `cargo run` in the repository for running the hashtable generating algorithm.
+(Note: this requires a file named `data/gates_with_small_t_count.dat` to exist;
+you should create this file before running `cargo run` for the first time.)
 
 Run the following for some nice output. ;)
 ```
