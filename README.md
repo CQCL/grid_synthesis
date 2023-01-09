@@ -3,10 +3,10 @@
 
 Implementing Ross/Selinger's z-rotation synthesis (1403.2975v3) in Rust for real-time profiling purposes. 
 
-WARNING: Nihar is an amatuer coder. You have been warned.
+WARNING: Nihar is an amateur coder. You have been warned.
 
 
-# Organization 
+# Organization
 
 `src` contains the codes.
 
@@ -17,11 +17,14 @@ WARNING: Nihar is an amatuer coder. You have been warned.
 # Running
 
 Do `cargo test -- --nocapture` in the repository for debugging, testing. 
+
 Do `cargo run` in the repository for running the hashtable generating algorithm.
+(Note: this requires a file named `data/gates_with_small_t_count.dat` to exist;
+you should create this file before running `cargo run` for the first time.)
 
 Run the following for some nice output. ;)
 ```
-cargo test exact_synth_tests::testing_exact_synth_rapidly_with_longi_sequences -- --nocapture
+cargo test exact_synth_tests::testing_exact_synth_rapidly_with_long_sequences -- --nocapture
 ``` 
 
 
