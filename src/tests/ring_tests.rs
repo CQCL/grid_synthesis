@@ -16,7 +16,7 @@ use crate::structs::rings::Conj;
 use crate::structs::rings::LocalizableNorm;
 use crate::structs::rings::local_ring::Local; 
 use crate::structs::rings::zroot2::Zroot2;
-use crate::structs::rings::quaternion::Quaternion;
+// use crate::structs::rings::quaternion::Quaternion;
 use crate::structs::rings::zomega::Zomega;
 use crate::structs::rings::special_values::mu_8;
 use crate::structs::rings::special_values::onebyroot2comp;
@@ -98,6 +98,8 @@ pub fn basic_identities<T>() -> ()
     assert_eq!(z,u*v*w,"Failed to check that {} =\n{}*\n{}*\n{}",z,v,u,w);
 }
 
+
+// To be used with lots of different rings
 pub fn basic_identities_with_div<T>() -> ()
     where T: Copy+Debug+Display,
           T: One+NumCast,
@@ -127,10 +129,6 @@ pub fn basic_identities_with_conj<T>() -> ()
           T: One
 {
 
-    // println!("Testing conjugation on {}", std::any::type_name::<T>());
-    // println!("--------------------------------------");
-    // println!("Test 1: u.conj.conj = u");
-    // println!("        When u = 2");
     let u = T::one()+T::one();
     assert_eq!(u,u.conj().conj(),"Failed to check that {} =\n {}",u,u);
 
@@ -138,168 +136,53 @@ pub fn basic_identities_with_conj<T>() -> ()
 
 
 
-// // pub fn basic_identities_with_unimat_over<T>() -> () 
-// //     where T: Copy+Debug+Display,
-// //           T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj<T>,
-// //           T: PartialEq+From<Int>
-// // {
 
-// //     println!("Testing SUniMat over {}", std::any::type_name::<T>());
-// //     println!("--------------------------------------");
-// //     println!("Test 1: Id.Id = Id");
-// //     let u = SUniMat::<T>::one();
-// //     assert_eq!(u,u*u,"Failed to check that {} =\n {}\n*\n{}",u,u,u);
-
-// // }
-
-
-// pub fn testing_localizable_rings<T>() -> ()
-//     where T: Copy+Debug+Display,
-//           T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj,
-//           T: PartialEq+From<Int>+Localizable
+// This used to break at some point
+// #[test]
+// pub fn broke_arithmetic_until_26_10_2022() 
 // {
 
-//     println!("--------------------");
-//     let mut b = T::from(4);
-//     println!("{}",b);
-//     b= b.perform_n_multiplications(1);
-//     println!("{}",b);
-//     b= b.perform_n_multiplications(1);
-//     println!("{}",b);
-//     b= b.perform_n_multiplications(1);
-//     println!("{}",b);
-//     b= b.perform_n_multiplications(1);
-//     println!("{}",b);
-//     let i :Int;
-//     (b , i) = b.reduce_by_dividing();
-//     println!("{}, divided {} times",b,i);
+//     type Loc = Local<Zroot2>;
+//     // type Quat = Quaternion<Loc>;
+//     type Comp = Complex<Loc>;
+//     type Mat = SUniMat<Comp>;
 
-// }
+//     let omega = mu_8();
+//     let onebyroot2 = onebyroot2comp();
+//     let root2 = sqrt2();
+//     let one = Comp::one();
+//     let zero = Comp::zero();
 
-// pub fn testing_complex_rings_vs_quaternions_over<T>() 
-//     where T: Copy+Debug+Display,
-//           T: Add<Output=T>+Mul<Output=T>+Sub<Output=T>+Neg<Output=T>+Conj,
-//           T: PartialEq+From<Int>+Localizable
-// {
-//     let h = Quaternion::<Local::<T>>
-//     {
-//         0:  Local::<T>::from(0),
-//         1:  Local::<T>
-//         {
-//             num: T::from(1),
-//             log_den:1
-//         },
-//         2:  Local::<T>::from(0),
-//         3:  Local::<T>
-//         {
-//             num: T::from(1),
-//             log_den:1
-//         },
+//     let u1 = one+omega;
+//     let t1 = one-omega; 
+
+//     let q1 = Quat{
+//         0: u1.re,
+//         1: u1.im,
+//         2: t1.re,
+//         3: t1.im
 //     };
 
-//     // println!("{}",h);
-//     // h=h*h*h;
-
-//     // println!("{}",h);
-//     // println!("{}", h.rsqnorm());
-
-//     // Warning: THis is the T gate only when 
-//     // the type T used here is Zroot2
-//     let t = Quaternion::<Local::<T>>
+//     let mut q = Quat{
+//         0: u1.re,
+//         1: u1.im,
+//         2: -t1.re,
+//         3: t1.im
+//     };
+//     let mut g = Mat
 //     {
-//         0:  Local::<T>
-//         {
-//             num: T::from(1)+(T::from(1)).perform_n_multiplications(1),
-//             log_den:1
-//         },
-//         1:  Local::<T>
-//         {
-//             num: T::from(1),
-//             log_den:1
-//         },
-//         2:  Local::<T>::from(0),
-//         3:  Local::<T>::from(0)
+//         u: q1.z(),
+//         t: q1.w()
 //     };
 
+//     let gsq =g*g; 
+//     let qsq =q*q;
 
-//     let t2 = t*t;
-//     let m= h*t*h*t*t*t*h*t*h*t*t*t*h*t*t*t*t*t;
-
-//     println!("Test 1: Checking norm is equal to sum of sqnorms");
-//     assert_eq!(h.rsqnorm(),h.z().sqnorm()+h.w().sqnorm());
-//     assert_eq!(t.rsqnorm(),t.z().sqnorm()+t.w().sqnorm());
-//     assert_eq!(t2.rsqnorm(),t2.z().sqnorm()+t2.w().sqnorm());
-//     assert_eq!(m.rsqnorm(),m.z().sqnorm()+m.w().sqnorm());
+//     assert_eq!(gsq.u.re,qsq.0,"This causes a panic (as on 26-10-2022)");
+//     assert_eq!(gsq.u.im,qsq.1);
+//     assert_eq!(gsq.t.re,-qsq.2);
+//     assert_eq!(gsq.t.im,qsq.3);
 // }
-
-
-// This used to break at some poitn
-#[test]
-pub fn broke_arithmetic_until_26_10_2022() 
-{
-
-    type Loc = Local<Zroot2>;
-    type Quat = Quaternion<Loc>;
-    type Comp = Complex<Loc>;
-    type Mat = SUniMat<Comp>;
-
-    let omega = mu_8();
-    let onebyroot2 = onebyroot2comp();
-    let root2 = sqrt2();
-    let one = Comp::one();
-    let zero = Comp::zero();
-
-    let u1 = one+omega;
-    let t1 = one-omega; 
-
-    let q1 = Quat{
-        0: u1.re,
-        1: u1.im,
-        2: t1.re,
-        3: t1.im
-    };
-
-    let mut q = Quat{
-        0: u1.re,
-        1: u1.im,
-        2: -t1.re,
-        3: t1.im
-    };
-    let mut g = Mat
-    {
-        u: q1.z(),
-        t: q1.w()
-    };
-
-    // println!("Before square g: \n {}", g);
-    // println!("det g: \n {}", g.det());
-    // println!("Value of q: {}", q);
-    // println!("rsqnorm q: {}", q.rsqnorm());
-
-    let gsq =g*g; 
-    let qsq =q*q;
-    // println!("After square g: \n {}", gsq);
-    // println!("det g: \n {}", gsq.det());
-    // println!("Value of square q: {}", qsq);
-    // println!("rsqnorm q: {}", qsq.rsqnorm());
-    // println!("This is the value of u: {}",g.u*g.u-g.t.conj()*g.t);
-    // println!("u1 = {}",u1);
-    // println!("u1*u1 = {}",u1*u1);
-    // println!("t1 = {}",t1);
-    // println!("t1.conj*t1 = {}",t1.conj()*t1);
-    // println!("t1.norm = {}",t1.norm_sqr());
-    // println!("t1.0*t1.0 = {}",t1.re*t1.re);
-    // println!("t1.1*t1.1 = {}",t1.im*t1.im);
-    // println!("t1.0*t1.0+t1.1+t1.1 = {}",t1.re*t1.re+t1.im*t1.im);
-    // println!("------------------------------");
-    // println!("u1^2-t1.conj*t1 = {}",u1*u1-t1.conj()*t1);
-
-
-    assert_eq!(gsq.u.re,qsq.0,"This causes a panic (as on 26-10-2022)");
-    assert_eq!(gsq.u.im,qsq.1);
-    assert_eq!(gsq.t.re,-qsq.2);
-    assert_eq!(gsq.t.im,qsq.3);
-}
 
 #[test]
 pub fn should_break_arithmetic_26_10_2022() -> ()
@@ -341,10 +224,6 @@ pub fn break_division_in_loc_26_10_2022() {
     let one = Comp::one();
     let zero = Comp::zero();
 
-
-
-    // println!("{}", omega);
-    // println!("{}", (omega)/root2);
 
 }
 
@@ -577,6 +456,7 @@ pub fn testing_randomly_euclidean_division_many_times()
     testing_euclidean_division_in_zroot2_randomly();
     testing_euclidean_division_in_zroot2_randomly();
 }
+
 
 #[test]
 pub fn is_zero_test() {

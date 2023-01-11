@@ -3,7 +3,7 @@
 
 Implementing Ross/Selinger's z-rotation synthesis (1403.2975v3) in Rust for real-time profiling purposes. 
 
-WARNING: Nihar is an amateur coder. You have been warned.
+WARNING: Nihar is an _amateur_ coder. You have been warned.
 
 
 # Organization
@@ -27,6 +27,11 @@ Run the following for some nice output. ;)
 cargo test exact_synth_tests::testing_exact_synth_rapidly_with_long_sequences -- --nocapture
 ``` 
 
+Run the followign to test code coverage
+```
+cargo llvm-cov --html 
+```
+
 
 # Plan of implementation
 
@@ -34,11 +39,14 @@ Section 7.3 of [1] outlines the main algorithm.
 
 - [X] Write an exact synthesis library (to do Step 3 as in the outline)
 - [X] Figure out prime factorization (implement or include)
-- [X] Debug exact synthesis
+- [O] Debug exact synthesis
 	- [X] Works for single H gate
 	- [X] Works for single T gate
 	- [X] Works for HT gate!
 	- [X] Works for really long gate sequences!!!
+- [ ] Debug inexact synthesis
+	- [ ] Fix the erroroneous prime factorization in the KMMring
+	- [ ] Write tests. Perform profiling.
 - [ ] Generalize to gates like $X_{\pi/2},Y_{\pi/2},Z_{\pi/2}$.
 
 

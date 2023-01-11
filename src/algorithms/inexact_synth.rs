@@ -174,11 +174,15 @@ pub fn extract_gate_coordinate_in_local_ring(integer_coords: Vec4Int) -> Option:
 pub fn get_comp_point_from_basis_and_vector( point: Vec4Int, coordinate_basis: Mat4, exactlogdep : LogDepInt) -> (Comp, Comp)
 {
 
+    // println!("{}", this_point);
+    // println!("{}", coordinate_basis);
+
     // take the input and mutiply coordinate change matrix
     // and scale the vector by sqrt2^exactlogdep
     // This will give the actual point in 4d-space
     let actual_point = coordinate_basis*Vec4::new( point[0] as Float,point[1] as Float, point[2] as Float, point[3] as Float) * SQRT2.pow(-exactlogdep);
 
+    // println!("{}", actual_point);
     
     let complex_point = Comp
     { 
@@ -215,15 +219,15 @@ pub fn test_this_integer_point( this_point : Vec4Int, coordinate_basis: Mat4 , e
 
     if complex_point_dot_conj.norm_sqr() <= 1.0
     {
-        println!("Norm squared in control ");
+        // println!("Norm squared in control ");
         if complex_point.re*direction.re+complex_point.im*direction.im > 1.0- epsilon_a
         {
-            println!("Found a feasible point");
+            // println!("Found a feasible point");
             return true;
         }
         else 
         {
-            println!("Direction is bad");
+            // println!("Direction is bad");
             return false;
         }
     }
@@ -299,7 +303,8 @@ pub fn consider(radius: Float,  exactlogdep: LogDepInt, int_center: Vec4Int, coo
 {
 
     let (complex_point, complex_point_dot_conj) = get_comp_point_from_basis_and_vector(int_center, coordinate_basis, exactlogdep);
-
+    
+    println!("Reached this far ");
     println!("The point int_center is {}", complex_point );
 
     if test_this_integer_point( int_center+this_point, coordinate_basis,  exactlogdep ,( direction_of_rotation, epsilon_a ) )
@@ -470,6 +475,7 @@ pub fn test_integer_points_in_ball_around_integer_center_of_radius(radius: Float
                 i4 = 0;
                 while i4*i4 < n - i1*i1 - i2*i2 - i3*i3 
                 {
+
                     if i1==0 && i2==0 && i3==0 && i4==0 
                     {
                         collection.push(Vec4Int::new( i1, i2, i3, i4));
@@ -646,3 +652,130 @@ pub fn test_integer_points_in_ball_around_integer_center_of_radius(radius: Float
 
     // return collection;
 }
+
+pub fn pseudo_nearest_neighbour_integer_coordinates(lattice_matrix_orthognal_part_inverse : Mat4, input_vector: Vec4 )  -> Vec4Int
+{
+    let floating_vector = lattice_matrix_orthognal_part_inverse*input_vector;
+    let output = Vec4Int::new(  
+        floating_vector[0].round() as Int,
+        floating_vector[1].round() as Int,
+        floating_vector[2].round() as Int,
+        floating_vector[3].round() as Int,
+        );
+    return output;
+}
+
+
+
+// This is an implementation of Proposition 5.22
+pub fn grid_problem_given_depth( direction: Comp, epsilon_a: Float,  exactlogdep: LogDepInt )-> Option::<ExactUniMat>
+{
+
+    // Trying to find the lattice points in the intersection of a disc and a half plane
+    // Somtimes this region is called the "miniscule" region
+    // Zoom out for the oversimilified picture
+    // +------------------------------------------------------------+
+    // |                                                            |
+    // |                                                            |
+    // |                      /----------\                          |
+    // |               -------            --------                  |
+    // |             -/                           \-                |
+    // |           -/                               \-              |
+    // |         -/                                   \-            |
+    // |       -|                                       |-          |
+    // |        |                                       |           |
+    // |       /                                         \          |
+    // |       |                                         |          |
+    // |       |                                         |          |
+    // |      /                                           \         |
+    // |      |                                           |         |
+    // |      \                                           --------- |
+    // |       |                               ----------/          |
+    // |       \                     ---------/          /          |
+    // |        |         ----------/                   |           |
+    // |       ----------/                              |-          |
+    // |  -----/ -\                                   /-            |
+    // |           -\           THIS REGION         /-              |
+    // |             -\                           /-                |
+    // |               -------            --------                  |
+    // |                      \----------/                          |
+    // |                                                            |
+    // |                                                            |
+    // +------------------------------------------------------------+
+    //
+    // The actual problem is a four dimensional lattice intersecting with a region like this
+
+    // Bound the region in an ellipse
+    let (center,mat,radius) =   ellipse_parameters_for_region_a(direction, epsilon_a);
+
+    let centervec = Vec4::new(center.re,center.im,0.0,0.0);
+
+    //create a 4 dimensional ellipsoid binding the region above combined with unit disc 
+
+    let c = 1.0/(1.0+radius);
+
+    let mat_big = 
+        Mat4::new(mat[(0,0)]*c, mat[(0,1)]*c, 0.0  , 0.0,
+        mat[(1,0)]*c, mat[(1,1)]*c, 0.0  , 0.0,
+        0.0 ,         0.0         , 1.0-c, 0.0,
+        0.0 ,         0.0         , 0.0  , 1.0-c);
+
+    let radius_big = 1.0;
+
+    let mat_lattice = 
+        Mat4::new( 1.0 ,   SQRT2  , 0.0  , 0.0,
+                   0.0 ,      0.0 , 1.0  ,  SQRT2 ,
+                   1.0 ,  -SQRT2  , 0.0  , 0.0,
+                   0.0 ,      0.0 , 1.0  , -SQRT2 );
+
+    let mut reducable = mat_big*mat_lattice;
+
+    let reduced = call_lll_on_nalgebra_matrix(reducable);
+
+
+    let center4d = reduced.try_inverse().unwrap()*Vec4::new(center.re,center.im,0.0,0.0);
+    let radius_big = 1.0;
+
+
+
+    let operatornorm = find_operator_norm(reduced);
+    let reduced_orthogonal_part_inverse = reduced.qr().q().try_inverse().unwrap();
+
+
+    // Instead of this, we could have a rust thread
+    // stream out lattice points by communicating messages.
+    // and in parallel another one testing that it works
+    
+    let integer_center = pseudo_nearest_neighbour_integer_coordinates(reduced_orthogonal_part_inverse, centervec*SQRT2.pow(exactlogdep));
+    
+
+    let possible_output =  test_integer_points_in_ball_around_integer_center_of_radius(operatornorm*SQRT2.pow(exactlogdep),  direction,epsilon_a, reducable , exactlogdep, integer_center);
+
+
+    return possible_output;
+
+    //////////////////// DEBUG ZONE  /////////////////////
+    //
+    //
+    ///////////////////END OF DEBUG ZONE /////////////////
+
+}
+
+
+
+pub fn grid_problem( direction: Comp, epsilon_a: Float)-> ExactUniMat
+{
+    let mut answer: Option::<ExactUniMat>;
+    for i in 0..13
+    {
+        println!("I am i = {}", i);
+        answer = grid_problem_given_depth(direction, epsilon_a, i);
+        if answer !=None
+        {
+            return answer.unwrap();
+        }
+    }
+
+    panic!("Nothing found?");
+}
+

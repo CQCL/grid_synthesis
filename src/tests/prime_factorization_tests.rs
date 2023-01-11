@@ -10,7 +10,7 @@ use crate::algorithms::local_prime_factorization::compute_gcd;
 
 use crate::structs::rings::Int;
 use crate::structs::rings::LogDepInt;
-use crate::structs::rings::LocalizableNorm;
+// use crate::structs::rings::LocalizableNorm;
 use crate::structs::rings::zroot2::Zroot2;
 use crate::structs::rings::zomega::Zomega;
 use crate::structs::rings::local_ring::Local;
@@ -74,14 +74,14 @@ pub fn testing_a_lot_of_non_residues()
 pub fn test_power_mod_n()
 {
 
-    let N = 1000;
+    let n = 1000;
     let mut rng = thread_rng();
-    let mut p = rng.gen_range(-N..N);
-    let mut x = rng.gen_range(-N..N);
+    let mut p = rng.gen_range(-n..n);
+    let mut x = rng.gen_range(-n..n);
 
     while p==0
     {
-        p = rng.gen_range(-N..N);
+        p = rng.gen_range(-n..n);
     }
 
 
@@ -245,13 +245,13 @@ pub fn testing_prime_factorization_lots_of_times_for_loc()
 pub fn testing_prime_factorization_in_loc()
 {
 
-    let N = 10000;
+    let n = 10000;
     let mut rng = thread_rng();
 
-    let left :Int = rng.gen_range(-N..N);
+    let left :Int = rng.gen_range(-n..n);
     // let left =  1;
 
-    let right :Int = rng.gen_range(-N..N);
+    let right :Int = rng.gen_range(-n..n);
     // let right = 7;
 
     let logbase: LogDepInt = rng.gen_range(-100..100);

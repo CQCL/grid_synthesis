@@ -19,7 +19,7 @@
 //  and u and t are in the KMMring as defined there
 //  
 
-use crate::structs::rings::quaternion::Quaternion;
+// use crate::structs::rings::quaternion::Quaternion;
 // use crate::structs::rings::Int;
 // use crate::structs::rings::complex::Complex;
 use crate::structs::rings::local_ring::Local;

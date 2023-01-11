@@ -3,7 +3,6 @@
 // Cautions: Comments could look pretentious
 
 
-//TO BE REMOVED
 #![allow(warnings)]
 
 pub mod structs;
@@ -28,7 +27,7 @@ use crate::structs::sunimat::SUniMat;
 // use crate::structs::rings::complex::Complex; 
 use crate::structs::rings::local_ring::Local; 
 use crate::structs::rings::zroot2::Zroot2; 
-use crate::structs::rings::quaternion::Quaternion;
+// use crate::structs::rings::quaternion::Quaternion;
 // use crate::structs::rings::Fixable;
 // use crate::structs::rings::Localizable;
 use crate::structs::rings::Int;
@@ -69,7 +68,7 @@ fn main() {
     println!("------------------------------------------");
 
     // Create the hash table
-    crate::algorithms::exact_synth_hashtable_lookup::generate_gate_table();
+    // crate::algorithms::exact_synth_hashtable_lookup::generate_gate_table();
     
     // g=g*g*g*g*g*g; //*g*g*g*g*g;
 

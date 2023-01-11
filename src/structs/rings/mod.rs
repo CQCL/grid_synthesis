@@ -53,7 +53,7 @@ pub mod zomega;
 pub mod int_localization;
 pub mod local_ring;
 pub mod special_values;
-pub mod quaternion;
+// pub mod quaternion;
 
 use std::ops::Mul;
 

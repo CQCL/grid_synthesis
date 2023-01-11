@@ -1,7 +1,7 @@
 // Unitary matrices
 
 
-use crate::structs::rings::Conj; //Conjugation trait
+// use crate::structs::rings::Conj; //Conjugation trait
 // use crate::structs::rings::Constructs; //Construction trait
 
 // We bring them in so that we can overload the operators
