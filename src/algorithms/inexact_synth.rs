@@ -653,129 +653,100 @@ pub fn test_integer_points_in_ball_around_integer_center_of_radius(radius: Float
     // return collection;
 }
 
-pub fn pseudo_nearest_neighbour_integer_coordinates(lattice_matrix_orthognal_part_inverse : Mat4, input_vector: Vec4 )  -> Vec4Int
-{
-    let floating_vector = lattice_matrix_orthognal_part_inverse*input_vector;
-    let output = Vec4Int::new(  
-        floating_vector[0].round() as Int,
-        floating_vector[1].round() as Int,
-        floating_vector[2].round() as Int,
-        floating_vector[3].round() as Int,
-        );
-    return output;
-}
 
 
 
-// This is an implementation of Proposition 5.22
-pub fn grid_problem_given_depth( direction: Comp, epsilon_a: Float,  exactlogdep: LogDepInt )-> Option::<ExactUniMat>
-{
+//// This is an implementation of Proposition 5.22
+//pub fn grid_problem_given_depth( direction: Comp, epsilon_a: Float,  exactlogdep: LogDepInt )-> Option::<ExactUniMat>
+//{
 
-    // Trying to find the lattice points in the intersection of a disc and a half plane
-    // Somtimes this region is called the "miniscule" region
-    // Zoom out for the oversimilified picture
-    // +------------------------------------------------------------+
-    // |                                                            |
-    // |                                                            |
-    // |                      /----------\                          |
-    // |               -------            --------                  |
-    // |             -/                           \-                |
-    // |           -/                               \-              |
-    // |         -/                                   \-            |
-    // |       -|                                       |-          |
-    // |        |                                       |           |
-    // |       /                                         \          |
-    // |       |                                         |          |
-    // |       |                                         |          |
-    // |      /                                           \         |
-    // |      |                                           |         |
-    // |      \                                           --------- |
-    // |       |                               ----------/          |
-    // |       \                     ---------/          /          |
-    // |        |         ----------/                   |           |
-    // |       ----------/                              |-          |
-    // |  -----/ -\                                   /-            |
-    // |           -\           THIS REGION         /-              |
-    // |             -\                           /-                |
-    // |               -------            --------                  |
-    // |                      \----------/                          |
-    // |                                                            |
-    // |                                                            |
-    // +------------------------------------------------------------+
-    //
-    // The actual problem is a four dimensional lattice intersecting with a region like this
+//    // Trying to find the lattice points in the intersection of a disc and a half plane
+//    // Somtimes this region is called the "miniscule" region
+//    // Zoom out for the oversimilified picture
+//    // +------------------------------------------------------------+
+//    // |                                                            |
+//    // |                                                            |
+//    // |                      /----------\                          |
+//    // |               -------            --------                  |
+//    // |             -/                           \-                |
+//    // |           -/                               \-              |
+//    // |         -/                                   \-            |
+//    // |       -|                                       |-          |
+//    // |        |                                       |           |
+//    // |       /                                         \          |
+//    // |       |                                         |          |
+//    // |       |                                         |          |
+//    // |      /                                           \         |
+//    // |      |                                           |         |
+//    // |      \                                           --------- |
+//    // |       |                               ----------/          |
+//    // |       \                     ---------/          /          |
+//    // |        |         ----------/                   |           |
+//    // |       ----------/                              |-          |
+//    // |  -----/ -\                                   /-            |
+//    // |           -\           THIS REGION         /-              |
+//    // |             -\                           /-                |
+//    // |               -------            --------                  |
+//    // |                      \----------/                          |
+//    // |                                                            |
+//    // |                                                            |
+//    // +------------------------------------------------------------+
+//    //
+//    // The actual problem is a four dimensional lattice intersecting with a region like this
 
-    // Bound the region in an ellipse
-    let (center,mat,radius) =   ellipse_parameters_for_region_a(direction, epsilon_a);
+//    // Bound the region in an ellipse
+//    let (center,mat,radius) =   ellipse_parameters_for_region_a(direction, epsilon_a);
 
-    let centervec = Vec4::new(center.re,center.im,0.0,0.0);
+//    let centervec = Vec4::new(center.re,center.im,0.0,0.0);
 
-    //create a 4 dimensional ellipsoid binding the region above combined with unit disc 
+//    //create a 4 dimensional ellipsoid binding the region above combined with unit disc 
 
-    let c = 1.0/(1.0+radius);
+//    let c = 1.0/(1.0+radius);
 
-    let mat_big = 
-        Mat4::new(mat[(0,0)]*c, mat[(0,1)]*c, 0.0  , 0.0,
-        mat[(1,0)]*c, mat[(1,1)]*c, 0.0  , 0.0,
-        0.0 ,         0.0         , 1.0-c, 0.0,
-        0.0 ,         0.0         , 0.0  , 1.0-c);
+//    let mat_big = 
+//        Mat4::new(mat[(0,0)]*c, mat[(0,1)]*c, 0.0  , 0.0,
+//        mat[(1,0)]*c, mat[(1,1)]*c, 0.0  , 0.0,
+//        0.0 ,         0.0         , 1.0-c, 0.0,
+//        0.0 ,         0.0         , 0.0  , 1.0-c);
 
-    let radius_big = 1.0;
+//    let radius_big = 1.0;
 
-    let mat_lattice = 
-        Mat4::new( 1.0 ,   SQRT2  , 0.0  , 0.0,
-                   0.0 ,      0.0 , 1.0  ,  SQRT2 ,
-                   1.0 ,  -SQRT2  , 0.0  , 0.0,
-                   0.0 ,      0.0 , 1.0  , -SQRT2 );
+//    let mat_lattice = 
+//        Mat4::new( 1.0 ,   SQRT2  , 0.0  , 0.0,
+//                   0.0 ,      0.0 , 1.0  ,  SQRT2 ,
+//                   1.0 ,  -SQRT2  , 0.0  , 0.0,
+//                   0.0 ,      0.0 , 1.0  , -SQRT2 );
 
-    let mut reducable = mat_big*mat_lattice;
+//    let mut reducable = mat_big*mat_lattice;
 
-    let reduced = call_lll_on_nalgebra_matrix(reducable);
-
-
-    let center4d = reduced.try_inverse().unwrap()*Vec4::new(center.re,center.im,0.0,0.0);
-    let radius_big = 1.0;
+//    let reduced = call_lll_on_nalgebra_matrix(reducable);
 
 
+//    let center4d = reduced.try_inverse().unwrap()*Vec4::new(center.re,center.im,0.0,0.0);
+//    let radius_big = 1.0;
 
-    let operatornorm = find_operator_norm(reduced);
-    let reduced_orthogonal_part_inverse = reduced.qr().q().try_inverse().unwrap();
 
 
-    // Instead of this, we could have a rust thread
-    // stream out lattice points by communicating messages.
-    // and in parallel another one testing that it works
+//    let operatornorm = find_operator_norm(reduced);
+//    let reduced_orthogonal_part_inverse = reduced.qr().q().try_inverse().unwrap();
+
+
+//    // Instead of this, we could have a rust thread
+//    // stream out lattice points by communicating messages.
+//    // and in parallel another one testing that it works
     
-    let integer_center = pseudo_nearest_neighbour_integer_coordinates(reduced_orthogonal_part_inverse, centervec*SQRT2.pow(exactlogdep));
+//    let integer_center = pseudo_nearest_neighbour_integer_coordinates(reduced_orthogonal_part_inverse, centervec*SQRT2.pow(exactlogdep));
     
+//    let possible_output =  test_integer_points_in_ball_around_integer_center_of_radius(operatornorm*SQRT2.pow(exactlogdep), integer_center,reducable , exactlogdep, ( direction,epsilon_a) );
 
-    let possible_output =  test_integer_points_in_ball_around_integer_center_of_radius(operatornorm*SQRT2.pow(exactlogdep),  direction,epsilon_a, reducable , exactlogdep, integer_center);
+//    return possible_output;
 
+//    //////////////////// DEBUG ZONE  /////////////////////
+//    //
+//    //
+//    ///////////////////END OF DEBUG ZONE /////////////////
 
-    return possible_output;
-
-    //////////////////// DEBUG ZONE  /////////////////////
-    //
-    //
-    ///////////////////END OF DEBUG ZONE /////////////////
-
-}
+//}
 
 
-
-pub fn grid_problem( direction: Comp, epsilon_a: Float)-> ExactUniMat
-{
-    let mut answer: Option::<ExactUniMat>;
-    for i in 0..13
-    {
-        println!("I am i = {}", i);
-        answer = grid_problem_given_depth(direction, epsilon_a, i);
-        if answer !=None
-        {
-            return answer.unwrap();
-        }
-    }
-
-    panic!("Nothing found?");
-}
 
