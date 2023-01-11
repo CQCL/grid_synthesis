@@ -338,6 +338,8 @@ pub fn pseudo_nearest_neighbour_integer_coordinates(lattice_matrix_orthognal_par
 
 
 // This is an implementation of Proposition 5.22
+// as in it does the job of Proposition 5.22
+// the way it does it is mostly Nihar's invention
 pub fn grid_problem_given_depth( exactlogdep: LogDepInt , (direction, epsilon_a ) : GridParams )-> Option::<ExactUniMat>
 {
 
@@ -376,7 +378,6 @@ pub fn grid_problem_given_depth( exactlogdep: LogDepInt , (direction, epsilon_a 
     // The actual problem is a four dimensional lattice intersecting with a region like this
 
     
-
     // First we will bound the region in an ellipse
     let (center,mat,radius) =   ellipse_parameters_for_region_a(direction, epsilon_a);
 
@@ -384,16 +385,36 @@ pub fn grid_problem_given_depth( exactlogdep: LogDepInt , (direction, epsilon_a 
     // Make it a 4 dimensional vector
     let centervec = Vec4::new(center.re,center.im,0.0,0.0);
 
-    //create a 4 dimensional ellipsoid binding the region above combined with unit disc 
+    //create a 4 dimensional ellipsoid binding the region above combined with unit disc \
+    // The way to do this is through convex combination of ellipsoids
+    //  If   [ x_1  x_2 ] [  a_11  a_12 ]  [  x_1  ]      <   r_1
+    //                    [  a_21  a_22 ]  [  x_2  ]
+    //
+    // and   [ y_1  y_2 ] [  b_11  b_12 ]  [  y_1  ]      <   r_2
+    //                    [  b_21  b_22 ]  [  y_2  ]
+    //
+    //  then for any real 0 < c < 1 we have 
+    //
+    //    [  x_1  x_2  y_1  y_2 ] [  c*a_11   c*a_12                           ] [ x_1 ]
+    //                            [  c*a_21   c*a_22                           ] [ x_2 ]   < c*r_1  + (1-c)*r_2
+    //                            [                   (1-c)*b_11   (1-c)*b_12  ] [ y_1 ]
+    //                            [                   (1-c)*b_21   (1-c)*b_22  ] [ y_2 ] 
+    //
+    // Hence the cartesian product of these two dimensional ellipsoid is contained in the 4
+    // dimensional convex-combination-like ellipsoid
 
+    // convex combination parameter
+    // NEEDS TO BE REVIEWED !!!!!!!!!!!!1
     let c = 1.0/(1.0+radius);
 
-    let mat_big = 
-        Mat4::new(mat[(0,0)]*c, mat[(0,1)]*c, 0.0  , 0.0,
-        mat[(1,0)]*c, mat[(1,1)]*c, 0.0  , 0.0,
-        0.0 ,         0.0         , 1.0-c, 0.0,
-        0.0 ,         0.0         , 0.0  , 1.0-c);
 
+    let mat_big = 
+        Mat4::new(mat[(0,0)]*c, mat[(0,1)]*c  ,  0.0   , 0.0    ,
+                  mat[(1,0)]*c, mat[(1,1)]*c  ,  0.0   , 0.0    ,
+                      0.0     ,         0.0   , 1.0-c  , 0.0    ,
+                      0.0     ,         0.0   , 0.0    , 1.0-c  );
+    
+    // ?????
     let radius_big = 1.0;
 
     let mat_lattice = 
