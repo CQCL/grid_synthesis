@@ -1,5 +1,6 @@
 use crate::algorithms::inexact_synth::grid_problem;
 use crate::algorithms::inexact_synth::test_this_integer_point;
+use crate::algorithms::inexact_synth::get_comp_point_from_basis_and_vector;
 
 
 use num_traits::One;
@@ -30,9 +31,27 @@ pub fn basic_vicinity_test()
                                      0.0,0.0,1.0,0.0,
                                      0.0,0.0,0.0,1.0);
 
-    let result = test_this_integer_point( this_point , coordinate_basis , 0.1, Comp::one(), 0  );
+    let result = test_this_integer_point( this_point , coordinate_basis , 0 , ( Comp::one(), 0.1) ) ;
 
+    println!("{}",this_point);
     assert!(result);
+
+}
+
+#[test]
+pub fn comp_from_basis_and_vector_test()
+{
+    let this_point = Vec4Int::new(1,0,0,0);
+    let coordinate_basis = Mat4::new(1.0,0.0,0.0,0.0,
+                                     0.0,1.0,0.0,0.0,
+                                     0.0,0.0,1.0,0.0,
+                                     0.0,0.0,0.0,1.0);
+
+    
+    let (left,right) = get_comp_point_from_basis_and_vector(this_point, coordinate_basis, 2);
+    println!("{}", left);
+    println!("{}", right);
+             
 
 }
 
