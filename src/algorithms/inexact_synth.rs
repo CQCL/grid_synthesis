@@ -214,21 +214,21 @@ pub fn get_comp_point_from_basis_and_vector( point: Vec4Int, coordinate_basis: M
 pub fn test_this_complex_pair_of_points( complex_point: Comp , complex_point_dot_conj: Comp, (direction, epsilon_a): GridParams) -> bool
 {
 
-    println!("Testing pair of points, where left complex point is: \n {}", complex_point);
-    println!(" and the right complex point is : \n {}", complex_point_dot_conj);
+    // println!("Testing pair of points, where left complex point is: \n {}", complex_point);
+    // println!(" and the right complex point is : \n {}", complex_point_dot_conj);
 
 
     if complex_point_dot_conj.norm_sqr() <= 1.0
     {
-        println!("Norm squared in control ");
+        // println!("Norm squared in control ");
         if complex_point.re*direction.re+complex_point.im*direction.im > 1.0- epsilon_a
         {
-            println!("Test passed");
+            // println!("Test passed");
             return true;
         }
         else 
         {
-            println!("Half plane is not crossed");
+            // println!("Half plane is not crossed");
             return false;
         }
     }
@@ -305,8 +305,8 @@ pub fn consider(radius: Float,  exactlogdep: LogDepInt, int_center: Vec4Int, coo
 
     let (complex_point, complex_point_dot_conj) = get_comp_point_from_basis_and_vector(int_center, coordinate_basis, exactlogdep);
     
-    println!("Reached this far ");
-    println!("The point int_center is {}", complex_point );
+    // println!("Reached this far ");
+
 
     if test_this_complex_pair_of_points( complex_point, complex_point_dot_conj,( direction_of_rotation, epsilon_a ) )
     {
@@ -323,8 +323,13 @@ pub fn consider(radius: Float,  exactlogdep: LogDepInt, int_center: Vec4Int, coo
 
 
 
-pub fn pseudo_nearest_neighbour_integer_coordinates(lattice_matrix_orthognal_part_inverse : Mat4, input_vector: Vec4 )  -> Vec4Int
+pub fn pseudo_nearest_neighbour_integer_coordinates( lattice_matrix: Mat4, input_vector: Vec4 )  -> Vec4Int
 {
+
+
+    let lattice_matrix_orthognal_part_inverse = lattice_matrix.qr().q().try_inverse().unwrap();
+
+
     let floating_vector = lattice_matrix_orthognal_part_inverse*input_vector;
     let output = Vec4Int::new(  
         floating_vector[0].round() as Int,
@@ -381,6 +386,8 @@ pub fn grid_problem_given_depth( exactlogdep: LogDepInt , (direction, epsilon_a 
     // First we will bound the region in an ellipse
     let (center,mat,radius) =   ellipse_parameters_for_region_a(direction, epsilon_a);
 
+    // println!("Matrix determinant = {}", mat.determinant());
+
     // Gotta fix here onwards
     // Make it a 4 dimensional vector
     let centervec = Vec4::new(center.re,center.im,0.0,0.0);
@@ -402,20 +409,29 @@ pub fn grid_problem_given_depth( exactlogdep: LogDepInt , (direction, epsilon_a 
     //
     // Hence the cartesian product of these two dimensional ellipsoid is contained in the 4
     // dimensional convex-combination-like ellipsoid
+    //
+    //
+    // Here we will set c=0.5
+    //
+    // However, the 4x4 matrix that you see above will be = 
+    //
+    //         (mat_big*mat_lattice).transpose()*(mat_big*mat_lattice)
+    //
+    // So setting below c = SQRT2 and 1-c = SQRT2 is actually the correct choice, because c gets
+    // squared when the above multiplication happens.
+    //
+    // This was a pesky bug that I took some time to catch.
+    //
 
     // convex combination parameter
-    // NEEDS TO BE REVIEWED !!!!!!!!!!!!1
-    let c = 1.0/(1.0+radius);
-
+    let c = SQRT2;
 
     let mat_big = 
         Mat4::new(mat[(0,0)]*c, mat[(0,1)]*c  ,  0.0   , 0.0    ,
                   mat[(1,0)]*c, mat[(1,1)]*c  ,  0.0   , 0.0    ,
-                      0.0     ,         0.0   , 1.0-c  , 0.0    ,
-                      0.0     ,         0.0   , 0.0    , 1.0-c  );
+                      0.0     ,         0.0   , c  , 0.0    ,
+                      0.0     ,         0.0   , 0.0    , c  );
     
-    // ?????
-    let radius_big = 1.0;
 
     let mat_lattice = 
         Mat4::new( 1.0 ,   SQRT2  , 0.0  , 0.0,
@@ -425,35 +441,37 @@ pub fn grid_problem_given_depth( exactlogdep: LogDepInt , (direction, epsilon_a 
 
     let mut reducable = mat_big*mat_lattice;
 
+
     let reduced = call_lll_on_nalgebra_matrix(reducable);
 
 
     let center4d = reduced.try_inverse().unwrap()*Vec4::new(center.re,center.im,0.0,0.0);
-    let radius_big = 1.0;
+
+    let c= 0.5;
+    let radius_big = c*radius + (1.0-c)*1.0;
+
 
 
     // Operator norm is a good estimate of how far one might look to find feasible solutions
     let operatornorm = find_operator_norm(reduced);
 
-    let reduced_orthogonal_part_inverse = reduced.qr().q().try_inverse().unwrap();
 
 
     // Instead of this, we could have a rust thread
     // stream out lattice points by communicating messages.
     // and in parallel another one testing that it works
     
-    let integer_center = pseudo_nearest_neighbour_integer_coordinates(reduced_orthogonal_part_inverse, centervec*SQRT2.pow(exactlogdep));
+    let integer_center = pseudo_nearest_neighbour_integer_coordinates( reduced ,  centervec*SQRT2.pow(exactlogdep));
     
+
+    let (complex_point, complex_point_dot_conj) = get_comp_point_from_basis_and_vector(integer_center, reduced, exactlogdep);
+    println!("The point int_center is {}", complex_point );
 
     let possible_output =  test_integer_points_in_ball_around_integer_center_of_radius(operatornorm*SQRT2.pow(exactlogdep), integer_center,  reducable , exactlogdep,  (direction,epsilon_a));
 
 
     return possible_output;
 
-    //////////////////// DEBUG ZONE  /////////////////////
-    //
-    //
-    ///////////////////END OF DEBUG ZONE /////////////////
 
 }
 
@@ -463,8 +481,9 @@ pub fn grid_problem( direction: Comp, epsilon_a: Float)-> ExactUniMat
 {
     let problem_parameters = ( direction, epsilon_a);
 
+
     let mut answer: Option::<ExactUniMat>;
-    for i in 0..3
+    for i in 0..10
     {
         answer = grid_problem_given_depth(i, problem_parameters);
         if answer !=None
@@ -681,8 +700,3 @@ pub fn test_integer_points_in_ball_around_integer_center_of_radius(radius: Float
 
     // return collection;
 }
-
-
-
-
-
