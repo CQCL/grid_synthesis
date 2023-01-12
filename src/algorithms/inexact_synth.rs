@@ -243,10 +243,6 @@ pub fn test_this_complex_pair_of_points( complex_point: Comp , complex_point_dot
 pub fn make_exact_gate_from(left: Loc ,right: Loc, left_scaled: Loc, right_scaled: Loc) -> ExactUniMat
 {
 
-    if left*left + right*right + left_scaled*left_scaled + right_scaled*right_scaled != Loc::one()
-    {
-        panic!("You have bugs in your work, Nihar");
-    }
 
     todo!("You got this far! Bravo");
 }
@@ -310,8 +306,6 @@ pub fn consider(radius: Float,  exactlogdep: LogDepInt, int_center: Vec4Int, coo
 
     if test_this_complex_pair_of_points( complex_point, complex_point_dot_conj,( direction_of_rotation, epsilon_a ) )
     {
-        println!("Finally found a point ");
-        panic!("WE REACHED THIS FAR!");
         return attempt_to_figure_out_gate_given_that_this_point_is_feasible(int_center+this_point, exactlogdep);
     }
     else
@@ -411,7 +405,7 @@ pub fn grid_problem_given_depth( exactlogdep: LogDepInt , (direction, epsilon_a 
     // dimensional convex-combination-like ellipsoid
     //
     //
-    // Here we will set c=0.5
+    // Here we will set c=0.5, since this will minimize the ellipsoid volume
     //
     // However, the 4x4 matrix that you see above will be = 
     //
@@ -447,8 +441,8 @@ pub fn grid_problem_given_depth( exactlogdep: LogDepInt , (direction, epsilon_a 
 
     let center4d = reduced.try_inverse().unwrap()*Vec4::new(center.re,center.im,0.0,0.0);
 
-    let c= 0.5;
-    let radius_big = c*radius + (1.0-c)*1.0;
+    let c_actual= 0.5;
+    let radius_big = c_actual*radius + (1.0-c_actual)*1.0;
 
 
 

@@ -9,8 +9,8 @@
 //
 //
 use num_traits::One;
-use num_traits::Zero;
 use num_traits::pow;
+use num_traits::Zero;
 use num_traits::NumCast;
 
 use std::ops::Rem;
@@ -27,6 +27,7 @@ use crate::structs::rings::zroot2::Zroot2;
 use crate::structs::rings::special_values::sqrt2loc;
 use crate::structs::rings::special_values::onebyroot2loc;
 use crate::structs::rings::special_values::omega;
+use crate::structs::rings::special_values::iota_zomega;
 
 type Loc = Local::<Zroot2>;
 
@@ -220,15 +221,28 @@ pub fn legendre_symbol(a: Int,p: Int) -> Int
 
 }
 
-
+// This takes as input a Loc and returns Some((Loc,Loc)) such that the sum of two Locs in the
+// output is 1. If no such pairs exist, it returns None
+//
+// The way to do it is the following. Write our_num = unit * prime_1^power_1 * prime_2^power_2 * ...
+// and then try to write each of those factors as sum of two squares (it is known exactly when this
+// is impossible).
+//
+// And then, we use the identity:
+//
+// (a^2+b^2)*(c^2+d^2) = (ac-bd)^2 + (bc+ad)^2
+//
+// which is nothing but just 
+// (a+ib)(c+id) = (ac-bd) + i(ad+bc)
+//
+//
 pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  -> Option::<(Loc,Loc)>
 {
     let factorvec = prime_factorization_of_loc(our_num);
 
-    let mut left = Loc::one();
-    let mut right= Loc::one();
+    let mut output = Zomega::one();
 
-    todo!();
+    let mut power_of_sqrt2 = 0;
 
     for (prime, locprime,power) in factorvec
     {
@@ -236,38 +250,97 @@ pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  
         {
             if prime==2
             {
-                if power > 0 
+                if power >= 0 
                 {
                     let delta = Zomega::one() + omega();
-                    let deltapower = pow( delta, power.try_into().unwrap());
+                    let deltapower = pow(delta , power.try_into().unwrap() );
 
+                    output= output * deltapower;
                 }
+                else if power < 0
+                {
+                    
+                    let delta = Zomega::one() + omega();
+                    let deltapower = pow(delta , power.try_into().unwrap() );
+
+                    output= output * deltapower;
+
+                    power_of_sqrt2 = -power;
+                }
+            }
+            else if prime%4==1
+            {
+                let p = < Zroot2 as NumCast>::from(prime).unwrap();
+                let pint = prime as Int;
+                let u = tonelli_shanks(pint - 1,pint);
+
+                let uzomega = <Zomega as NumCast>::from(u).unwrap();
+                let iota = iota_zomega();
+                if locprime.log_den < 0
+                { 
+                    panic!("Unexpected behaviour");
+                }
+                let eta = Zomega::from_zroot2(locprime.num);
+
+                let t = compute_gcd(eta,uzomega+iota);
+
+
+
                 todo!();
             }
-            else if prime%8==7
+            else if prime%8==3
             {
                 todo!();
             }
             else
             {
-                todo!();
+                return None;
             }
 
 
         }
         else
         {
-            let powerby2 = (power >> 1);
-            left = left*pow(locprime,powerby2.try_into().unwrap());
-            right = right*pow(locprime,powerby2.try_into().unwrap());
-            
+            if prime == 2
+            {
+                todo!();
+            }
+            else 
+            {
+                let powerby2 = (power >> 1);
+                let to_multiply = pow(locprime,powerby2.try_into().unwrap());
 
-            todo!();
+
+                // Debug zone 
+                if locprime.log_den < 0
+                { 
+                    panic!("Unexpected behaviour");
+                }
+                // End of debug zone
+
+                let zomega_mult = Zomega::from_zroot2(locprime.num);
+
+                output = output * zomega_mult;
+            }
+
         }
     }
+    
+    let left = output.real_part();
+    let right = output.imag_part();
+    
+    if left*left + right*right != our_num
+    {
+        panic!("We are not quite there");
+    }
 
+    //
+    //
+    // END OF DEBUG ZONE 
 
-    todo!();
+    
+
+    return Some((left,right));
 
 }
 
@@ -282,11 +355,12 @@ pub fn prime_factorization_of_loc( input: Local::<Zroot2> ) -> Vec::<( FactorInt
 {
 
     let num = input.num.norm().abs() as FactorInt;
-    // println!("------- FACTORIZING {} ------------",num);
+    
+
+    // This line here can be replaced by any other prime factorization algorithm
     let factorvec = Factorization::run(num).prime_factor_repr();
     
 
-    // println!("------- DEALING WITH RAMIFIED PRIME ------------");
     let mut factorvecloc = vec!((2, sqrt2loc() , -input.log_den));
 
     if input.log_den == 0
