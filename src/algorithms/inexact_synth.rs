@@ -464,7 +464,7 @@ pub fn grid_problem( direction: Comp, epsilon_a: Float)-> ExactUniMat
     let problem_parameters = ( direction, epsilon_a);
 
     let mut answer: Option::<ExactUniMat>;
-    for i in 0..3
+    for i in 0..10
     {
         answer = grid_problem_given_depth(i, problem_parameters);
         if answer !=None
