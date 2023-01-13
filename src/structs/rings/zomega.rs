@@ -284,4 +284,9 @@ impl Zomega
         return term*onebyroot2loc();
     }
 
+    pub fn from_zroot2(input: Zroot2) -> Zomega 
+    {
+        return Zomega(input.0, input.1, 0 ,-input.1);
+    }
+
 }

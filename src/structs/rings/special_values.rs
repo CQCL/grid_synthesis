@@ -42,6 +42,16 @@ pub fn sqrt2loc() -> Loc
 
 }
 
+pub fn iota_zomega() -> Zomega
+{
+    return Zomega(0,0,1,0);
+}
+
+pub fn sqrt2_zomega() -> Zomega
+{
+    return Zomega(0,1,0,-1);
+}
+
 pub fn omega() -> Zomega
 {
     return Zomega(0,1,0,0);
