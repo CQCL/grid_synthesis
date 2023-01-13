@@ -4,6 +4,7 @@ use crate::algorithms::inexact_synth::get_comp_point_from_basis_and_vector;
 use crate::algorithms::inexact_synth::ellipse_parameters_for_region_a;
 use crate::algorithms::inexact_synth::test_this_complex_pair_of_points;
 use crate::algorithms::inexact_synth::pseudo_nearest_neighbour_integer_coordinates;
+use crate::algorithms::inexact_synth::generate_coordinates_and_center;
 
 
 use num_traits::One;
@@ -25,6 +26,8 @@ type Vec4 = nalgebra::Matrix4x1<Float>;
 type Vec4Int = nalgebra::Matrix4x1<Int>;
 type GridParams = (Comp, Float);
 
+// Value of SQRT2
+const SQRT2:Float = 1.414213562373095048801688724209698078569671875376948073176679737990732478462;
 
 // Random number generators
 use rand::thread_rng;
@@ -97,25 +100,35 @@ pub fn produce_random_point_inside_miniscule(direction: Comp, epsilon: Float) ->
 
 }
 
-pub fn produce_random_grid_paramters() -> GridParams
+// Not really uniform distribution, but its okay
+pub fn random_points_on_2d_circle() -> (Float,Float)
 {
-
     let mut rng = thread_rng();
-    
+
     let x1 :Float = rng.gen_range(-1.0..1.0);
     let y1 :Float = rng.gen_range(-1.0..1.0);
-    let epsilon: Float = rng.gen_range( 0.0000000000001..0.2 );
 
     let norm = (x1*x1 + y1*y1).sqrt();
 
     let (x,y) = (x1/norm, y1/norm);
 
-    let rand_comp = Comp{re:x,im:y};
+    return (x,y);
+}
 
+pub fn produce_random_grid_paramters() -> GridParams
+{
+
+    let mut rng = thread_rng();
+    let (x,y) = random_points_on_2d_circle();
+
+    let rand_comp = Comp{re:x,im:y};
+    let epsilon: Float = rng.gen_range( 0.0000000000001..0.2 );
     return (rand_comp, epsilon);
 
 
 }
+
+
 
 pub fn testing_the_ellipse_paramters_randomly() 
 {
@@ -132,17 +145,11 @@ pub fn testing_the_ellipse_paramters_randomly()
     let offset_vector_trans = offset_vector.transpose();
     let offset_skewed = mat*offset_vector_trans;
 
-
     let skewed_distance = offset_skewed.transpose() * offset_skewed;
 
     assert!( test_this_complex_pair_of_points(test_point, test_point, ( rand_comp, epsilon) )  );
 }
 
-pub fn testing_the_ellipse_generated_by_lll()
-{
-
-
-}
 
 #[test]
 pub fn rapidly_testing_ellipse_parameters() 
@@ -177,8 +184,57 @@ pub fn inexact_synth_testing()
 {
     // grid_problem_given_depth(0, (Comp::one(), 0.19));
 
-    let answer = grid_problem(Comp::one(), 0.20);
-    println!("{:?}", answer); 
+    let answer = grid_problem(Comp::one(), 0.020);
+
+    println!("{}", answer.mat);
+    println!("{}", answer.omega_exp);
+
+    assert_eq!( ExactUniMat::one() , answer);
 
 }
 
+
+
+pub fn testing_4d_ellipsoid_parameters_randomly()
+{
+    let (direction,epsilon) = produce_random_grid_paramters();
+
+    let region_a_point = produce_random_point_inside_miniscule(direction,epsilon);
+
+    let mut rng = thread_rng();
+    let random_length : Float  = rng.gen_range(0.0..1.0);
+    let (x,y) = random_points_on_2d_circle();
+
+    let region_b_point = Comp{re:x*random_length,im:y*random_length};
+
+
+    let (center, reducable,  radius) = generate_coordinates_and_center(direction,epsilon);
+
+
+    // let reducable = reduced*lattice_autmorphism;
+    
+    assert!( test_this_complex_pair_of_points( region_a_point, region_b_point, (direction, epsilon) ));
+
+    let testvec =  Vec4::new(region_a_point.re,region_a_point.im,region_b_point.re,region_b_point.im);
+
+    let offset = testvec - center;
+
+    let offset_skewed = reducable*offset;
+
+    let skewed_distance = ( offset_skewed.transpose() * offset_skewed )[(0,0)];
+
+    println!("Point's distance is {} % of radius",100.0*skewed_distance/radius );
+    assert! ( skewed_distance <=  radius)
+
+}
+
+#[test]
+pub fn rapidly_testing_4d_ellipsoid_parameters()
+{
+
+    for i in 0..5000
+    {
+        testing_4d_ellipsoid_parameters_randomly();
+    }
+    println!("Test worked 5000 times!");
+}
