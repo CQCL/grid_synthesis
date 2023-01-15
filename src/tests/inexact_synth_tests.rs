@@ -1,10 +1,12 @@
 use crate::algorithms::inexact_synth::grid_problem;
 use crate::algorithms::inexact_synth::grid_problem_given_depth;
-use crate::algorithms::inexact_synth::get_comp_point_from_basis_and_vector;
+use crate::algorithms::inexact_synth::get_comp_point_from_integer_coord;
 use crate::algorithms::inexact_synth::ellipse_parameters_for_region_a;
 use crate::algorithms::inexact_synth::test_this_complex_pair_of_points;
-use crate::algorithms::inexact_synth::pseudo_nearest_neighbour_integer_coordinates;
 use crate::algorithms::inexact_synth::generate_coordinates_and_center;
+
+
+
 
 
 use num_traits::One;
@@ -59,23 +61,19 @@ pub fn comp_from_basis_and_vector_test()
 
 
     let this_point = Vec4Int::new(1,0,0,0);
-    let coordinate_basis = Mat4::new(1.0,0.0,0.0,0.0,
-                                     0.0,1.0,0.0,0.0,
-                                     0.0,0.0,1.0,0.0,
-                                     0.0,0.0,0.0,1.0);
 
     
-    let (left,right) = get_comp_point_from_basis_and_vector(this_point, coordinate_basis, 0);
+    let (left,right) = get_comp_point_from_integer_coord(this_point, 0);
     
     assert!(two_comp_equal_up_to_theshold(left, Comp::one()) );
     assert!(two_comp_equal_up_to_theshold(right, Comp::one()) );
              
-    let (left,right) = get_comp_point_from_basis_and_vector(this_point, coordinate_basis, 2);
+    let (left,right) = get_comp_point_from_integer_coord(this_point, 2);
     
     assert!(two_comp_equal_up_to_theshold(left, 0.5* Comp::one()) );
     assert!(two_comp_equal_up_to_theshold(right, 0.5 * Comp::one()) );
 
-    let (left,right) = get_comp_point_from_basis_and_vector(this_point, coordinate_basis, -2);
+    let (left,right) = get_comp_point_from_integer_coord(this_point, -2);
     
     assert!(two_comp_equal_up_to_theshold(left, 2.0* Comp::one()) );
     assert!(two_comp_equal_up_to_theshold(right, 2.0 * Comp::one()) );
@@ -165,34 +163,6 @@ pub fn rapidly_testing_ellipse_parameters()
 }
 
 
-#[test]
-pub fn pseudo_nearest_neighbour_test()
-{
-    
-    let ident = Mat4::one();
-
-    let vec = Vec4::new(1.0,2.0,3.3,4.0);
-
-    let output = pseudo_nearest_neighbour_integer_coordinates(ident, vec);
-
-    assert_eq!(output, Vec4Int::new(1,2,3,4) );
-
-}
-
-#[test]
-pub fn inexact_synth_testing() 
-{
-    // grid_problem_given_depth(0, (Comp::one(), 0.19));
-
-    let answer = grid_problem(Comp::one(), 0.020);
-
-    println!("{}", answer.mat);
-    println!("{}", answer.omega_exp);
-
-    assert_eq!( ExactUniMat::one() , answer);
-
-}
-
 
 
 pub fn testing_4d_ellipsoid_parameters_randomly()
@@ -216,13 +186,10 @@ pub fn testing_4d_ellipsoid_parameters_randomly()
     assert!( test_this_complex_pair_of_points( region_a_point, region_b_point, (direction, epsilon) ));
 
     let testvec =  Vec4::new(region_a_point.re,region_a_point.im,region_b_point.re,region_b_point.im);
-
     let offset = testvec - center;
-
     let offset_skewed = reducable*offset;
-
     let skewed_distance = ( offset_skewed.transpose() * offset_skewed )[(0,0)];
-
+    
     println!("Point's distance is {} % of radius",100.0*skewed_distance/radius );
     assert! ( skewed_distance <=  radius)
 
@@ -238,3 +205,57 @@ pub fn rapidly_testing_4d_ellipsoid_parameters()
     }
     println!("Test worked 5000 times!");
 }
+
+#[test]
+pub fn matrix_norm_is_what_i_expect()
+{
+    let test = Vec4::new(2.0,0.0,0.0,0.0);
+    assert!( two_float_equal_up_to_threshold( test.norm() , 2.0 )  );
+}
+
+
+
+
+
+
+pub fn generate_random_4by4_matrix() -> Mat4
+{
+
+    let mut rng = thread_rng();
+
+    let mut out = Mat4::zeros();
+    for i in 0..4
+    {
+        for j in 0..4
+        {
+            out[(i,j)] = rng.gen_range(-10.0..10.0);
+        }
+    }
+
+
+    return out;
+}
+
+
+
+
+
+#[test]
+pub fn inexact_synth_testing() 
+{
+    // grid_problem_given_depth(0, (Comp::one(), 0.19));
+
+    let answer = grid_problem(Comp::one(), 0.020);
+
+    println!("{}", answer.mat);
+    println!("{}", answer.omega_exp);
+
+    assert_eq!( ExactUniMat::one() , answer);
+
+}
+
+
+
+
+
+

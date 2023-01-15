@@ -1,23 +1,23 @@
 // Will implement the Ross Selinger algorithm here
 // This is the content of 1403.2975v3 Section 7.3 on page 14
-//
-//
-//
-
-//
-
+  
+  
 use crate::structs::rings::Float;
+use crate::structs::rings::Int;
 use crate::structs::rings::local_ring::Local;
 use crate::structs::rings::zroot2::Zroot2;
-use crate::structs::rings::Int;
 use crate::structs::rings::LogDepInt;
 use crate::structs::rings::Localizable;
 use crate::structs::unimat::ExactUniMat;
 
 
+
+
 use crate::algorithms::local_prime_factorization::prime_factorization_of_loc;
 use crate::algorithms::local_prime_factorization::attempt_to_write_this_number_as_sum_of_two_squares_in_loc;
-use crate::structs::sunimat::SUniMat;
+use crate::algorithms::lll::nearest_plane;
+use crate::algorithms::lll::lll_reduce;
+use crate::algorithms::lll::gram_schmidt_orthogonalization;
 
 
 use num_traits::Pow;
@@ -36,10 +36,24 @@ type Mat4 = nalgebra::Matrix4<Float>;
 type Mat4Int = nalgebra::Matrix4<Int>;
 type Vec4 = nalgebra::Matrix4x1<Float>;
 type Vec4Int = nalgebra::Matrix4x1<Int>;
+use crate::structs::sunimat::SUniMat;
 type Sunimat = SUniMat<Float>;
 type Sunimatloc = SUniMat<Loc>;
 
 type GridParams = (Comp, Float);
+
+const integral_to_complex_mat: Mat4  = 
+        Mat4::new( 1.0 ,   SQRT2  , 0.0  , 0.0,
+            0.0 ,      0.0 , 1.0  ,  SQRT2 ,
+            1.0 ,  -SQRT2  , 0.0  , 0.0,
+            0.0 ,      0.0 , 1.0  , -SQRT2 );
+
+const complex_to_integral_mat: Mat4 = 
+        Mat4::new( 0.5      ,      0.0 , 0.5      ,       0.0 ,
+            0.5/SQRT2,      0.0 ,-0.5/SQRT2,       0.0 ,
+            0.0      ,      0.5 , 0.0      ,       0.5 ,
+            0.0      ,0.5/SQRT2 , 0.0      ,-0.5/SQRT2 );
+
 
 // See comments for output idea
 pub fn ellipse_parameters_for_region_a(direction: Comp, epsilon_a: Float ) -> (Comp, Mat2, Float)
@@ -96,65 +110,7 @@ pub fn ellipse_parameters_for_region_a(direction: Comp, epsilon_a: Float ) -> (C
 
 
 
-// The output is such that the product of outputs should be the input
-// I will write this function on my own, if I have the time
-// This will reduce dependencies
-pub fn call_lll_on_nalgebra_matrix( m : Mat4) -> Mat4
-{
-    use lll_rs::{
-        // l2::{bigl2, l2f},
-        lll::lllf,
-        matrix::Matrix,
-        vector::VectorF,
-    };
 
-    // use rug::{Integer,Assign};
-
-    // Init the matrix with Integer
-    let mut basis: Matrix<VectorF> = Matrix::init(4, 4);
-
-    // Populate the matix
-    basis[0] = VectorF::from_vector(vec![
-                                    m[(0,0)],
-                                    m[(1,0)],
-                                    m[(2,0)],
-                                    m[(3,0)],
-    ]);
-
-    basis[1] = VectorF::from_vector(vec![
-                                    m[(0,1)],
-                                    m[(1,1)],
-                                    m[(2,1)],
-                                    m[(3,1)],
-    ]);
-    basis[2] = VectorF::from_vector(vec![
-                                    m[(0,2)],
-                                    m[(1,2)],
-                                    m[(2,2)],
-                                    m[(3,2)],
-    ]);
-    basis[3] = VectorF::from_vector(vec![
-                                    m[(0,3)],
-                                    m[(1,3)],
-                                    m[(2,3)],
-                                    m[(3,3)],
-    ]);
-
-    // Perfom the LLL basis redution
-    lllf::lattice_reduce(&mut basis);
-
-    let reduced =  Mat4::new( 
-        basis[0][0], basis[0][1], basis[0][2], basis[0][3],
-        basis[1][0], basis[1][1], basis[1][2], basis[1][3],
-        basis[2][0], basis[2][1], basis[2][2], basis[2][3],
-        basis[3][0], basis[3][1], basis[3][2], basis[3][3],
-        );
-    
-
-    return reduced;
-
-
-}
 
 
 pub fn find_operator_norm(input : Mat4) -> Float
@@ -165,6 +121,8 @@ pub fn find_operator_norm(input : Mat4) -> Float
 
 pub fn extract_gate_coordinate_in_local_ring(integer_coords: Vec4Int) -> Option::<(Loc,Loc)>
 {
+    println!("attempting_to_figure_out with {}", integer_coords );
+
     let zrt_left = Zroot2(integer_coords[0],integer_coords[1]);
     let zrt_right = Zroot2(integer_coords[2],integer_coords[3]);
 
@@ -175,11 +133,13 @@ pub fn extract_gate_coordinate_in_local_ring(integer_coords: Vec4Int) -> Option:
     }
     else 
     {
-        return Some( (Loc::from_base(zrt_left), Loc::from_base(zrt_left)) );
+        return Some( (Loc::from_base(zrt_left), Loc::from_base(zrt_right)) );
     }
 }
 
-pub fn get_comp_point_from_basis_and_vector( point: Vec4Int, coordinate_basis: Mat4, exactlogdep : LogDepInt) -> (Comp, Comp)
+
+
+pub fn get_comp_point_from_integer_coord( this_point: Vec4Int, exactlogdep : LogDepInt) -> (Comp, Comp)
 {
 
     // println!("{}", this_point);
@@ -188,22 +148,22 @@ pub fn get_comp_point_from_basis_and_vector( point: Vec4Int, coordinate_basis: M
     // take the input and mutiply coordinate change matrix
     // and scale the vector by sqrt2^exactlogdep
     // This will give the actual point in 4d-space
-    let actual_point = coordinate_basis*Vec4::new( point[0] as Float,point[1] as Float, point[2] as Float, point[3] as Float) * SQRT2.pow(-exactlogdep);
+    let actual_point = vec4int_to_vec4float(this_point)*SQRT2.pow(-exactlogdep);
 
     // println!("{}", actual_point);
-    
+
     let complex_point = Comp
     { 
-        re: actual_point[0]+SQRT2*actual_point[1],
-        im: actual_point[2]+SQRT2*actual_point[3],
+        re: actual_point[0] + actual_point[1]*SQRT2,
+        im: actual_point[2] + actual_point[3]*SQRT2,
     };
-    
+
     // Is this correct?
     // Depends on the function 
     let complex_point_dot_conj = Comp
     { 
-        re: actual_point[0]-SQRT2*actual_point[1],
-        im: actual_point[2]-SQRT2*actual_point[3],
+        re: actual_point[0] - actual_point[1]*SQRT2,
+        im: actual_point[2] - actual_point[3]*SQRT2,
     };
 
     return (complex_point, complex_point_dot_conj);
@@ -270,7 +230,7 @@ pub fn make_exact_gate_from(left: Loc ,right: Loc, left_scaled: Loc, right_scale
 // Else return none
 pub fn attempt_to_figure_out_gate_given_that_this_point_is_feasible( this_point: Vec4Int, exactlogdep: LogDepInt) -> Option::<ExactUniMat>
 {
-    
+
     let get_coord =  extract_gate_coordinate_in_local_ring(this_point);
 
     if get_coord == None
@@ -281,12 +241,16 @@ pub fn attempt_to_figure_out_gate_given_that_this_point_is_feasible( this_point:
     {
         let (left,right) = get_coord.unwrap();
 
+        println!("left = {}", left);
+        println!("right = {}", right);
+
+
         let left_scaled = Loc
         {
             num: left.num,
             log_den: left.log_den + exactlogdep,
         };
-        
+
         let right_scaled = Loc
         {
             num: right.num,
@@ -295,8 +259,6 @@ pub fn attempt_to_figure_out_gate_given_that_this_point_is_feasible( this_point:
 
         let our_num = Loc::one() - left_scaled*left_scaled - right_scaled*right_scaled;
 
-        println!("left_scaled = {}", left_scaled);
-        println!("right_scaled = {}", right_scaled);
 
         let sum_of_square = attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num);
 
@@ -311,22 +273,23 @@ pub fn attempt_to_figure_out_gate_given_that_this_point_is_feasible( this_point:
         }
 
     }
-    
+
 
 }
 
 
-pub fn consider(radius: Float,  exactlogdep: LogDepInt, int_center: Vec4Int, coordinate_basis: Mat4, this_point: Vec4Int, ( direction_of_rotation, epsilon_a): GridParams ) -> Option::<ExactUniMat>
+pub fn consider( this_point: Vec4Int, exactlogdep: LogDepInt , ( direction_of_rotation, epsilon_a): GridParams ) -> Option::<ExactUniMat>
 {
 
-    let (complex_point, complex_point_dot_conj) = get_comp_point_from_basis_and_vector(int_center+this_point, coordinate_basis, exactlogdep);
-    
+    let (complex_point, complex_point_dot_conj) = get_comp_point_from_integer_coord(this_point, exactlogdep);
+
 
 
     if test_this_complex_pair_of_points( complex_point, complex_point_dot_conj,( direction_of_rotation, epsilon_a ) )
     {
-        println!("Complex point is : {}", complex_point);
-        return attempt_to_figure_out_gate_given_that_this_point_is_feasible(int_center+this_point, exactlogdep);
+
+        // println!("Working Complex point is : {}", complex_point);
+        return attempt_to_figure_out_gate_given_that_this_point_is_feasible( this_point , exactlogdep);
     }
     else
     {
@@ -336,24 +299,6 @@ pub fn consider(radius: Float,  exactlogdep: LogDepInt, int_center: Vec4Int, coo
 
 
 
-// Why this works is general LLL theory
-// Here, lattice_matrix should be an LLL reduced matrix
-// If this is true, then this outputs almost a nearest lattice point around input_vector
-pub fn pseudo_nearest_neighbour_integer_coordinates( lattice_matrix: Mat4, input_vector: Vec4 )  -> Vec4Int
-{
-
-    let lattice_matrix_orthognal_part_inverse = lattice_matrix.qr().q().try_inverse().unwrap();
-
-    let floating_vector = lattice_matrix_orthognal_part_inverse*input_vector;
-
-    let output = Vec4Int::new(  
-        floating_vector[0].round() as Int,
-        floating_vector[1].round() as Int,
-        floating_vector[2].round() as Int,
-        floating_vector[3].round() as Int,
-        );
-    return output;
-}
 
 
 pub fn round_mat4_to_int(input: Mat4) -> Mat4Int
@@ -367,31 +312,16 @@ pub fn round_mat4_to_int(input: Mat4) -> Mat4Int
 
 }
 
-
-pub fn vec4_to_vec4int
-
-
-pub fn integer_coodinates_to_pair_of_complex_points( input: Vec4 ) -> Vec4
+pub fn vec4float_to_vec4int(input: Vec4) -> Vec4Int
 {
-    let mat_lattice = 
-        Mat4::new( 1.0 ,   SQRT2  , 0.0  , 0.0,
-            0.0 ,      0.0 , 1.0  ,  SQRT2 ,
-            1.0 ,  -SQRT2  , 0.0  , 0.0,
-            0.0 ,      0.0 , 1.0  , -SQRT2 );
-
-    return mat_lattice* input ;
+    return Vec4Int::new(input[0].round() as Int, input[1].round() as Int, input[2].round() as Int, input[3].round() as Int );
 }
 
-pub fn pair_of_complex_to_integer_coordinates( input : Vec4 ) -> Vec4
+pub fn vec4int_to_vec4float(input: Vec4Int) -> Vec4
 {
-    let mat_lattice_inverse = 
-        Mat4::new( 0.5      ,      0.0 , 0.5      ,       0.0 ,
-            0.5/SQRT2,      0.0 ,-0.5/SQRT2,       0.0 ,
-            0.0      ,      0.5 , 0.0      ,       0.5 ,
-            0.0      ,0.5/SQRT2 , 0.0      ,-0.5/SQRT2 );
-    
-    return mat_lattice_inverse * input ;
+    return Vec4::new(input[0] as Float, input[1] as Float, input[2] as Float, input[3] as Float );
 }
+
 
 
 // Takes in the grid problem parameters and returns ellipsoid paramters of a 4d ellipsoid function
@@ -434,7 +364,7 @@ pub fn generate_coordinates_and_center(direction : Comp , epsilon_a: Float) -> (
     //
     // The actual problem is a four dimensional lattice intersecting with a region like this
 
-    
+
     // First we will bound the region in an ellipse
     let (center,mat,radius) =   ellipse_parameters_for_region_a(direction, epsilon_a);
 
@@ -473,16 +403,16 @@ pub fn generate_coordinates_and_center(direction : Comp , epsilon_a: Float) -> (
     // convex combination parameter
     // the c above is sqrt(c_actual)
     let c_actual: Float = 0.5;
-    
+
     let c = c_actual.sqrt();
     let one_minus_c = (1.0-c_actual).sqrt();
 
     let reducable = 
         Mat4::new(mat[(0,0)]*c, mat[(0,1)]*c  ,  0.0   , 0.0    ,
-                  mat[(1,0)]*c, mat[(1,1)]*c  ,  0.0   , 0.0    ,
-                      0.0     ,         0.0   , one_minus_c  , 0.0    ,
-                      0.0     ,         0.0   , 0.0    , one_minus_c  );
-    
+        mat[(1,0)]*c, mat[(1,1)]*c  ,  0.0   , 0.0    ,
+        0.0     ,         0.0   , one_minus_c  , 0.0    ,
+        0.0     ,         0.0   , 0.0    , one_minus_c  );
+
 
     let centervec = Vec4::new(center.re,center.im,0.0,0.0);
 
@@ -494,43 +424,95 @@ pub fn generate_coordinates_and_center(direction : Comp , epsilon_a: Float) -> (
 }
 
 
+
 // This is an implementation of Proposition 5.22
 // as in it does the job of Proposition 5.22
 // the way it does it is mostly Nihar's invention
 pub fn grid_problem_given_depth( exactlogdep: LogDepInt , (direction, epsilon_a ) : GridParams )-> Option::<ExactUniMat>
 {
 
-    let (center, reducable , radius ) = generate_coordinates_and_center(direction,epsilon_a);
-    
+    let (center, ellipse_matrix , radius ) = generate_coordinates_and_center(direction,epsilon_a);
+
+    let reducable = ellipse_matrix * integral_to_complex_mat ;
+
+
+    // The ellipse above will be most likely be highly skewed. 
+    // LLL algorithm makes new coordinates
+    // with respect to which the lattice is more "upright"
+    //
+    // This is conceptually the same as the grid operators that they find in the 
+    // Ross-Selinger paper. There's no reason to reinvent this wheel though.
+    let reduced = lll_reduce(reducable);
+
+
     // The description of the integer points changes when LLL is called
     // Now (x_1,x_2,y_1,y_2) no longer mean 
     //   (x_1 + sqrt(2) x_2) sqrt2 ^ exactlogdep + i (y_1 + sqrt(2) y_2) sqrt2 ^ exactlogdep
     // 
     // But they almost mean this, differing by a lattice automorphism which we can compute as
     // follows
-    //  (x_1 ,x_2 ,y_1, y_2 )  = lattice_integer_change_of_coordinate * (x_1new , x_2new, y_1new, y_2new)
-    let reduced = call_lll_on_nalgebra_matrix(reducable);
-    let lattice_automorphism = reducable.try_inverse().unwrap() * reduced;
-    let lattice_automorphism_integral = round_mat4_to_int ( lattice_automorphism );
+    //  (x_1 ,x_2 ,y_1, y_2 )  = lattice_new_to_standard * (x_1new , x_2new, y_1new, y_2new)
 
+    let lattice_new_to_standard_real = reducable.try_inverse().unwrap() * reduced;
+    let lattice_new_to_standard = round_mat4_to_int ( lattice_new_to_standard_real ); // THIS IS CRAP
+
+    let lattice_standard_to_new_real = reduced.try_inverse().unwrap() * reducable;
+    let lattice_standard_to_new = round_mat4_to_int ( lattice_standard_to_new_real ); // THiS IS CRAP
+
+    // DEBUG ZONE
+    //
+    // println!("lattice_standard_to_new_real looks like : \n {}", lattice_new_to_standard_real );
+    // println!("lattice_new_to_standard_real looks like : \n {}", lattice_standard_to_new_real );
+    //
+    // END OF DEBUG ZONE
 
     // blow everything up by SQRT2 power exactlogdep
     let centerblownup = SQRT2.pow(exactlogdep)*center;
-    let radiusblownup = SQRT2.pow(exactlogdep)*radius;
-    
-    // Make things in the integral coordinates
-    let integral_coordinate_centerblownup = pair_of_complex_to_integer_coordinates(centerblownup);
-    let integer_center = pseudo_nearest_neighbour_integer_coordinates( reduced ,  integral_coordinate_centerblownup);
-
-    
+    let radiusblownup = SQRT2.pow(exactlogdep)*radius.sqrt();  //  That's because I've been confusing radius with radius squared
 
 
-    
+    // DEBUG ZONE
+    //
+    //
+    // let center_standard =  centerblownup * SQRT2.pow(-exactlogdep);
+    // let complex_point = Comp
+    // { 
+    //     re: center_standard[0] + center_standard[1]*SQRT2,
+    //     im: center_standard[2] + center_standard[3]*SQRT2,
+    // };
+    // println!("Center should be at complex_point:  {}", complex_point);
+    // println!("This should look close to 1+0i");
+    //
+    //
+    // END OF DEBUG ZONE
+
+    // Find a reasonable lattice point to look around for other lattice points
+    let reducedstar = gram_schmidt_orthogonalization(reduced);
+    let lattice_center_in_4d_space = nearest_plane( reduced , reducedstar , reducable * centerblownup );
+    let integer_center_new_coordinates = reduced.try_inverse().unwrap() * lattice_center_in_4d_space;
+    let integer_center_new_coordinates_int = vec4float_to_vec4int( integer_center_new_coordinates) ;
+
+
+
+    // DEBUG ZONE
+    let integer_center_standard_coordinates = lattice_new_to_standard * integer_center_new_coordinates_int;
+    let (complex_point, complex_point_dot_conj) = get_comp_point_from_integer_coord(integer_center_standard_coordinates, exactlogdep);
+    println!("Integer center was at {}", complex_point );
+    // END OF DEBUG ZONE
+
+
+
+    // Finding an appropriate radius
+    let error_in_approximation = ( centerblownup - lattice_center_in_4d_space ).norm();
+    let operator_norm = find_operator_norm(reduced);
+    let vicinity = radiusblownup/operator_norm + error_in_approximation;
+
+
+
     // Instead of this, we could have a rust thread
     // stream out lattice points by communicating messages.
     // and in parallel another one testing that it works
-    // TODO
-    let possible_output =  test_integer_points_in_ball_around_integer_center_of_radius(radiusblownup, integer_center,  reduced , exactlogdep,  (direction,epsilon_a));
+    let possible_output =  test_integer_points_in_ball_around_integer_center_of_radius(vicinity, integer_center_new_coordinates_int,  reduced , lattice_new_to_standard, exactlogdep,  (direction,epsilon_a));
 
 
     return possible_output;
@@ -544,15 +526,18 @@ pub fn grid_problem( direction: Comp, epsilon_a: Float)-> ExactUniMat
 {
     let problem_parameters = ( direction, epsilon_a);
 
-
     let mut answer: Option::<ExactUniMat>;
-    for i in 0..10
+    for i in 0..5
     {
+
+        println!("--------------- \n \n ");
+        println!("Working with depth {}",i );
         answer = grid_problem_given_depth(i, problem_parameters);
         if answer !=None
         {
             return answer.unwrap();
         }
+        println!("--------------- \n \n ");
     }
 
     panic!("Nothing found?");
@@ -562,7 +547,7 @@ pub fn grid_problem( direction: Comp, epsilon_a: Float)-> ExactUniMat
 
 
 // To be replaced by some multithreading implimentation
-pub fn test_integer_points_in_ball_around_integer_center_of_radius(radius: Float, int_center: Vec4Int, coordinate_basis: Mat4, exactlogdep: LogDepInt,  (direction_of_rotation, epsilon_a) : GridParams )  -> Option<ExactUniMat>
+pub fn test_integer_points_in_ball_around_integer_center_of_radius(radius: Float, int_center: Vec4Int, coordinate_basis: Mat4, lattice_automorphism: Mat4Int,  exactlogdep: LogDepInt,  (direction_of_rotation, epsilon_a) : GridParams )  -> Option<ExactUniMat>
 {
     let mut collection = Vec::<Vec4Int>::new();
 
@@ -722,7 +707,9 @@ pub fn test_integer_points_in_ball_around_integer_center_of_radius(radius: Float
                     while let Some(last_point) = collection.pop() 
                     {
 
-                        let mut possible_answer =  consider(radius, exactlogdep, int_center, coordinate_basis ,last_point, (direction_of_rotation, epsilon_a));
+                        let int_standard = lattice_automorphism * (int_center + last_point);
+
+                        let mut possible_answer =  consider( int_standard, exactlogdep,  (direction_of_rotation, epsilon_a));
 
                         if possible_answer != None
                         {
@@ -730,16 +717,6 @@ pub fn test_integer_points_in_ball_around_integer_center_of_radius(radius: Float
                         }
 
                     }
-
-                    ///////////// DEBUG ZONE /////////////////
-                    //
-                    
-                    if collection.len()>0
-                    {
-                        panic!("Something is wrong");
-                    }
-
-                    ///////////// END OF DEBUG ZONE /////////////
 
 
                     // Iterate
