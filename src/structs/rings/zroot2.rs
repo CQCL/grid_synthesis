@@ -360,7 +360,7 @@ impl NumCast for Zroot2
         {
             return Some(Self
                         {
-                            0: given.to_i64().unwrap(),
+                            0: given.to_i128().unwrap(),
                             1: 0
                         });
         }

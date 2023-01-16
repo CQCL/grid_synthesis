@@ -6,6 +6,7 @@ use crate::algorithms::local_prime_factorization::prime_factorization_of_loc;
 use crate::algorithms::local_prime_factorization::find_quad_nonresidue;
 use crate::algorithms::local_prime_factorization::power_mod_p;
 use crate::algorithms::local_prime_factorization::compute_gcd;
+use crate::algorithms::local_prime_factorization::find_unit_square_root;
 
 
 use crate::structs::rings::Int;
@@ -17,6 +18,10 @@ use crate::structs::rings::local_ring::Local;
 use crate::structs::rings::special_values::onebyroot2loc;
 use crate::structs::rings::special_values::sqrt2loc;
 
+
+// Doubly positive test
+use crate::algorithms::inexact_synth::is_doubly_positive;
+
 type Loc = Local::<Zroot2>;
 
 // Random numbers
@@ -24,6 +29,7 @@ use rand::thread_rng;
 use rand::Rng;
 
 use num_traits::pow;
+use num_traits::Pow;
 use num_traits::One;
 use num_traits::Zero;
 
@@ -45,6 +51,7 @@ pub fn generate_random_prime(N : Int) -> Int
     return generate_random_prime(N);
 }
 
+#[test]
 pub fn testing_quad_nonresidue_function()
 {
     let p = generate_random_prime(4000);
@@ -294,8 +301,70 @@ pub fn testing_prime_factorization_in_loc()
 
 
 
+
+#[test]
+pub fn unit_sqrt2_test()
+{
+
+    let gen = Zroot2(-1,1);
+    // Does not work for larger powers bigger than 35
+    for k in 0..35
+    {
+        let input = pow(gen,k);
+        if k%2 == 0
+        {
+            // println!("Value of k = {}",k );
+            let sqrtgen = find_unit_square_root(input).unwrap();
+            assert_eq!(sqrtgen * sqrtgen , input ); 
+        }
+        else
+        {
+            assert!(!is_doubly_positive( Loc::from_base(input) ) );
+        }
+    }
+    
+    let gen = Zroot2(1,1);
+    // Does not work for larger powers bigger than 22
+    for k in 0..22
+    {
+        let input = pow(gen,k);
+        if k%2 == 0
+        {
+            // println!("Value of k = {}",k );
+            let sqrtgen = find_unit_square_root(input).unwrap();
+            assert_eq!(sqrtgen * sqrtgen , input ); 
+        }
+        else
+        {
+            // println!("Value of k = {}",k );
+            // println!("Checking doubly positive condition");
+            assert!(!is_doubly_positive( Loc::from_base(input) ) );
+        }
+    }
+
+
+}
+
+
+#[test]
 pub fn testing_if_sum_of_locs_work()
 {
-    attempt_to_write_this_number_as_sum_of_two_squares_in_loc( sqrt2loc());
-    todo!();
+
+    let mut rng = thread_rng();
+
+    let mut u1 = Loc::from_base(Zroot2(rng.gen_range(-1000..1000),rng.gen_range(-1000..1000)));
+    let mut u2 = Loc::from_base(Zroot2(rng.gen_range(-1000..1000),rng.gen_range(-1000..1000)));
+    
+    let random_exponent : LogDepInt = rng.gen_range(-100..100);
+    u1.log_den += random_exponent;
+    
+    let random_exponent : LogDepInt = rng.gen_range(-100..100);
+    u2.log_den += random_exponent;
+
+    // attempt_to_write_this_number_as_sum_of_two_squares_in_loc( Loc::one());
+    // attempt_to_write_this_number_as_sum_of_two_squares_in_loc( sqrt2loc() - Loc::one() );
+    attempt_to_write_this_number_as_sum_of_two_squares_in_loc( sqrt2loc()  );
+    // attempt_to_write_this_number_as_sum_of_two_squares_in_loc(u1*u1 + u2*u2);
 }
+
+

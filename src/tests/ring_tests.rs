@@ -333,10 +333,10 @@ pub fn random_local_arithmetic()
 
     type Loc = Local::<Zroot2>;
     let mut rng = thread_rng();
-    let u1 :i64 = rng.gen_range(-1000..1000);
-    let u2 :i64 = rng.gen_range(-1000..1000);
-    let v1 :i64 = rng.gen_range(-1000..1000);
-    let v2 :i64 = rng.gen_range(-1000..1000);
+    let u1 :Int  = rng.gen_range(-1000..1000);
+    let u2 :Int  = rng.gen_range(-1000..1000);
+    let v1 :Int  = rng.gen_range(-1000..1000);
+    let v2 :Int  = rng.gen_range(-1000..1000);
     let uzrt2 = Zroot2( u1, u2);
     let vzrt2 = Zroot2( v1, v2);
 
@@ -420,10 +420,10 @@ pub fn testing_euclidean_division_in_zroot2_randomly()
 {
 
     let mut rng = thread_rng();
-    let u1 :i64 = rng.gen_range(-1000..1000);
-    let u2 :i64 = rng.gen_range(-1000..1000);
-    let v1 :i64 = rng.gen_range(-1000..1000);
-    let v2 :i64 = rng.gen_range(-1000..1000);
+    let u1 :Int = rng.gen_range(-1000..1000);
+    let u2 :Int = rng.gen_range(-1000..1000);
+    let v1 :Int = rng.gen_range(-1000..1000);
+    let v2 :Int = rng.gen_range(-1000..1000);
 
     let u = Zroot2(u1,u2);
     let v = Zroot2(v1,v2);

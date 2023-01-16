@@ -18,7 +18,9 @@ use std::ops::Rem;
 use prime_factorization::Factorization;
 
 
+
 use crate::structs::rings::Int; 
+use crate::structs::rings::Float; 
 use crate::structs::rings::LogDepInt; 
 use crate::structs::rings::LocalizableNorm; 
 use crate::structs::rings::local_ring::Local; 
@@ -29,6 +31,8 @@ use crate::structs::rings::special_values::onebyroot2loc;
 use crate::structs::rings::special_values::omega;
 use crate::structs::rings::special_values::iota_zomega;
 use crate::structs::rings::special_values::sqrt2_zomega;
+
+use crate::algorithms::inexact_synth::SQRT2;
 
 type Loc = Local::<Zroot2>;
 
@@ -226,33 +230,73 @@ pub fn legendre_symbol(a: Int,p: Int) -> Int
 pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  -> Option::<(Loc,Loc)>
 {
     
+    println!("Input is {}", our_num);
+
     if our_num.is_zero()
     {
         return Some((Loc::zero(), Loc::zero() ) );
 
     }
 
-
     let factorvec = prime_factorization_of_loc(our_num);
+
+    
 
     let mut output = Zomega::one();
 
+    // Let us find the unit that is missing in the prime factorization
+    let mut without_unit = Loc::one();
+
+
+    // This is just to take care of the unit first
+    // The referencing dereferencing here is part of Rust's wierdness
+    // Iterating over an array spends ownership
+    for (prime, locprime,power) in &factorvec
+    {
+
+        if *prime!= 2
+        {
+            without_unit = without_unit * pow( *locprime, ( *power ).try_into().unwrap() );
+        }
+        else
+        {
+            if power >= &0
+            {
+                without_unit = without_unit * pow(sqrt2loc() , ( *power ).try_into().unwrap() );
+            }
+            else
+            {
+                without_unit = without_unit / pow(sqrt2loc() , (- *power).try_into().unwrap() );
+            }
+        }
+    }
+    let mut unit = our_num/without_unit;
+
+
+
+    // To be mutliplied later
     let mut power_of_sqrt2 = 0;
 
 
     for (prime, locprime,power) in factorvec
     {
+        println!("power is {}", power );
         if power%2==1
         {
             if prime==2
             {
+
+                println!(" Thinking about prime {}", prime );
+
                 if power >= 0 
                 {
-                    let delta = Zomega::one() + omega();
+                    let delta = Zomega(1,1,0,0);
                     let deltapower = pow(delta , power.try_into().unwrap() );
 
+                    println!("deltapower = {}", deltapower );
                     output= output * deltapower;
                 }
+
                 else if power < 0
                 {
                     
@@ -305,9 +349,7 @@ pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  
                 // END OF DEBUG ZONE
 
                 let eta = Zomega::from_zroot2(locprime.num);
-
                 let t = compute_gcd(eta, uzomega + iota*sqrt2);
-
                 let t_power = pow(t, power.try_into().unwrap() );
 
                 output = output * t_power;
@@ -345,16 +387,30 @@ pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  
         }
     }
 
-    
-    let left = output.real_part();
-    let right = output.imag_part();
+    let mut left = output.real_part();
+    let mut right = output.imag_part();
+
+    // Time to take care of that unit
+    let zrt2_sqrt_unit = find_unit_square_root(unit.num);
+
+    // To be honest, if our_num is doubly positive,
+    // there should exist a square root of the unit
+    if zrt2_sqrt_unit != None
+    {
+        output = output * Zomega::from_zroot2(zrt2_sqrt_unit.unwrap());
+    }
+    else
+    {
+        return None;
+    }
+
+    left.log_den = left.log_den + power_of_sqrt2;
+    right.log_den = right.log_den + power_of_sqrt2;
+
+    println!(" left, right are {},{}",left, right );
     
     if left*left + right*right != our_num
     {
-        // println!("Norm of our_num: {}", our_num.norm());
-        // println!("Norm of left: {}", right.norm());
-        // println!("Norm of left: {}", left.norm());
-        // println!("Norm of left: {}", right.norm());
         panic!("We are not quite there");
     }
 
@@ -388,26 +444,26 @@ pub fn prime_factorization_of_loc( input: Local::<Zroot2> ) -> Vec::<( FactorInt
     }
 
 
-    // println!("---- ENTERING FOR LOOP {} TIMES ----- ",factorvec.len() );
     for (prime,power) in factorvec
     {
         // These are the cases where the prime in Z remains a prime in Zroot2
         if prime%8==3 || prime%8==5
         {
 
-            // println!("------- THIS IS INERT PRIME  ------------");
+            // This is an inert prime when lifting from Z to Z[sqrt2]
             let primeloc = <Loc as NumCast >::from(prime).unwrap();
             let powerby2 = (power >> 1);
             factorvecloc.push( (prime,primeloc,powerby2.try_into().unwrap() ) );
         }
+
         // if prime is not 3,5 modulo 8, then it is 1,7 modulo 8
-        // These are the cases where the prime in Z splits into two primes
+        // These are the cases where the prime in Z splits into two primes in Z[sqrt2]
         else
         {
-            // println!("------- THIS IS SPLIT PRIME  ------------");
             // As suggested in the preprint
             // we have primeloc = gcd(prime,x^2+2)
             // where x is a square root of -2 mod p
+            
             let p = < Zroot2 as NumCast>::from(prime).unwrap();
             let pint = prime as Int;
 
@@ -432,9 +488,55 @@ pub fn prime_factorization_of_loc( input: Local::<Zroot2> ) -> Vec::<( FactorInt
 
     // println!("------- RETURNING THE VECTOR ------------");
     return factorvecloc;
-
 }
 
 
 
+pub fn find_unit_square_root( unit : Zroot2) -> Option::<Zroot2>
+{
+    let x0 = unit.0 as Float;
+    let x1 = unit.1 as Float;
 
+    let r1 = x0 + SQRT2 * x1;
+    let r2 = x0 - SQRT2 * x1;
+
+    
+    if r1 >= 0.0 && r2 >= 0.0
+    {
+        if r1 >= 1.0
+        {
+            let base = SQRT2 + 1.0;
+            let mut power = r1.log(base).round() as LogDepInt;
+            
+            // DEBUG ZONE 
+            // if power % 2 !=0 || power < 0
+            // {
+            //     panic!("Something's not right");
+            // }
+            // END OF DEBUG ZONE
+
+            return Some( pow( Zroot2(1,1) , ( power >> 1 ).try_into().unwrap()  ) );
+
+        }
+        else 
+        {
+
+            let base = SQRT2 + 1.0;
+            let mut power = r2.log(base).round() as LogDepInt;
+            
+            // DEBUG ZONE 
+            // if power % 2 !=0 || power < 0
+            // {
+            //     panic!("Something's not right");
+            // }
+            // END OF DEBUG ZONE
+
+            return Some( pow( Zroot2(1,-1) , ( power >> 1 ).try_into().unwrap()  ) );
+        }
+        
+    }
+    else 
+    {
+        return None;
+    }
+}

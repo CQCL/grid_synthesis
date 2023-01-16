@@ -26,7 +26,7 @@ use nalgebra::linalg::QR;
 
 // This will be rounded down to 64 or 128 bits
 // For bigger float, add more digits please
-const SQRT2:Float = 1.414213562373095048801688724209698078569671875376948073176679737990732478462;
+pub const SQRT2:Float = 1.414213562373095048801688724209698078569671875376948073176679737990732478462;
 
 type Comp = num_complex::Complex<Float>;
 type Loc = Local::<Zroot2>;
@@ -225,6 +225,28 @@ pub fn make_exact_gate_from(left: Loc ,right: Loc, left_scaled: Loc, right_scale
 }
 
 
+pub fn is_doubly_positive( num : Loc) -> bool
+{
+    let x = num.num;
+
+    let x0 = x.0 as Float;
+    let x1 = x.1 as Float;
+
+    let r1 = x0 + SQRT2 * x1;
+    let r2 = x0 - SQRT2 * x1;
+
+    if r1 >= 0.0 && r2 >= 0.0
+    {
+        return true;
+    }
+    else 
+    {
+        return false
+    }
+
+
+}
+
 // collection.push(Vec4Int::new( i1, i2, i3, i4));
 // Return a complete unitary, if it can be returned
 // Else return none
@@ -260,6 +282,14 @@ pub fn attempt_to_figure_out_gate_given_that_this_point_is_feasible( this_point:
         let our_num = Loc::one() - left_scaled*left_scaled - right_scaled*right_scaled;
 
 
+        // preliminary test before sending off to computationally expensive prime numbers
+        // Based on Lemma 6.1 of 1403.2975
+        if (! is_doubly_positive( our_num )) 
+        {
+            // println!("DOUBLY POSITIVE TEST FAILED FOR {}",our_num );
+            return None;
+        }
+
         let sum_of_square = attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num);
 
         if sum_of_square != None
@@ -268,7 +298,8 @@ pub fn attempt_to_figure_out_gate_given_that_this_point_is_feasible( this_point:
             return Some(make_exact_gate_from(left,right,left_scaled,right_scaled));
         }
         else
-        {
+        {   
+            // Nothing to check
             return None;
         }
 

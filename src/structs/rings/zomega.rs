@@ -167,7 +167,7 @@ impl NumCast for Zomega
         {
             return Some(Self
                         {
-                            0: given.to_i64().unwrap(),
+                            0: given.to_i128().unwrap(),
                             1: 0,
                             2: 0,
                             3: 0

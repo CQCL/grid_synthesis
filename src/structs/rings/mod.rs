@@ -1,8 +1,12 @@
 #![allow(warnings)]
 
-pub type Int = i64;
+pub type Int = i128;
 pub type LogDepInt = i32;
 pub type Float = f64;
+// Possible to migrate it to f128
+// Will need some debugging
+// pub type Float = f128::f128;
+
 
 // Supertrait
 // They become various conjugation operators on our rings
