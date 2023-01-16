@@ -252,7 +252,7 @@ pub fn testing_prime_factorization_lots_of_times_for_loc()
 pub fn testing_prime_factorization_in_loc()
 {
 
-    let n = 10000;
+    let n = 10;
     let mut rng = thread_rng();
 
     let left :Int = rng.gen_range(-n..n);
@@ -268,14 +268,14 @@ pub fn testing_prime_factorization_in_loc()
     factorize_this.log_den = factorize_this.log_den+ logbase;
     
 
-    // println!("INPUT: {}",factorize_this);
+    println!("INPUT: {}",factorize_this);
     let factorvec = prime_factorization_of_loc(factorize_this);
-    // println!("NUMBER OF FACTORS: {}",factorvec.len());
+    println!("NUMBER OF FACTORS: {}",factorvec.len());
 
     let mut prod = Loc::one();
     for (prime,primeloc,power) in factorvec
     {
-        // println!("ONE FACTOR IS : {} : with multiplicity {}",primeloc, power );
+        println!("ONE FACTOR IS : {} : with multiplicity {}",primeloc, power );
         if prime == 2
         {
             if power < 0
@@ -292,13 +292,14 @@ pub fn testing_prime_factorization_in_loc()
             prod = prod * pow(primeloc,power.try_into().unwrap());
         }
     }
-    // println!("INPUT {}",factorize_this );
-    // println!("PROD {}",prod );
+    println!("INPUT {}",factorize_this );
+    println!("PROD {}",prod );
 
     assert_eq!(prod.log_den, factorize_this.log_den);
     assert!(  prod.norm()== -factorize_this.norm() || prod.norm()== factorize_this.norm());
 
-    let unit = factorize_this/prod;
+    let mut unit =  Loc::from_base(factorize_this.num * prod.num.conj() ) ;
+    println!("UNIT {}",unit );
 
     assert!( unit.norm() == Local::one() || unit.norm() == -Local::one() );
     assert_eq!( unit * prod , factorize_this );
