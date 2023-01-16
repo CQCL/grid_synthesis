@@ -38,7 +38,7 @@ use std::fmt::Formatter;
 
 // Ring of numbers of the form a+b\omega+c\omega^2+d\omega^3
 // where \omega is the eighth root of unity
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug,Copy, Clone)]
 pub struct Zomega(pub Int, pub Int, pub Int, pub Int); 
 
 

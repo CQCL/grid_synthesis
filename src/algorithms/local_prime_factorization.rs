@@ -75,20 +75,20 @@ pub fn power_mod_p(xorig: Int, m: Int, p: Int ) -> Int
     let mut x = xorig%p;
     let mut n = m ;
 
-    if x==0
+    if x==Int::zero()
     {
         // println!("------ ZERO HERE ------ ");
-        return 0;
+        return Int::zero();
     }
 
-    if p==0
+    if p==Int::zero()
     {
-        return 0;
+        return Int::zero();
     }
 
-    while n > 0 
+    while n > Int::zero() 
     {
-        if n & 1 == 1 
+        if n & Int::one() == Int::one()
         {
             result *= x;
             result = result %p;
@@ -280,13 +280,14 @@ pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  
 
     for (prime, locprime,power) in factorvec
     {
+        println!(" Thinking about prime {}", prime );
         println!("power is {}", power );
+
         if power%2==1
         {
             if prime==2
             {
 
-                println!(" Thinking about prime {}", prime );
 
                 if power >= 0 
                 {
@@ -353,8 +354,7 @@ pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  
                 let t_power = pow(t, power.try_into().unwrap() );
 
                 output = output * t_power;
-            }
-            else
+            } else
             {
                 return None;
             }
@@ -403,6 +403,8 @@ pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  
     {
         return None;
     }
+
+    println!("zrt2_sqrt_unit = {}", zrt2_sqrt_unit.unwrap());
 
     left.log_den = left.log_den + power_of_sqrt2;
     right.log_den = right.log_den + power_of_sqrt2;
@@ -501,6 +503,7 @@ pub fn find_unit_square_root( unit : Zroot2) -> Option::<Zroot2>
     let r2 = x0 - SQRT2 * x1;
 
     
+    let lambda = crate::structs::rings::special_values::sqrt2plus1();
     if r1 >= 0.0 && r2 >= 0.0
     {
         if r1 >= 1.0
@@ -515,13 +518,14 @@ pub fn find_unit_square_root( unit : Zroot2) -> Option::<Zroot2>
             // }
             // END OF DEBUG ZONE
 
-            return Some( pow( Zroot2(1,1) , ( power >> 1 ).try_into().unwrap()  ) );
+            return Some( pow( lambda , ( power >> 1 ).try_into().unwrap()  ) );
 
         }
         else 
         {
 
             let base = SQRT2 + 1.0;
+
             let mut power = r2.log(base).round() as LogDepInt;
             
             // DEBUG ZONE 
@@ -531,7 +535,7 @@ pub fn find_unit_square_root( unit : Zroot2) -> Option::<Zroot2>
             // }
             // END OF DEBUG ZONE
 
-            return Some( pow( Zroot2(1,-1) , ( power >> 1 ).try_into().unwrap()  ) );
+            return Some( pow( Zroot2(-1,1), ( power >> 1 ).try_into().unwrap()  ) );
         }
         
     }

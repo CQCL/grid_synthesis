@@ -248,7 +248,7 @@ pub fn testing_prime_factorization_lots_of_times_for_loc()
 }
 
 
-// #[test]
+#[test]
 pub fn testing_prime_factorization_in_loc()
 {
 
@@ -297,6 +297,11 @@ pub fn testing_prime_factorization_in_loc()
 
     assert_eq!(prod.log_den, factorize_this.log_den);
     assert!(  prod.norm()== -factorize_this.norm() || prod.norm()== factorize_this.norm());
+
+    let unit = factorize_this/prod;
+
+    assert!( unit.norm() == Local::one() || unit.norm() == -Local::one() );
+    assert_eq!( unit * prod , factorize_this );
 }
 
 
@@ -352,8 +357,10 @@ pub fn testing_if_sum_of_locs_work()
 
     let mut rng = thread_rng();
 
-    let mut u1 = Loc::from_base(Zroot2(rng.gen_range(-1000..1000),rng.gen_range(-1000..1000)));
-    let mut u2 = Loc::from_base(Zroot2(rng.gen_range(-1000..1000),rng.gen_range(-1000..1000)));
+    let m = 100;
+
+    let mut u1 = Loc::from_base(Zroot2(rng.gen_range(-m..m),rng.gen_range(-m..m)));
+    let mut u2 = Loc::from_base(Zroot2(rng.gen_range(-m..m),rng.gen_range(-m..m)));
     
     let random_exponent : LogDepInt = rng.gen_range(-100..100);
     u1.log_den += random_exponent;
@@ -363,8 +370,8 @@ pub fn testing_if_sum_of_locs_work()
 
     // attempt_to_write_this_number_as_sum_of_two_squares_in_loc( Loc::one());
     // attempt_to_write_this_number_as_sum_of_two_squares_in_loc( sqrt2loc() - Loc::one() );
-    attempt_to_write_this_number_as_sum_of_two_squares_in_loc( sqrt2loc()  );
-    // attempt_to_write_this_number_as_sum_of_two_squares_in_loc(u1*u1 + u2*u2);
+    // attempt_to_write_this_number_as_sum_of_two_squares_in_loc( sqrt2loc()  );
+    attempt_to_write_this_number_as_sum_of_two_squares_in_loc(u1*u1 + u2*u2);
 }
 
 

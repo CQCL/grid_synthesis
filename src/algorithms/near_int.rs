@@ -1,4 +1,5 @@
 use crate::structs::rings::Int;
+use num_traits::Zero;
 
 
 
@@ -6,21 +7,20 @@ use crate::structs::rings::Int;
 // Return closest integer to top/bottom
 // Will send halfs to the ceiling
 // Probably shouldn't matter
-// TODO: Optimize this function
 pub fn nearest_integer(top :Int, bottom: Int) -> Int
 {
-    if bottom == 0
+    if bottom == Int::zero()
     {
         panic!("What do you think?");
     }
-    else if top ==0
+    else if top ==Int::zero()
     {
-        return 0;
+        return Int::zero();
     }
-    else if ( top > 0 && bottom > 0 )     
+    else if ( top > Int::zero() && bottom > Int::zero() )     
     { 
         let twice = (top << 1)/bottom;
-        if twice%2==0
+        if twice%2==Int::zero()
         {
             return twice>>1;
         }
@@ -30,11 +30,11 @@ pub fn nearest_integer(top :Int, bottom: Int) -> Int
         }
 
     }
-    else if ( top < 0 && bottom < 0 ) 
+    else if ( top < Int::zero() && bottom < Int::zero() ) 
     {
         return nearest_integer(-top, -bottom);
     }
-    else if ( top > 0 && bottom < 0 ) 
+    else if ( top > Int::zero() && bottom < Int::zero() ) 
     {
         return -nearest_integer(top, -bottom);
     }

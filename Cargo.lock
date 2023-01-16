@@ -51,6 +51,7 @@ name = "grid_synthesis"
 version = "0.1.0"
 dependencies = [
  "nalgebra",
+ "num",
  "num-complex",
  "num-traits",
  "prime_factorization",

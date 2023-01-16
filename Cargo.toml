@@ -10,6 +10,7 @@ authors = ["Nihar Gargava <nihargargava@gmail.com>"]
 
 # For rings
 # f128 = "0.2.9"
+num = "0.4"
 num-complex = "0.4"
 num-traits = "0.2"
 

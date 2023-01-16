@@ -1,4 +1,5 @@
 use crate::structs::rings::local_ring::Local;
+use crate::structs::rings::Int;
 use crate::structs::rings::zroot2::Zroot2;
 use crate::structs::rings::zomega::Zomega;
 use num_complex::Complex;
@@ -104,4 +105,15 @@ pub fn sqrtminus1() -> Comp
         re: Loc::zero(),
         im: Loc::one(),
     }
+}
+
+
+
+pub fn sqrt2plus1() -> Zroot2
+{
+    return Zroot2{
+        0: Int::one(),
+        1: Int::one(),
+    };
+
 }
