@@ -258,7 +258,7 @@ where T: Display+PartialEq,
         }        
         else if self.log_den<0  
         { 
-            if self.num== T::zero()
+            if self.num== T::one()
             {
                 write!(f,"√2^({})",-self.log_den)
             }

@@ -120,7 +120,7 @@ pub fn produce_random_grid_paramters() -> GridParams
     let (x,y) = random_points_on_2d_circle();
 
     let rand_comp = Comp{re:x,im:y};
-    let epsilon: Float = rng.gen_range( 0.0000000000001..0.2 );
+    let epsilon: Float = rng.gen_range( 0.0000000000001..0.002 );
     return (rand_comp, epsilon);
 
 
@@ -236,7 +236,17 @@ pub fn generate_random_4by4_matrix() -> Mat4
     return out;
 }
 
+#[test]
+pub fn random_inexact_synth_test()
+{
+    let (direction,epsilon) = produce_random_grid_paramters();
 
+    println!("(direction ,epsilon) = ({},{})",direction,epsilon );
+
+    let answer = grid_problem(direction,epsilon);
+    println!("{}",answer );
+
+}
 
 
 

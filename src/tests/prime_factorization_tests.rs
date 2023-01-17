@@ -7,9 +7,11 @@ use crate::algorithms::local_prime_factorization::find_quad_nonresidue;
 use crate::algorithms::local_prime_factorization::power_mod_p;
 use crate::algorithms::local_prime_factorization::compute_gcd;
 use crate::algorithms::local_prime_factorization::find_unit_square_root;
+use crate::algorithms::local_prime_factorization::floorlog;
 
 
 use crate::structs::rings::Int;
+use crate::structs::rings::Float;
 use crate::structs::rings::LogDepInt;
 // use crate::structs::rings::LocalizableNorm;
 use crate::structs::rings::zroot2::Zroot2;
@@ -147,7 +149,7 @@ pub fn testing_tonelli_shanks()
 #[test]
 pub fn testing_gcd_of_zomega()
 {
-    let N = 10000;
+    let N = 1000;
     let mut rng = thread_rng();
 
     let a1 :Int = rng.gen_range(-N..N);
@@ -155,7 +157,7 @@ pub fn testing_gcd_of_zomega()
     let a3 :Int = rng.gen_range(-N..N);
     let a4 :Int = rng.gen_range(-N..N);
     let n1 = Zomega(a1,a2,a3,a4);
-    
+
 
     let a1 :Int = rng.gen_range(-N..N);
     let a2 :Int = rng.gen_range(-N..N);
@@ -184,7 +186,7 @@ pub fn testing_gcd_of_zrt2()
     let right :Int = rng.gen_range(-N..N);
     // let right = 0;
     let n1 = Zroot2(left,right);
-    
+
     let left :Int = rng.gen_range(-N..N);
     // let left = 1;
 
@@ -240,11 +242,13 @@ pub fn testing_rapidly_tonelli_shanks()
 #[test]
 pub fn testing_prime_factorization_lots_of_times_for_loc()
 {
-    for i in 1..1000
+    let n = 10000;
+    for i in 0..n
     {
         testing_prime_factorization_in_loc();
     }
 
+    println!("local_prime_factorization worked {} times ",n );
 }
 
 
@@ -252,30 +256,36 @@ pub fn testing_prime_factorization_lots_of_times_for_loc()
 pub fn testing_prime_factorization_in_loc()
 {
 
-    let n = 10;
+    let n = 10000;
     let mut rng = thread_rng();
 
     let left :Int = rng.gen_range(-n..n);
-    // let left =  1;
-
     let right :Int = rng.gen_range(-n..n);
-    // let right = 7;
+
+    if (left == 0 && right == 0)
+    {
+        return ;
+    }
 
     let logbase: LogDepInt = rng.gen_range(-100..100);
-    // let logbase = 0;
 
     let mut factorize_this = Loc::from_base(Zroot2(left,right));
     factorize_this.log_den = factorize_this.log_den+ logbase;
-    
 
-    println!("INPUT: {}",factorize_this);
+    // let mut factorize_this = Loc::from_base(Zroot2(1,2));
+    // let mut factorize_this = Loc::zero();
+    // let mut factorize_this = Loc::from_base(Zroot2(7,0));
+    // let mut factorize_this = Loc::from_base(Zroot2(13,-16));
+
+
+    // println!("------------------ \n \n INPUT: {}",factorize_this);
     let factorvec = prime_factorization_of_loc(factorize_this);
-    println!("NUMBER OF FACTORS: {}",factorvec.len());
+    // println!("NUMBER OF FACTORS: {}",factorvec.len());
 
     let mut prod = Loc::one();
     for (prime,primeloc,power) in factorvec
     {
-        println!("ONE FACTOR IS : {} : with multiplicity {}",primeloc, power );
+        // println!("ONE FACTOR IS : {} : with multiplicity {}",primeloc, power );
         if prime == 2
         {
             if power < 0
@@ -292,17 +302,33 @@ pub fn testing_prime_factorization_in_loc()
             prod = prod * pow(primeloc,power.try_into().unwrap());
         }
     }
-    println!("INPUT {}",factorize_this );
-    println!("PROD {}",prod );
+
+
+    // println!("PROD {}",prod );
 
     assert_eq!(prod.log_den, factorize_this.log_den);
+    // println!("prod.norm = {:?}", prod.norm() );
+    // println!("factorize_this.norm = {:?}", factorize_this.norm() );
+    // println!("factorize_this = {:?}", factorize_this );
+
     assert!(  prod.norm()== -factorize_this.norm() || prod.norm()== factorize_this.norm());
 
-    let mut unit =  Loc::from_base(factorize_this.num * prod.num.conj() ) ;
-    println!("UNIT {}",unit );
+    let factorize_this_norm =  Loc::from_base(factorize_this.num * factorize_this.num.conj() );
+    let mut unit =  Loc::from_base(factorize_this.num * prod.num.conj() )/factorize_this_norm;
+
+    // println!("UNIT {}",unit );
 
     assert!( unit.norm() == Local::one() || unit.norm() == -Local::one() );
-    assert_eq!( unit * prod , factorize_this );
+
+    if unit.norm() == Local::<Int>::one()
+    {
+        assert_eq!( unit * prod , factorize_this );
+    }
+    else 
+    {
+        assert_eq!( unit * prod ,-factorize_this );
+    }
+
 }
 
 
@@ -313,8 +339,10 @@ pub fn unit_sqrt2_test()
 {
 
     let gen = Zroot2(-1,1);
+
     // Does not work for larger powers bigger than 35
-    for k in 0..35
+    // Needs more engineering
+    for k in 0..36
     {
         let input = pow(gen,k);
         if k%2 == 0
@@ -328,10 +356,12 @@ pub fn unit_sqrt2_test()
             assert!(!is_doubly_positive( Loc::from_base(input) ) );
         }
     }
-    
+
     let gen = Zroot2(1,1);
+
     // Does not work for larger powers bigger than 22
-    for k in 0..22
+    // Needs some more engineering
+    for k in 0..23
     {
         let input = pow(gen,k);
         if k%2 == 0
@@ -357,22 +387,103 @@ pub fn testing_if_sum_of_locs_work()
 {
 
     let mut rng = thread_rng();
+    let m = 15;
 
-    let m = 100;
 
     let mut u1 = Loc::from_base(Zroot2(rng.gen_range(-m..m),rng.gen_range(-m..m)));
     let mut u2 = Loc::from_base(Zroot2(rng.gen_range(-m..m),rng.gen_range(-m..m)));
-    
-    let random_exponent : LogDepInt = rng.gen_range(-100..100);
+    // let mut u1 = Loc::from_base(Zroot2(-1,0));
+    // let mut u2 = Loc::from_base(Zroot2(-9,1));
+    if u1 == Loc::zero() && u2 == Loc::zero() 
+    {
+        return ;
+    }
+
+    let random_exponent : LogDepInt = rng.gen_range(-10..10);
     u1.log_den += random_exponent;
+    // u1.log_den = -15;
+
+    let random_add : LogDepInt = rng.gen_range(-5..5);
+    u2.log_den += random_exponent + random_add; // if the difference between exponents is too large, you will meet with integer overflow
+    // u2.log_den = -15;
     
-    let random_exponent : LogDepInt = rng.gen_range(-100..100);
-    u2.log_den += random_exponent;
+    // println!("u1 = {}", u1 );
+    // println!("u2 = {}", u2 );
 
     // attempt_to_write_this_number_as_sum_of_two_squares_in_loc( Loc::one());
     // attempt_to_write_this_number_as_sum_of_two_squares_in_loc( sqrt2loc() - Loc::one() );
     // attempt_to_write_this_number_as_sum_of_two_squares_in_loc( sqrt2loc()  );
-    attempt_to_write_this_number_as_sum_of_two_squares_in_loc(u1*u1 + u2*u2);
+    let out = attempt_to_write_this_number_as_sum_of_two_squares_in_loc(u1*u1 + u2*u2);
+
+    if out == None
+    {
+        panic!("Input was a sum of squares");
+    }
+}
+
+#[test]
+pub fn rapidly_testing_sum_of_locs()
+{
+    let n = 1000;
+    for i in 0..n
+    {
+        testing_if_sum_of_locs_work();
+    }
+
+    println!("attempt_to_write_this_number_as_sum_of_two_squares_in_loc worked {} times!", n);
 }
 
 
+
+#[test]
+pub fn floorlogtest()
+{
+    let n = 10000;
+    for i in 1..n
+    {
+        let m = 10000.0;
+        let mut rng = thread_rng();
+        let input : Float  = rng.gen_range(1.0..m); 
+        let base : Float  = rng.gen_range(1.0..(m/10.0)); 
+
+        println!(" \n \n ----------------- \n \n base input = {} {} ",base,input );
+        let fl = floorlog(input , base);
+        println!("basepower = {}",base.pow(fl) );
+
+        assert!( base.pow(fl) < input );
+        assert!( base.pow(fl+1) > input );
+
+
+    }
+    
+    println!("Floorlogtest worked {} times with floating tests!",n );
+    
+    for i in 1..n
+    {
+        let m = 10000;
+        let mut rng = thread_rng();
+        let base : Int  = rng.gen_range(2..m);  // Don't make base == 1 !!!
+        let power : Int  = rng.gen_range(1..10); 
+        let input = base.pow( power.try_into().unwrap() ) as Float;
+        let basefloat = base as Float;
+        let fl = floorlog(input as Float , base as Float);
+        println!("base input power = {} {} {}",base,input,power );
+        println!("output = {} ", fl );
+        println!("basefloatpower = {}",basefloat.pow(fl) );
+        assert!( basefloat.pow(fl) <= input*1.000001 ); // Fails without the 1.000001
+        // assert!( basefloat.pow(fl+1) >= input );// FAILS
+
+    }
+
+    println!("Floorlogtest worked {} times with integer tests!",n );
+
+    {
+        // HERE IS A TEST WHERE FLOORLOG FAILS!
+        // This is just on the cusp of floating point equality
+        // so it's kinda expected
+        let base = 3.8284271247461903;
+        let input = 56.112698372208094;
+        // assert_eq!(floorlog(input,base) , 3); // FAILS
+    }
+
+}

@@ -121,7 +121,7 @@ pub fn find_operator_norm(input : Mat4) -> Float
 
 pub fn extract_gate_coordinate_in_local_ring(integer_coords: Vec4Int) -> Option::<(Loc,Loc)>
 {
-    println!("attempting_to_figure_out with {}", integer_coords );
+    // println!("attempting_to_figure_out with {}", integer_coords );
 
     let zrt_left = Zroot2(integer_coords[0],integer_coords[1]);
     let zrt_right = Zroot2(integer_coords[2],integer_coords[3]);
@@ -330,6 +330,16 @@ pub fn consider( this_point: Vec4Int, exactlogdep: LogDepInt , ( direction_of_ro
 
 
 
+pub fn mat4int_to_mat4(input: Mat4Int) -> Mat4
+{
+    return Mat4::new(
+        input[(0,0)] as Float, input[(0,1)] as Float, input[(0,2)] as Float, input[(0,3)] as Float,
+        input[(1,0)] as Float, input[(1,1)] as Float, input[(1,2)] as Float, input[(1,3)] as Float,
+        input[(2,0)] as Float, input[(2,1)] as Float, input[(2,2)] as Float, input[(2,3)] as Float,
+        input[(3,0)] as Float, input[(3,1)] as Float, input[(3,2)] as Float, input[(3,3)] as Float,
+    );
+
+}
 
 
 pub fn round_mat4_to_int(input: Mat4) -> Mat4Int
@@ -473,7 +483,7 @@ pub fn grid_problem_given_depth( exactlogdep: LogDepInt , (direction, epsilon_a 
     //
     // This is conceptually the same as the grid operators that they find in the 
     // Ross-Selinger paper. There's no reason to reinvent this wheel though.
-    let reduced = lll_reduce(reducable);
+    let mut reduced = lll_reduce(reducable);
 
 
     // The description of the integer points changes when LLL is called
@@ -484,18 +494,25 @@ pub fn grid_problem_given_depth( exactlogdep: LogDepInt , (direction, epsilon_a 
     // follows
     //  (x_1 ,x_2 ,y_1, y_2 )  = lattice_new_to_standard * (x_1new , x_2new, y_1new, y_2new)
 
-    let lattice_new_to_standard_real = reducable.try_inverse().unwrap() * reduced;
-    let lattice_new_to_standard = round_mat4_to_int ( lattice_new_to_standard_real ); // THIS IS CRAP
+    let mut lattice_new_to_standard_real = reducable.try_inverse().unwrap() * reduced;
+    let lattice_new_to_standard = round_mat4_to_int ( lattice_new_to_standard_real ); 
+    
+    // TEST
+    lattice_new_to_standard_real = mat4int_to_mat4 ( lattice_new_to_standard );
+    reduced = reducable * lattice_new_to_standard_real;
+    // END OF TEST 
 
-    let lattice_standard_to_new_real = reduced.try_inverse().unwrap() * reducable;
+    let mut lattice_standard_to_new_real = reduced.try_inverse().unwrap() * reducable ; 
     let lattice_standard_to_new = round_mat4_to_int ( lattice_standard_to_new_real ); // THiS IS CRAP
 
-    // DEBUG ZONE
-    //
-    // println!("lattice_standard_to_new_real looks like : \n {}", lattice_new_to_standard_real );
-    // println!("lattice_new_to_standard_real looks like : \n {}", lattice_standard_to_new_real );
-    //
-    // END OF DEBUG ZONE
+     // DEBUG ZONE
+    
+     // println!("lattice_new_to_standard looks like : \n {}", lattice_new_to_standard_real );
+     println!("lattice_standard_to_new looks like : \n {}", lattice_standard_to_new_real );
+     println!("reduced {}",reduced );
+     println!("reducable {}",reducable );
+    
+     // END OF DEBUG ZONE
 
     // blow everything up by SQRT2 power exactlogdep
     let centerblownup = SQRT2.pow(exactlogdep)*center;
@@ -528,7 +545,7 @@ pub fn grid_problem_given_depth( exactlogdep: LogDepInt , (direction, epsilon_a 
     // DEBUG ZONE
     let integer_center_standard_coordinates = lattice_new_to_standard * integer_center_new_coordinates_int;
     let (complex_point, complex_point_dot_conj) = get_comp_point_from_integer_coord(integer_center_standard_coordinates, exactlogdep);
-    println!("Integer center was at {}", complex_point );
+    println!("Integer center is at {}", complex_point );
     // END OF DEBUG ZONE
 
 
@@ -558,7 +575,10 @@ pub fn grid_problem( direction: Comp, epsilon_a: Float)-> ExactUniMat
     let problem_parameters = ( direction, epsilon_a);
 
     let mut answer: Option::<ExactUniMat>;
-    for i in 0..5
+
+    let maxdepth = 8;
+
+    for i in 0..maxdepth
     {
 
         println!("--------------- \n \n ");

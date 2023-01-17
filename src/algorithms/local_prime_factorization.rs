@@ -230,48 +230,15 @@ pub fn legendre_symbol(a: Int,p: Int) -> Int
 pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  -> Option::<(Loc,Loc)>
 {
     
-    println!("Input is {}", our_num);
+    // println!("Input is {}", our_num);
 
     if our_num.is_zero()
     {
         return Some((Loc::zero(), Loc::zero() ) );
-
     }
 
     let factorvec = prime_factorization_of_loc(our_num);
-
-    
-
     let mut output = Zomega::one();
-
-    // Let us find the unit that is missing in the prime factorization
-    let mut without_unit = Loc::one();
-
-
-    // This is just to take care of the unit first
-    // The referencing dereferencing here is part of Rust's wierdness
-    // Iterating over an array spends ownership
-    for (prime, locprime,power) in &factorvec
-    {
-
-        if *prime!= 2
-        {
-            without_unit = without_unit * pow( *locprime, ( *power ).try_into().unwrap() );
-        }
-        else
-        {
-            if power >= &0
-            {
-                without_unit = without_unit * pow(sqrt2loc() , ( *power ).try_into().unwrap() );
-            }
-            else
-            {
-                without_unit = without_unit / pow(sqrt2loc() , (- *power).try_into().unwrap() );
-            }
-        }
-    }
-    let mut unit = our_num/without_unit;
-
 
 
     // To be mutliplied later
@@ -280,78 +247,87 @@ pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  
 
     for (prime, locprime,power) in factorvec
     {
-        println!(" Thinking about prime {}", prime );
-        println!("power is {}", power );
+        // println!(" Thinking about prime {}", prime );
+        // println!("power is {}", power );
+        // println!("power%2 is {}", power%2 );
+        // println!("locprime is {}", locprime );
 
-        if power%2==1
+        if power%2==1 || power%2==-1
         {
             if prime==2
             {
-
-
                 if power >= 0 
                 {
                     let delta = Zomega(1,1,0,0);
                     let deltapower = pow(delta , power.try_into().unwrap() );
 
-                    println!("deltapower = {}", deltapower );
+                    // println!("deltapower = {}", deltapower );
                     output= output * deltapower;
                 }
-
                 else if power < 0
                 {
                     
                     let delta = Zomega::one() + omega();
                     let deltapower = pow(delta , (-power).try_into().unwrap() );
+                    // println!("deltapower = {}", deltapower );
 
                     output= output * deltapower;
-
-                    power_of_sqrt2 = -power;
+                    power_of_sqrt2 = power;
                 }
             }
-            else if prime%4==1
+            else if prime%4==1 
             {
+                // this is the case when the prime splits in z[omega]
                 let pint = prime as Int;
                 let u = tonelli_shanks(pint - 1,pint);
                 
                 let uzomega = <Zomega as NumCast>::from(u).unwrap();
+
                 
                 let iota = iota_zomega();
 
                 // DEBUG ZONE
-                if locprime.log_den < 0
-                { 
-                    panic!("Unexpected behaviour");
-                }
+                // if locprime.log_den < 0
+                // { 
+                //     panic!("Unexpected behaviour");
+                // }
                 // END OF DEBUG ZONE
 
                 let eta = Zomega::from_zroot2(locprime.num);
 
                 let t = compute_gcd(eta,uzomega+iota);
                 let t_power = pow(t, power.try_into().unwrap() );
+                // println!("t_power {}",t_power );
+                // println!("t_powernorm {}",t_power.norm() );
                 
                 output = output * t_power;
 
             }
             else if prime%8==3
             {
+                // this is the case when the prime splits in z[omega]
+
                 let pint = prime as Int;
                 let u = tonelli_shanks( pint - 2, pint ) ;
 
                 let uzomega = <Zomega as NumCast>::from(u).unwrap();
+                
+
                 let sqrt2 = sqrt2_zomega();
                 let iota = iota_zomega();
                 
                 // DEBUG ZONE 
-                if locprime.log_den < 0
-                { 
-                    panic!("Unexpected behaviour");
-                }
+                // if locprime.log_den < 0
+                // { 
+                //     panic!("Unexpected behaviour");
+                // }
                 // END OF DEBUG ZONE
 
                 let eta = Zomega::from_zroot2(locprime.num);
                 let t = compute_gcd(eta, uzomega + iota*sqrt2);
                 let t_power = pow(t, power.try_into().unwrap() );
+
+                // println!("t_power {}",t_power );
 
                 output = output * t_power;
             } else
@@ -365,21 +341,28 @@ pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  
             if prime == 2
             {
                 power_of_sqrt2 = ( power >> 1 );
+                // println!("adjusting power_of_sqrt2 to {}", power_of_sqrt2);
             }
             else 
             {
                 let powerby2 = (power >> 1);
+
+                // println!("powerby2 {}", powerby2);
+                
+
                 let to_multiply = pow(locprime,powerby2.try_into().unwrap());
 
-
                 // Debug zone 
-                if locprime.log_den < 0
-                { 
-                    panic!("Unexpected behaviour");
-                }
+                // if locprime.log_den < 0
+                // { 
+                //     panic!("Unexpected behaviour");
+                // }
                 // End of debug zone
 
-                let zomega_mult = Zomega::from_zroot2(locprime.num);
+
+                let zomega_mult = Zomega::from_zroot2(to_multiply.num);
+
+                // println!("zomega_mult = {}", zomega_mult );
 
                 output = output * zomega_mult;
             }
@@ -387,8 +370,22 @@ pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  
         }
     }
 
+    // Would have given this as output, but must now take care of 
+    // 1. Unit
+    // 2. power_of_sqrt2
     let mut left = output.real_part();
     let mut right = output.imag_part();
+    
+    // Taking care of power_of_sqrt2
+    left.log_den = left.log_den - power_of_sqrt2;
+    right.log_den = right.log_den - power_of_sqrt2;
+
+    let sum_of_squares_upto_unit = left*left+right*right;
+
+    // println!("sum of squares upto unit {}",sum_of_squares_upto_unit );
+    let unit = our_num/sum_of_squares_upto_unit;
+    // println!("unit = {}", unit);
+
 
     // Time to take care of that unit
     let zrt2_sqrt_unit = find_unit_square_root(unit.num);
@@ -401,20 +398,29 @@ pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  
     }
     else
     {
+        panic!("Our unit was not decomposable! This is mathematically impossible if input was doubly positive. Imperfect floats are probably the reason");
         return None;
     }
 
-    println!("zrt2_sqrt_unit = {}", zrt2_sqrt_unit.unwrap());
-
-    left.log_den = left.log_den + power_of_sqrt2;
-    right.log_den = right.log_den + power_of_sqrt2;
-
-    println!(" left, right are {},{}",left, right );
+    // println!("zrt2_sqrt_unit = {}", zrt2_sqrt_unit.unwrap());
     
-    if left*left + right*right != our_num
-    {
-        panic!("We are not quite there");
-    }
+    // Final left right
+    left = output.real_part();
+    right = output.imag_part();
+    
+    // Taking care of power_of_sqrt2 again
+    left.log_den = left.log_den - power_of_sqrt2;
+    right.log_den = right.log_den - power_of_sqrt2;
+
+    // println!(" left, right are {},{}",left, right );
+    // println!(" sum of squares is {}",left*left+ right*right );
+
+    // DEGBUG ZONE
+    // if left*left + right*right != our_num
+    // {
+    //     panic!("We are not quite there");
+    // }
+    // END OF DEBUG ZONE
 
 
     return Some((left,right));
@@ -432,12 +438,13 @@ pub fn prime_factorization_of_loc( input: Local::<Zroot2> ) -> Vec::<( FactorInt
 {
 
     let num = input.num.norm().abs() as FactorInt;
-    
+
 
     // This line here can be replaced by any other prime factorization algorithm
     let factorvec = Factorization::run(num).prime_factor_repr();
-    
 
+    // Take care of powers of two here,
+    // they will be ignored in the for loop below
     let mut factorvecloc = vec!((2, sqrt2loc() , -input.log_den));
 
     if input.log_den == 0
@@ -465,25 +472,45 @@ pub fn prime_factorization_of_loc( input: Local::<Zroot2> ) -> Vec::<( FactorInt
             // As suggested in the preprint
             // we have primeloc = gcd(prime,x^2+2)
             // where x is a square root of -2 mod p
-            
+
             let p = < Zroot2 as NumCast>::from(prime).unwrap();
             let pint = prime as Int;
 
             let u = tonelli_shanks(2,pint);
             let x = Zroot2(u,1);
 
-            let primezr2 = compute_gcd(p,x);
-            let primeloc = Local::from_base(primezr2);
-            let primelocconj = Local::from_base(primezr2.conj());
+            let primezrt = compute_gcd(p,x);
+            let primezrtconj = primezrt.conj();
 
-            if p%primezr2 == Zroot2::zero()
+            let primezrtpowerininput = compute_gcd( input.num, pow(primezrt, power.try_into().unwrap() ) );
+            // let primezrtconjpowerininput = compute_gcd( input.num, pow(primezrtconj, power.try_into().unwrap() ) );
+
+            if primezrtpowerininput.norm().abs() != 1
             {
-                factorvecloc.push( (prime,primeloc,power.try_into().unwrap() ) );
+
+                let powerzrt = power_in_zrt2( primezrtpowerininput, primezrt);
+                let powerremaining = ( power as LogDepInt)  - powerzrt;
+
+                let primeloc = Local::from_base(primezrt);
+                let primelocconj = Local::from_base(primezrtconj);
+                if powerzrt > 0
+                {
+                    factorvecloc.push( (prime,primeloc,powerzrt.try_into().unwrap() ) );
+                }
+                if powerremaining > 0
+                {
+                    factorvecloc.push( (prime,primelocconj,powerremaining.try_into().unwrap() ) );
+                }
             }
             else
             {
-                factorvecloc.push( (prime,primeloc,power.try_into().unwrap() ) );
+                let primelocconj = Local::from_base(primezrtconj);
+                if power > 0
+                {
+                    factorvecloc.push( (prime,primelocconj,power.try_into().unwrap() ) );
+                }
             }
+
 
         }
     }
@@ -491,7 +518,6 @@ pub fn prime_factorization_of_loc( input: Local::<Zroot2> ) -> Vec::<( FactorInt
     // println!("------- RETURNING THE VECTOR ------------");
     return factorvecloc;
 }
-
 
 
 pub fn find_unit_square_root( unit : Zroot2) -> Option::<Zroot2>
@@ -502,15 +528,14 @@ pub fn find_unit_square_root( unit : Zroot2) -> Option::<Zroot2>
     let r1 = x0 + SQRT2 * x1;
     let r2 = x0 - SQRT2 * x1;
 
-    
     let lambda = crate::structs::rings::special_values::sqrt2plus1();
     if r1 >= 0.0 && r2 >= 0.0
     {
         if r1 >= 1.0
         {
             let base = SQRT2 + 1.0;
-            let mut power = r1.log(base).round() as LogDepInt;
-            
+            let mut power = floorlog(r1,base);
+
             // DEBUG ZONE 
             // if power % 2 !=0 || power < 0
             // {
@@ -526,8 +551,8 @@ pub fn find_unit_square_root( unit : Zroot2) -> Option::<Zroot2>
 
             let base = SQRT2 + 1.0;
 
-            let mut power = r2.log(base).round() as LogDepInt;
-            
+            let mut power = floorlog(r2,base);
+
             // DEBUG ZONE 
             // if power % 2 !=0 || power < 0
             // {
@@ -537,10 +562,47 @@ pub fn find_unit_square_root( unit : Zroot2) -> Option::<Zroot2>
 
             return Some( pow( Zroot2(-1,1), ( power >> 1 ).try_into().unwrap()  ) );
         }
-        
+
     }
     else 
     {
+        println!("x1 x2 were {} {}",x0,x1 );
+        println!("r1 r2 were {} {}",r1,r2 );
         return None;
     }
+}
+
+
+
+// Same thing as taking the log to the base and then floor
+// But this is less floating point intensive than the above
+pub fn floorlog( input: Float, base: Float) -> LogDepInt
+{
+    let mut out = 0;
+    let mut x = input.clone();
+    while (x >= base) 
+    {
+        out = out + 1;
+        x = x / base;
+    }
+    return out;
+
+}
+
+
+// WARNING: This function assumes that input is a perfect power of the base (upto unit)
+// It then finds the power
+pub fn power_in_zrt2(input: Zroot2, base : Zroot2) -> LogDepInt
+{
+    // An earlier implementation used floorlog
+    // But floating points suck when it comes comes to do this kind of stuff
+
+    let mut out = 0;
+    let mut x = input.clone();
+    while x % base == Zroot2::zero()
+    {
+        out = out + 1;
+        x = x / base
+    }
+    return out;
 }
