@@ -2,8 +2,12 @@ use crate::algorithms::lll::gram_schmidt_orthogonalization;
 use crate::algorithms::lll::swap_columns;
 use crate::algorithms::lll::nearest_plane;
 use crate::algorithms::lll::lll_reduce;
-use crate::algorithms::lll::size_reduce;
+use crate::algorithms::lll::size_reduce_given_gram_schmidt;
 use crate::algorithms::lll::lll_delta;
+use crate::algorithms::inexact_synth::vec4int_to_vec4float;
+use crate::algorithms::inexact_synth::mat4int_to_mat4;
+use crate::algorithms::inexact_synth::mat4int_inverse;
+
 
 
 
@@ -25,6 +29,13 @@ use rand::Rng;
 use crate::tests::inexact_synth_tests::two_float_equal_up_to_threshold;
 use crate::tests::inexact_synth_tests::generate_random_4by4_matrix;
 
+// function to test floating point equality 
+pub fn two_float_equal_up_to_given_threshold(left: Float, right: Float, epsilon :Float) -> bool
+{
+    return (left-right).abs() < epsilon;
+
+}
+#[test]
 pub fn nearest_plane_test_randomly()
 {
 
@@ -32,16 +43,19 @@ pub fn nearest_plane_test_randomly()
     let bstar = gram_schmidt_orthogonalization(random_lattice);
 
     let mut rng = thread_rng();
-    let a1: Float = rng.gen_range(-100.0..100.0);
-    let a2: Float = rng.gen_range(-100.0..100.0);
-    let a3: Float = rng.gen_range(-100.0..100.0);
-    let a4: Float = rng.gen_range(-100.0..100.0);
+    let r = 1.0; //range
+    let a1: Float = rng.gen_range(-r..r);
+    let a2: Float = rng.gen_range(-r..r);
+    let a3: Float = rng.gen_range(-r..r);
+    let a4: Float = rng.gen_range(-r..r);
 
     let random_vector = Vec4::new(a1,a2,a3,a4);
 
-    let output = nearest_plane(random_lattice, bstar,  random_vector);
+    let (output,intvec) = nearest_plane(random_lattice, bstar,  random_vector);
 
     let diff = random_vector - output;
+
+
     // println!("input is {}",random_vector );
     // println!("diff is {}",diff );
 
@@ -59,6 +73,14 @@ pub fn nearest_plane_test_randomly()
 
         // println!("dot/norm is {} for j = {}", dot/norm, j );
         assert!( (dot/norm).abs() <= 0.5 );
+    }
+
+    let test_vec =  random_lattice * vec4int_to_vec4float(intvec);
+
+    for k in 0..4
+    {
+        // println!("testing equality of {} {}",test_vec[k], output[k] );
+        assert!( two_float_equal_up_to_threshold( test_vec[k], output[k] ) );
     }
 }
 
@@ -145,8 +167,21 @@ pub fn random_size_reduced_test()
     for i in 0..n
     {
         let mat = generate_random_4by4_matrix();
-        let reduced = size_reduce(mat);
+        let matstar = gram_schmidt_orthogonalization(mat);
+        let (reduced,x) = size_reduce_given_gram_schmidt(mat,matstar);
         assert!(is_size_reduced(reduced));
+        // println!(" x {}", x);
+        // println!("mat {}", mat);
+        let recover = reduced * mat4int_to_mat4(x);
+
+
+        for j in 0..4
+        {
+            for k in 0..4
+            {
+                assert! ( two_float_equal_up_to_given_threshold( recover[(j,k)],mat[(j,k)], 0.000001) );
+            }
+        }
     }
 
     println!("size_reduce worked {} times!", n );
@@ -156,23 +191,34 @@ pub fn random_size_reduced_test()
 #[test]
 pub fn test_lll_reduction_rapidly() 
 {
-    let n = 1;
+    let n = 1000;
     for i in 0..n
     {
         let mat = generate_random_4by4_matrix();
-        let reduced = lll_reduce(mat);
-        
+        let (reduced,x) = lll_reduce(mat);
+
+
+        let test_mat = reduced * mat4int_to_mat4(x) ;
+
+        // The output matrices multiply to return the input matrix
+        for j in 0..4
+        {
+            for k in 0..4
+            {
+                assert! ( two_float_equal_up_to_given_threshold( test_mat[(j,k)],mat[(j,k)], 0.000001) );
+            }
+        }
+
         assert!(is_size_reduced(reduced));
         assert!(test_lovasz_condition(reduced));
 
 
-        let int_mat = mat.try_inverse().unwrap() * reduced;
-        println!("lattice automorphism is {}",int_mat );
-
+        let xinv = mat4int_inverse(x);
+        assert_eq!( xinv * x , Mat4Int::identity() );
     }
 
     println!("lll_reduce worked {} times!", n );
-    
+
 }
 
 pub fn test_lovasz_condition( b : Mat4) -> bool

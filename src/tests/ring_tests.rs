@@ -418,12 +418,13 @@ pub fn checking_that_nearest_int_works()
 #[test]
 pub fn testing_euclidean_division_in_zroot2_randomly()
 {
+    let r= 1000000000000000000; //range
 
     let mut rng = thread_rng();
-    let u1 :Int = rng.gen_range(-1000..1000);
-    let u2 :Int = rng.gen_range(-1000..1000);
-    let v1 :Int = rng.gen_range(-1000..1000);
-    let v2 :Int = rng.gen_range(-1000..1000);
+    let u1 :Int = rng.gen_range(-r..r);
+    let u2 :Int = rng.gen_range(-r..r);
+    let v1 :Int = rng.gen_range(-r..r);
+    let v2 :Int = rng.gen_range(-r..r);
 
     let u = Zroot2(u1,u2);
     let v = Zroot2(v1,v2);
@@ -440,21 +441,12 @@ pub fn testing_euclidean_division_in_zroot2_randomly()
 #[test]
 pub fn testing_randomly_euclidean_division_many_times()
 {
-    testing_euclidean_division_in_zroot2_randomly();
-    testing_euclidean_division_in_zroot2_randomly();
-    testing_euclidean_division_in_zroot2_randomly();
-    testing_euclidean_division_in_zroot2_randomly();
-    testing_euclidean_division_in_zroot2_randomly();
-    testing_euclidean_division_in_zroot2_randomly();
-    testing_euclidean_division_in_zroot2_randomly();
-    testing_euclidean_division_in_zroot2_randomly();
-    testing_euclidean_division_in_zroot2_randomly();
-    testing_euclidean_division_in_zroot2_randomly();
-    testing_euclidean_division_in_zroot2_randomly();
-    testing_euclidean_division_in_zroot2_randomly();
-    testing_euclidean_division_in_zroot2_randomly();
-    testing_euclidean_division_in_zroot2_randomly();
-    testing_euclidean_division_in_zroot2_randomly();
+    let m = 1000;
+    for i in 0..m
+    {
+        testing_euclidean_division_in_zroot2_randomly();
+    }
+    println!("Euclidean division worked {} times ", 1000 );
 }
 
 

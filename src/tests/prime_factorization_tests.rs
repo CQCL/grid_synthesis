@@ -177,7 +177,7 @@ pub fn testing_gcd_of_zomega()
 #[test]
 pub fn testing_gcd_of_zrt2()
 {
-    let N = 10000;
+    let N = 100000000000000;
     let mut rng = thread_rng();
 
     let left :Int = rng.gen_range(-N..N);

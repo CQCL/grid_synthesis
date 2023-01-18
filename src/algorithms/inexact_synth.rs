@@ -1,7 +1,7 @@
 // Will implement the Ross Selinger algorithm here
 // This is the content of 1403.2975v3 Section 7.3 on page 14
-  
-  
+
+
 use crate::structs::rings::Float;
 use crate::structs::rings::Int;
 use crate::structs::rings::local_ring::Local;
@@ -18,11 +18,16 @@ use crate::algorithms::local_prime_factorization::attempt_to_write_this_number_a
 use crate::algorithms::lll::nearest_plane;
 use crate::algorithms::lll::lll_reduce;
 use crate::algorithms::lll::gram_schmidt_orthogonalization;
-
+use crate::algorithms::exact_synth::exact_synth;
 
 use num_traits::Pow;
 use num_traits::One;
 use nalgebra::linalg::QR;
+
+
+// Random number generators
+use rand::thread_rng;
+use rand::Rng;
 
 // This will be rounded down to 64 or 128 bits
 // For bigger float, add more digits please
@@ -43,16 +48,16 @@ type Sunimatloc = SUniMat<Loc>;
 type GridParams = (Comp, Float);
 
 const integral_to_complex_mat: Mat4  = 
-        Mat4::new( 1.0 ,   SQRT2  , 0.0  , 0.0,
-            0.0 ,      0.0 , 1.0  ,  SQRT2 ,
-            1.0 ,  -SQRT2  , 0.0  , 0.0,
-            0.0 ,      0.0 , 1.0  , -SQRT2 );
+Mat4::new( 1.0 ,   SQRT2  , 0.0  , 0.0,
+    0.0 ,      0.0 , 1.0  ,  SQRT2 ,
+    1.0 ,  -SQRT2  , 0.0  , 0.0,
+    0.0 ,      0.0 , 1.0  , -SQRT2 );
 
 const complex_to_integral_mat: Mat4 = 
-        Mat4::new( 0.5      ,      0.0 , 0.5      ,       0.0 ,
-            0.5/SQRT2,      0.0 ,-0.5/SQRT2,       0.0 ,
-            0.0      ,      0.5 , 0.0      ,       0.5 ,
-            0.0      ,0.5/SQRT2 , 0.0      ,-0.5/SQRT2 );
+Mat4::new( 0.5      ,      0.0 , 0.5      ,       0.0 ,
+    0.5/SQRT2,      0.0 ,-0.5/SQRT2,       0.0 ,
+    0.0      ,      0.5 , 0.0      ,       0.5 ,
+    0.0      ,0.5/SQRT2 , 0.0      ,-0.5/SQRT2 );
 
 
 // See comments for output idea
@@ -98,7 +103,7 @@ pub fn ellipse_parameters_for_region_a(direction: Comp, epsilon_a: Float ) -> (C
     // todo!();
 
     let mut outputmatrix =  nalgebra::matrix![
-    c+e_1*e_1*(1.0-c)+sqrtc   , e_1*e_2*(1.0-c) ;
+        c+e_1*e_1*(1.0-c)+sqrtc   , e_1*e_2*(1.0-c) ;
     e_1*e_2*(1.0-c)  , c+e_2*e_2*(1.0-c)+sqrtc  ;
     ];
 
@@ -263,8 +268,8 @@ pub fn attempt_to_figure_out_gate_given_that_this_point_is_feasible( this_point:
     {
         let (left,right) = get_coord.unwrap();
 
-        println!("left = {}", left);
-        println!("right = {}", right);
+        // println!("left = {}", left);
+        // println!("right = {}", right);
 
 
         let left_scaled = Loc
@@ -466,107 +471,200 @@ pub fn generate_coordinates_and_center(direction : Comp , epsilon_a: Float) -> (
 
 
 
+
 // This is an implementation of Proposition 5.22
 // as in it does the job of Proposition 5.22
 // the way it does it is mostly Nihar's invention
-pub fn grid_problem_given_depth( exactlogdep: LogDepInt , (direction, epsilon_a ) : GridParams )-> Option::<ExactUniMat>
+pub fn grid_problem_given_depth( exactlogdep: LogDepInt, (direction,epsilon) :GridParams ) -> Option::<ExactUniMat>
 {
+    // Second attempt to write a function based on LLL
 
-    let (center, ellipse_matrix , radius ) = generate_coordinates_and_center(direction,epsilon_a);
+    // first obtain the 4d_ellipse_matrix
+    let ( ellipse_complex_coord_center, comp_to_4d_matrix, ellipse_4d_radius_squared) = generate_coordinates_and_center( direction, epsilon);
 
-    let reducable = ellipse_matrix * integral_to_complex_mat ;
+    // inflate the ellipse_4d_matrix
+    // This takes integers directly to 4d-space without any SQRT2 multiplications
+    let int_to_4d_space = comp_to_4d_matrix * integral_to_complex_mat * SQRT2.pow(-exactlogdep);
 
+    // lll-reduce the int_to_4d_space_matrix
+    // This creates a new basis for our integer lattice, and also carries the lattice change of
+    // coordinates needed
+    // Multiplying the two matrices here should give the int_to_4d_space
+    let ( new_int_to_4d_space, standard_int_to_new_int ) = lll_reduce( int_to_4d_space );
+    let new_int_to_standard_int = mat4int_inverse( standard_int_to_new_int );
 
-    // The ellipse above will be most likely be highly skewed. 
-    // LLL algorithm makes new coordinates
-    // with respect to which the lattice is more "upright"
-    //
-    // This is conceptually the same as the grid operators that they find in the 
-    // Ross-Selinger paper. There's no reason to reinvent this wheel though.
-    let mut reduced = lll_reduce(reducable);
+    // find a center for the doing lattice search in new_int_coorinates
+    let center_in_4d_space =  comp_to_4d_matrix * ellipse_complex_coord_center ;
+    let new_int_to_4d_space_star = gram_schmidt_orthogonalization(new_int_to_4d_space);
+    let (new_center_in_4d_space ,new_center_in_new_int ) = nearest_plane( new_int_to_4d_space, new_int_to_4d_space_star, center_in_4d_space );
 
-
-    // The description of the integer points changes when LLL is called
-    // Now (x_1,x_2,y_1,y_2) no longer mean 
-    //   (x_1 + sqrt(2) x_2) sqrt2 ^ exactlogdep + i (y_1 + sqrt(2) y_2) sqrt2 ^ exactlogdep
-    // 
-    // But they almost mean this, differing by a lattice automorphism which we can compute as
-    // follows
-    //  (x_1 ,x_2 ,y_1, y_2 )  = lattice_new_to_standard * (x_1new , x_2new, y_1new, y_2new)
-
-    let mut lattice_new_to_standard_real = reducable.try_inverse().unwrap() * reduced;
-    let lattice_new_to_standard = round_mat4_to_int ( lattice_new_to_standard_real ); 
-    
-    // TEST
-    lattice_new_to_standard_real = mat4int_to_mat4 ( lattice_new_to_standard );
-    reduced = reducable * lattice_new_to_standard_real;
-    // END OF TEST 
-
-    let mut lattice_standard_to_new_real = reduced.try_inverse().unwrap() * reducable ; 
-    let lattice_standard_to_new = round_mat4_to_int ( lattice_standard_to_new_real ); // THiS IS CRAP
-
-     // DEBUG ZONE
-    
-     // println!("lattice_new_to_standard looks like : \n {}", lattice_new_to_standard_real );
-     println!("lattice_standard_to_new looks like : \n {}", lattice_standard_to_new_real );
-     println!("reduced {}",reduced );
-     println!("reducable {}",reducable );
-    
-     // END OF DEBUG ZONE
-
-    // blow everything up by SQRT2 power exactlogdep
-    let centerblownup = SQRT2.pow(exactlogdep)*center;
-    let radiusblownup = SQRT2.pow(exactlogdep)*radius.sqrt();  //  That's because I've been confusing radius with radius squared
+    // update the radius because the centered in now changed
+    let error_in_approximation_in_4d_space  = (new_center_in_4d_space - center_in_4d_space ).norm();
+    let new_radius = ellipse_4d_radius_squared + error_in_approximation_in_4d_space * error_in_approximation_in_4d_space + 2.0 *error_in_approximation_in_4d_space * ellipse_4d_radius_squared.sqrt();
 
 
-    // DEBUG ZONE
-    //
-    //
-    // let center_standard =  centerblownup * SQRT2.pow(-exactlogdep);
-    // let complex_point = Comp
+
+    //    // ----------------------- DEBUG ZONE 
+    // Time to test this much
+    // println!("::: Error_in_approx {}", error_in_approximation_in_4d_space );
+    // let region_a_point = crate::tests::inexact_synth_tests::produce_random_point_inside_miniscule( direction, epsilon);
+    // let mut rng = thread_rng();
+    // let random_length : Float  = rng.gen_range(0.0..1.0);
+    // let (x,y) = crate::tests::inexact_synth_tests::random_points_on_2d_circle();
+    // let region_b_point = Comp{re:x*random_length,im:y*random_length};
+    // assert!( test_this_complex_pair_of_points(region_a_point, region_b_point, ( direction, epsilon) )  );
+
+    // // this random test_point should be in the ellipse
+    // let new_center_comp =  integral_to_complex_mat * vec4int_to_vec4float( new_int_to_standard_int * new_center_in_new_int)*SQRT2.pow(-exactlogdep);
+    // let new_complex_point = Comp
     // { 
-    //     re: center_standard[0] + center_standard[1]*SQRT2,
-    //     im: center_standard[2] + center_standard[3]*SQRT2,
+    //     re: new_center_comp[0],
+    //     im: new_center_comp[1],
     // };
-    // println!("Center should be at complex_point:  {}", complex_point);
-    // println!("This should look close to 1+0i");
-    //
-    //
-    // END OF DEBUG ZONE
+    // println!("new_center is at {}",new_complex_point );
+    // println!("This should be close to {}",Comp{re: ellipse_complex_coord_center[0],im: ellipse_complex_coord_center[1]} );
+    //    let testvec =  Vec4::new(region_a_point.re,region_a_point.im,region_b_point.re,region_b_point.im);
+    //    let offset = testvec - new_center_comp;
+    //    let offset_skewed = comp_to_4d_matrix*offset;
+    //    let skewed_distance = ( offset_skewed.transpose() * offset_skewed )[(0,0)];
+    //    if ( skewed_distance > new_radius )
+    //    {
+    //        panic!("FIX THIS BUG");
+    //    };
+    //    // ------------------- END OF DEBUG ZONE
 
-    // Find a reasonable lattice point to look around for other lattice points
-    let reducedstar = gram_schmidt_orthogonalization(reduced);
-    let lattice_center_in_4d_space = nearest_plane( reduced , reducedstar , reducable * centerblownup );
-    let integer_center_new_coordinates = reduced.try_inverse().unwrap() * lattice_center_in_4d_space;
-    let integer_center_new_coordinates_int = vec4float_to_vec4int( integer_center_new_coordinates) ;
-
-
-
-    // DEBUG ZONE
-    let integer_center_standard_coordinates = lattice_new_to_standard * integer_center_new_coordinates_int;
-    let (complex_point, complex_point_dot_conj) = get_comp_point_from_integer_coord(integer_center_standard_coordinates, exactlogdep);
-    println!("Integer center is at {}", complex_point );
-    // END OF DEBUG ZONE
-
-
-
-    // Finding an appropriate radius
-    let error_in_approximation = ( centerblownup - lattice_center_in_4d_space ).norm();
-    let operator_norm = find_operator_norm(reduced);
-    let vicinity = radiusblownup/operator_norm + error_in_approximation;
-
-
-
-    // Instead of this, we could have a rust thread
-    // stream out lattice points by communicating messages.
-    // and in parallel another one testing that it works
-    let possible_output =  test_integer_points_in_ball_around_integer_center_of_radius(vicinity, integer_center_new_coordinates_int,  reduced , lattice_new_to_standard, exactlogdep,  (direction,epsilon_a));
+    //    // Instead of this, we could have a rust thread
+    //    // stream out lattice points by communicating messages.
+    //    // and in parallel another one testing that it works
+    let possible_output =  test_integer_points_in_ball_around_integer_center_of_radius(new_radius, new_center_in_new_int, new_int_to_standard_int, exactlogdep,  (direction,epsilon));
 
 
     return possible_output;
 
-
 }
+
+
+// Old and buggy code
+//pub fn grid_problem_given_depth( exactlogdep: LogDepInt , (direction, epsilon_a ) : GridParams )-> Option::<ExactUniMat>
+//{
+
+//    let (center, ellipse_matrix , radius ) = generate_coordinates_and_center(direction,epsilon_a);
+//    let reducable = ellipse_matrix * integral_to_complex_mat ;
+
+
+//    // The ellipse above will be most likely be highly skewed. 
+//    // LLL algorithm makes new coordinates
+//    // with respect to which the lattice is more "upright"
+//    //
+//    // This is conceptually the same as the grid operators that they find in the 
+//    // Ross-Selinger paper. There's no reason to reinvent this wheel though.
+
+//    let (reduced, lattice_standard_to_new) = lll_reduce(reducable);
+//    let lattice_new_to_standard = mat4int_inverse(lattice_standard_to_new);
+
+
+//    // The description of the integer points changes when LLL is called
+//    // Now (x_1,x_2,y_1,y_2) no longer mean 
+//    //   (x_1 + sqrt(2) x_2) sqrt2 ^ exactlogdep + i (y_1 + sqrt(2) y_2) sqrt2 ^ exactlogdep
+//    // 
+//    // But they almost mean this, differing by a lattice automorphism which we can compute as
+//    // follows
+//    //  (x_1 ,x_2 ,y_1, y_2 )  = lattice_new_to_standard * (x_1new , x_2new, y_1new, y_2new)
+
+
+//    // DEBUG ZONE
+//    // println!("lattice_new_to_standard looks like : \n {}", lattice_new_to_standard );
+//    // println!("lattice_standard_to_new looks like : \n {}", lattice_standard_to_new );
+//    // println!("reduced {}",reduced );
+//    // println!("reducable {}",reducable );
+//    // END OF DEBUG ZONE
+
+
+//    // blow everything up by SQRT2 power exactlogdep
+//    let centerblownup = SQRT2.pow(exactlogdep)*center;
+//    let radiusblownup = (SQRT2.pow(2*exactlogdep)*radius.sqrt());
+
+//    // DEBUG ZONE
+//     let center_standard =  centerblownup * SQRT2.pow(-exactlogdep);
+//     let complex_point = Comp
+//     { 
+//         re: center_standard[0],
+//         im: center_standard[1],
+//     };
+//     println!("Center is at complex_point:  {}", complex_point);
+//     // println!("This should look close to {}",direction);
+//    // END OF DEBUG ZONE
+
+
+//    // Find a reasonable lattice point to start with
+//    // we then use this lattice point to find other feasible lattice points in the vicinity
+//    let reducedstar = gram_schmidt_orthogonalization(reduced);
+//    let (lattice_center_in_4d_space,center_in_new_coordinates) = nearest_plane( reduced , reducedstar , ellipse_matrix * centerblownup );
+//    let lattice_center_in_standard_coordinates = lattice_new_to_standard * center_in_new_coordinates;
+
+
+
+//    // DEBUG ZONE ====================
+//    // println!("lattice_new_to_standard {}",lattice_new_to_standard );
+//    // println!("lattice_center_in_4d_space {}",lattice_center_in_4d_space );
+//    // println!("ellipse_matrix * centerblownup {}", ellipse_matrix * centerblownup );
+//    // // println!("lattice_center_in_4d_space {}",  reducable *vec4int_to_vec4float( lattice_center_in_standard_coordinates ) );
+//    // println!("Lattice center is at complex_point:  {}", new_complex_point);
+//    // println!("This should look close to {}",direction);
+//    // END OF DEBUG ZONE ==============
+
+
+//    // Finding an appropriate radius
+//    let error_in_approximation = ( ellipse_matrix * centerblownup - lattice_center_in_4d_space ).norm() * SQRT2.pow(-exactlogdep);
+//    // let operator_norm = find_operator_norm(reduced);
+//    let vicinitysqrt = (radius + error_in_approximation);
+//    let vicinity = vicinitysqrt * vicinitysqrt;
+
+//    // ----------------------- DEBUG ZONE 
+//    println!("::: Error_in_approx {}", error_in_approximation );
+//    let region_a_point = crate::tests::inexact_synth_tests::produce_random_point_inside_miniscule( direction, epsilon_a);
+//    let mut rng = thread_rng();
+//    let random_length : Float  = rng.gen_range(0.0..1.0);
+//    let (x,y) = crate::tests::inexact_synth_tests::random_points_on_2d_circle();
+//    let region_b_point = Comp{re:x*random_length,im:y*random_length};
+
+//    // this random test_point should be in the ellipse
+//    let new_center =  integral_to_complex_mat * vec4int_to_vec4float(lattice_center_in_standard_coordinates)*SQRT2.pow(-exactlogdep);
+//    let new_complex_point = Comp
+//    { 
+//        re: new_center[0],
+//        im: new_center[1],
+//    };
+//    println!("new_center is at {}",new_complex_point );
+//    let testvec =  Vec4::new(region_a_point.re,region_a_point.im,region_b_point.re,region_b_point.im);
+//    let offset = testvec - new_center;
+//    let offset_skewed = ellipse_matrix*offset;
+//    let skewed_distance = ( offset_skewed.transpose() * offset_skewed )[(0,0)];
+//    if ( skewed_distance > vicinity )
+//    {
+
+//        println!("WARNING WARNING!" );
+//        println!("off by {}",skewed_distance/vicinity );
+//        let offset2 = testvec - center;
+//        let offset_skewed2 = ellipse_matrix*offset2;
+//        let skewed_distance2 = ( offset_skewed2.transpose() * offset_skewed2 )[(0,0)];
+//        if ( skewed_distance2 < radius ) 
+//        {
+//            println!("Where as the point without approximating the center is in the right vicinity");
+//            assert!( test_this_complex_pair_of_points(region_a_point, region_b_point, ( direction, epsilon_a) )  );
+//        }
+//        else 
+//        {
+//            println!("But not even the old test passes!");
+//        }
+//        panic!("FIX THIS BUG");
+//    };
+//    // ------------------- END OF DEBUG ZONE
+
+
+
+
+//}
 
 
 
@@ -576,29 +674,33 @@ pub fn grid_problem( direction: Comp, epsilon_a: Float)-> ExactUniMat
 
     let mut answer: Option::<ExactUniMat>;
 
-    let maxdepth = 8;
+    let maxdepth = 60;
 
     for i in 0..maxdepth
     {
 
-        println!("--------------- \n \n ");
-        println!("Working with depth {}",i );
-        answer = grid_problem_given_depth(i, problem_parameters);
-        if answer !=None
+        // println!("--------------- \n \n ");
+        // println!("Working with depth {}",i );
+        let answer = grid_problem_given_depth(i, problem_parameters);
+        if answer != None
         {
-            return answer.unwrap();
+            let gate = answer.unwrap();
+            println!("Found a candidate at depth {}",i );
+            println!("which is \n {}", gate);
+            let seq = exact_synth( gate );
+            println!("FINAL SEQUENCE = {}", seq );
         }
-        println!("--------------- \n \n ");
+        // println!("--------------- \n \n ");
     }
 
-    panic!("Nothing found?");
+    panic!("Nothing found under depth {}", maxdepth);
 }
 
 
 
 
 // To be replaced by some multithreading implimentation
-pub fn test_integer_points_in_ball_around_integer_center_of_radius(radius: Float, int_center: Vec4Int, coordinate_basis: Mat4, lattice_automorphism: Mat4Int,  exactlogdep: LogDepInt,  (direction_of_rotation, epsilon_a) : GridParams )  -> Option<ExactUniMat>
+pub fn test_integer_points_in_ball_around_integer_center_of_radius(radius: Float, int_center: Vec4Int,  lattice_automorphism: Mat4Int,  exactlogdep: LogDepInt,  (direction_of_rotation, epsilon_a) : GridParams )  -> Option<ExactUniMat>
 {
     let mut collection = Vec::<Vec4Int>::new();
 
@@ -791,3 +893,42 @@ pub fn test_integer_points_in_ball_around_integer_center_of_radius(radius: Float
 
     // return collection;
 }
+
+// This piece of code was generated by sagemath using matrices over symbolic ring
+// It is basically the formula of the adjugate of a matrix
+// What I really want to take matrix inverse of 4x4 matrix without losing integer precision
+//
+// I should find a better way to do this eventually
+pub fn mat4int_inverse(x : Mat4Int) -> Mat4Int
+{
+    // When life gives you lemons, make them lemonade
+    let det = x[(0,3)]*x[(1,2)]*x[(2,1)]*x[(3,0)] - x[(0,2)]*x[(1,3)]*x[(2,1)]*x[(3,0)] - x[(0,3)]*x[(1,1)]*x[(2,2)]*x[(3,0)] + x[(0,1)]*x[(1,3)]*x[(2,2)]*x[(3,0)] + x[(0,2)]*x[(1,1)]*x[(2,3)]*x[(3,0)] - x[(0,1)]*x[(1,2)]*x[(2,3)]*x[(3,0)] - x[(0,3)]*x[(1,2)]*x[(2,0)]*x[(3,1)] + x[(0,2)]*x[(1,3)]*x[(2,0)]*x[(3,1)] + x[(0,3)]*x[(1,0)]*x[(2,2)]*x[(3,1)] - x[(0,0)]*x[(1,3)]*x[(2,2)]*x[(3,1)] - x[(0,2)]*x[(1,0)]*x[(2,3)]*x[(3,1)] + x[(0,0)]*x[(1,2)]*x[(2,3)]*x[(3,1)] + x[(0,3)]*x[(1,1)]*x[(2,0)]*x[(3,2)] - x[(0,1)]*x[(1,3)]*x[(2,0)]*x[(3,2)] - x[(0,3)]*x[(1,0)]*x[(2,1)]*x[(3,2)] + x[(0,0)]*x[(1,3)]*x[(2,1)]*x[(3,2)] + x[(0,1)]*x[(1,0)]*x[(2,3)]*x[(3,2)] - x[(0,0)]*x[(1,1)]*x[(2,3)]*x[(3,2)] - x[(0,2)]*x[(1,1)]*x[(2,0)]*x[(3,3)] + x[(0,1)]*x[(1,2)]*x[(2,0)]*x[(3,3)] + x[(0,2)]*x[(1,0)]*x[(2,1)]*x[(3,3)] - x[(0,0)]*x[(1,2)]*x[(2,1)]*x[(3,3)] - x[(0,1)]*x[(1,0)]*x[(2,2)]*x[(3,3)] + x[(0,0)]*x[(1,1)]*x[(2,2)]*x[(3,3)];
+    if det!=1 && det!=-1
+    {
+        panic!("Inverting an integer matrix that has no integer inverse");
+    }
+
+
+    let mut y = Mat4Int::zeros();
+
+    y[( 0 , 0 )]= -x[(0,2)]*x[(1,1)]*x[(2,0)] + x[(0,1)]*x[(1,2)]*x[(2,0)] + x[(0,2)]*x[(1,0)]*x[(2,1)] - x[(0,0)]*x[(1,2)]*x[(2,1)] - x[(0,1)]*x[(1,0)]*x[(2,2)] + x[(0,0)]*x[(1,1)]*x[(2,2)] + x[(0,3)]*x[(1,0)]*x[(3,1)] - x[(0,0)]*x[(1,3)]*x[(3,1)] - x[(1,3)]*x[(2,2)]*x[(3,1)] + x[(1,2)]*x[(2,3)]*x[(3,1)] + x[(0,3)]*x[(2,0)]*x[(3,2)] + x[(1,3)]*x[(2,1)]*x[(3,2)] - x[(0,0)]*x[(2,3)]*x[(3,2)] - x[(1,1)]*x[(2,3)]*x[(3,2)] - x[(0,1)]*x[(1,0)]*x[(3,3)] + x[(0,0)]*x[(1,1)]*x[(3,3)] - x[(0,2)]*x[(2,0)]*x[(3,3)] - x[(1,2)]*x[(2,1)]*x[(3,3)] + x[(0,0)]*x[(2,2)]*x[(3,3)] + x[(1,1)]*x[(2,2)]*x[(3,3)] - x[(0,3)]*x[(1,1)]*x[(3,0)] + x[(0,1)]*x[(1,3)]*x[(3,0)] - x[(0,3)]*x[(2,2)]*x[(3,0)] + x[(0,2)]*x[(2,3)]*x[(3,0)] + (x[(0,0)]*(x[(1,1)] + x[(2,2)] + x[(3,3)]) - x[(0,0)]*x[(1,1)] + x[(1,2)]*x[(2,1)] - x[(0,0)]*x[(2,2)] - x[(1,1)]*x[(2,2)] + x[(1,3)]*x[(3,1)] + x[(2,3)]*x[(3,2)] - x[(0,0)]*x[(3,3)] - x[(1,1)]*x[(3,3)] - x[(2,2)]*x[(3,3)])*x[(0,0)] + (x[(0,1)]*(x[(1,1)] + x[(2,2)] + x[(3,3)]) - x[(0,1)]*x[(1,1)] - x[(0,2)]*x[(2,1)] - x[(0,3)]*x[(3,1)])*x[(1,0)] + (x[(0,2)]*(x[(1,1)] + x[(2,2)] + x[(3,3)]) - x[(0,1)]*x[(1,2)] - x[(0,2)]*x[(2,2)] - x[(0,3)]*x[(3,2)])*x[(2,0)] + (x[(0,3)]*(x[(1,1)] + x[(2,2)] + x[(3,3)]) - x[(0,1)]*x[(1,3)] - x[(0,2)]*x[(2,3)] - x[(0,3)]*x[(3,3)])*x[(3,0)] ;
+    y[( 0 , 1 )]= (x[(0,0)]*(x[(1,1)] + x[(2,2)] + x[(3,3)]) - x[(0,0)]*x[(1,1)] + x[(1,2)]*x[(2,1)] - x[(0,0)]*x[(2,2)] - x[(1,1)]*x[(2,2)] + x[(1,3)]*x[(3,1)] + x[(2,3)]*x[(3,2)] - x[(0,0)]*x[(3,3)] - x[(1,1)]*x[(3,3)] - x[(2,2)]*x[(3,3)])*x[(0,1)] + (x[(0,1)]*(x[(1,1)] + x[(2,2)] + x[(3,3)]) - x[(0,1)]*x[(1,1)] - x[(0,2)]*x[(2,1)] - x[(0,3)]*x[(3,1)])*x[(1,1)] + (x[(0,2)]*(x[(1,1)] + x[(2,2)] + x[(3,3)]) - x[(0,1)]*x[(1,2)] - x[(0,2)]*x[(2,2)] - x[(0,3)]*x[(3,2)])*x[(2,1)] + (x[(0,3)]*(x[(1,1)] + x[(2,2)] + x[(3,3)]) - x[(0,1)]*x[(1,3)] - x[(0,2)]*x[(2,3)] - x[(0,3)]*x[(3,3)])*x[(3,1)] ;
+    y[( 0 , 2 )]= (x[(0,0)]*(x[(1,1)] + x[(2,2)] + x[(3,3)]) - x[(0,0)]*x[(1,1)] + x[(1,2)]*x[(2,1)] - x[(0,0)]*x[(2,2)] - x[(1,1)]*x[(2,2)] + x[(1,3)]*x[(3,1)] + x[(2,3)]*x[(3,2)] - x[(0,0)]*x[(3,3)] - x[(1,1)]*x[(3,3)] - x[(2,2)]*x[(3,3)])*x[(0,2)] + (x[(0,1)]*(x[(1,1)] + x[(2,2)] + x[(3,3)]) - x[(0,1)]*x[(1,1)] - x[(0,2)]*x[(2,1)] - x[(0,3)]*x[(3,1)])*x[(1,2)] + (x[(0,2)]*(x[(1,1)] + x[(2,2)] + x[(3,3)]) - x[(0,1)]*x[(1,2)] - x[(0,2)]*x[(2,2)] - x[(0,3)]*x[(3,2)])*x[(2,2)] + (x[(0,3)]*(x[(1,1)] + x[(2,2)] + x[(3,3)]) - x[(0,1)]*x[(1,3)] - x[(0,2)]*x[(2,3)] - x[(0,3)]*x[(3,3)])*x[(3,2)] ;
+    y[( 0 , 3 )]= (x[(0,0)]*(x[(1,1)] + x[(2,2)] + x[(3,3)]) - x[(0,0)]*x[(1,1)] + x[(1,2)]*x[(2,1)] - x[(0,0)]*x[(2,2)] - x[(1,1)]*x[(2,2)] + x[(1,3)]*x[(3,1)] + x[(2,3)]*x[(3,2)] - x[(0,0)]*x[(3,3)] - x[(1,1)]*x[(3,3)] - x[(2,2)]*x[(3,3)])*x[(0,3)] + (x[(0,1)]*(x[(1,1)] + x[(2,2)] + x[(3,3)]) - x[(0,1)]*x[(1,1)] - x[(0,2)]*x[(2,1)] - x[(0,3)]*x[(3,1)])*x[(1,3)] + (x[(0,2)]*(x[(1,1)] + x[(2,2)] + x[(3,3)]) - x[(0,1)]*x[(1,2)] - x[(0,2)]*x[(2,2)] - x[(0,3)]*x[(3,2)])*x[(2,3)] + (x[(0,3)]*(x[(1,1)] + x[(2,2)] + x[(3,3)]) - x[(0,1)]*x[(1,3)] - x[(0,2)]*x[(2,3)] - x[(0,3)]*x[(3,3)])*x[(3,3)] ;
+    y[( 1 , 0 )]= ((x[(0,0)] + x[(2,2)] + x[(3,3)])*x[(1,0)] - x[(0,0)]*x[(1,0)] - x[(1,2)]*x[(2,0)] - x[(1,3)]*x[(3,0)])*x[(0,0)] + ((x[(0,0)] + x[(2,2)] + x[(3,3)])*x[(1,1)] - x[(0,0)]*x[(1,1)] + x[(0,2)]*x[(2,0)] - x[(0,0)]*x[(2,2)] - x[(1,1)]*x[(2,2)] + x[(2,3)]*x[(3,2)] - x[(0,0)]*x[(3,3)] - x[(1,1)]*x[(3,3)] - x[(2,2)]*x[(3,3)] + x[(0,3)]*x[(3,0)])*x[(1,0)] - (x[(0,2)]*x[(1,0)] - (x[(0,0)] + x[(2,2)] + x[(3,3)])*x[(1,2)] + x[(1,2)]*x[(2,2)] + x[(1,3)]*x[(3,2)])*x[(2,0)] - (x[(0,3)]*x[(1,0)] - (x[(0,0)] + x[(2,2)] + x[(3,3)])*x[(1,3)] + x[(1,2)]*x[(2,3)] + x[(1,3)]*x[(3,3)])*x[(3,0)] ;
+    y[( 1 , 1 )]= -x[(0,2)]*x[(1,1)]*x[(2,0)] + x[(0,1)]*x[(1,2)]*x[(2,0)] + x[(0,2)]*x[(1,0)]*x[(2,1)] - x[(0,0)]*x[(1,2)]*x[(2,1)] - x[(0,1)]*x[(1,0)]*x[(2,2)] + x[(0,0)]*x[(1,1)]*x[(2,2)] + x[(0,3)]*x[(1,0)]*x[(3,1)] - x[(0,0)]*x[(1,3)]*x[(3,1)] - x[(1,3)]*x[(2,2)]*x[(3,1)] + x[(1,2)]*x[(2,3)]*x[(3,1)] + x[(0,3)]*x[(2,0)]*x[(3,2)] + x[(1,3)]*x[(2,1)]*x[(3,2)] - x[(0,0)]*x[(2,3)]*x[(3,2)] - x[(1,1)]*x[(2,3)]*x[(3,2)] - x[(0,1)]*x[(1,0)]*x[(3,3)] + x[(0,0)]*x[(1,1)]*x[(3,3)] - x[(0,2)]*x[(2,0)]*x[(3,3)] - x[(1,2)]*x[(2,1)]*x[(3,3)] + x[(0,0)]*x[(2,2)]*x[(3,3)] + x[(1,1)]*x[(2,2)]*x[(3,3)] - x[(0,3)]*x[(1,1)]*x[(3,0)] + x[(0,1)]*x[(1,3)]*x[(3,0)] - x[(0,3)]*x[(2,2)]*x[(3,0)] + x[(0,2)]*x[(2,3)]*x[(3,0)] + ((x[(0,0)] + x[(2,2)] + x[(3,3)])*x[(1,0)] - x[(0,0)]*x[(1,0)] - x[(1,2)]*x[(2,0)] - x[(1,3)]*x[(3,0)])*x[(0,1)] + ((x[(0,0)] + x[(2,2)] + x[(3,3)])*x[(1,1)] - x[(0,0)]*x[(1,1)] + x[(0,2)]*x[(2,0)] - x[(0,0)]*x[(2,2)] - x[(1,1)]*x[(2,2)] + x[(2,3)]*x[(3,2)] - x[(0,0)]*x[(3,3)] - x[(1,1)]*x[(3,3)] - x[(2,2)]*x[(3,3)] + x[(0,3)]*x[(3,0)])*x[(1,1)] - (x[(0,2)]*x[(1,0)] - (x[(0,0)] + x[(2,2)] + x[(3,3)])*x[(1,2)] + x[(1,2)]*x[(2,2)] + x[(1,3)]*x[(3,2)])*x[(2,1)] - (x[(0,3)]*x[(1,0)] - (x[(0,0)] + x[(2,2)] + x[(3,3)])*x[(1,3)] + x[(1,2)]*x[(2,3)] + x[(1,3)]*x[(3,3)])*x[(3,1)] ;
+    y[( 1 , 2 )]= ((x[(0,0)] + x[(2,2)] + x[(3,3)])*x[(1,0)] - x[(0,0)]*x[(1,0)] - x[(1,2)]*x[(2,0)] - x[(1,3)]*x[(3,0)])*x[(0,2)] + ((x[(0,0)] + x[(2,2)] + x[(3,3)])*x[(1,1)] - x[(0,0)]*x[(1,1)] + x[(0,2)]*x[(2,0)] - x[(0,0)]*x[(2,2)] - x[(1,1)]*x[(2,2)] + x[(2,3)]*x[(3,2)] - x[(0,0)]*x[(3,3)] - x[(1,1)]*x[(3,3)] - x[(2,2)]*x[(3,3)] + x[(0,3)]*x[(3,0)])*x[(1,2)] - (x[(0,2)]*x[(1,0)] - (x[(0,0)] + x[(2,2)] + x[(3,3)])*x[(1,2)] + x[(1,2)]*x[(2,2)] + x[(1,3)]*x[(3,2)])*x[(2,2)] - (x[(0,3)]*x[(1,0)] - (x[(0,0)] + x[(2,2)] + x[(3,3)])*x[(1,3)] + x[(1,2)]*x[(2,3)] + x[(1,3)]*x[(3,3)])*x[(3,2)] ;
+    y[( 1 , 3 )]= ((x[(0,0)] + x[(2,2)] + x[(3,3)])*x[(1,0)] - x[(0,0)]*x[(1,0)] - x[(1,2)]*x[(2,0)] - x[(1,3)]*x[(3,0)])*x[(0,3)] + ((x[(0,0)] + x[(2,2)] + x[(3,3)])*x[(1,1)] - x[(0,0)]*x[(1,1)] + x[(0,2)]*x[(2,0)] - x[(0,0)]*x[(2,2)] - x[(1,1)]*x[(2,2)] + x[(2,3)]*x[(3,2)] - x[(0,0)]*x[(3,3)] - x[(1,1)]*x[(3,3)] - x[(2,2)]*x[(3,3)] + x[(0,3)]*x[(3,0)])*x[(1,3)] - (x[(0,2)]*x[(1,0)] - (x[(0,0)] + x[(2,2)] + x[(3,3)])*x[(1,2)] + x[(1,2)]*x[(2,2)] + x[(1,3)]*x[(3,2)])*x[(2,3)] - (x[(0,3)]*x[(1,0)] - (x[(0,0)] + x[(2,2)] + x[(3,3)])*x[(1,3)] + x[(1,2)]*x[(2,3)] + x[(1,3)]*x[(3,3)])*x[(3,3)] ;
+    y[( 2 , 0 )]= ((x[(0,0)] + x[(1,1)] + x[(3,3)])*x[(2,0)] - x[(0,0)]*x[(2,0)] - x[(1,0)]*x[(2,1)] - x[(2,3)]*x[(3,0)])*x[(0,0)] - (x[(0,1)]*x[(2,0)] - (x[(0,0)] + x[(1,1)] + x[(3,3)])*x[(2,1)] + x[(1,1)]*x[(2,1)] + x[(2,3)]*x[(3,1)])*x[(1,0)] + (x[(0,1)]*x[(1,0)] - x[(0,0)]*x[(1,1)] + (x[(0,0)] + x[(1,1)] + x[(3,3)])*x[(2,2)] - x[(0,0)]*x[(2,2)] - x[(1,1)]*x[(2,2)] + x[(1,3)]*x[(3,1)] - x[(0,0)]*x[(3,3)] - x[(1,1)]*x[(3,3)] - x[(2,2)]*x[(3,3)] + x[(0,3)]*x[(3,0)])*x[(2,0)] - (x[(0,3)]*x[(2,0)] + x[(1,3)]*x[(2,1)] - (x[(0,0)] + x[(1,1)] + x[(3,3)])*x[(2,3)] + x[(2,3)]*x[(3,3)])*x[(3,0)] ;
+    y[( 2 , 1 )]= ((x[(0,0)] + x[(1,1)] + x[(3,3)])*x[(2,0)] - x[(0,0)]*x[(2,0)] - x[(1,0)]*x[(2,1)] - x[(2,3)]*x[(3,0)])*x[(0,1)] - (x[(0,1)]*x[(2,0)] - (x[(0,0)] + x[(1,1)] + x[(3,3)])*x[(2,1)] + x[(1,1)]*x[(2,1)] + x[(2,3)]*x[(3,1)])*x[(1,1)] + (x[(0,1)]*x[(1,0)] - x[(0,0)]*x[(1,1)] + (x[(0,0)] + x[(1,1)] + x[(3,3)])*x[(2,2)] - x[(0,0)]*x[(2,2)] - x[(1,1)]*x[(2,2)] + x[(1,3)]*x[(3,1)] - x[(0,0)]*x[(3,3)] - x[(1,1)]*x[(3,3)] - x[(2,2)]*x[(3,3)] + x[(0,3)]*x[(3,0)])*x[(2,1)] - (x[(0,3)]*x[(2,0)] + x[(1,3)]*x[(2,1)] - (x[(0,0)] + x[(1,1)] + x[(3,3)])*x[(2,3)] + x[(2,3)]*x[(3,3)])*x[(3,1)] ;
+    y[( 2 , 2 )]= -x[(0,2)]*x[(1,1)]*x[(2,0)] + x[(0,1)]*x[(1,2)]*x[(2,0)] + x[(0,2)]*x[(1,0)]*x[(2,1)] - x[(0,0)]*x[(1,2)]*x[(2,1)] - x[(0,1)]*x[(1,0)]*x[(2,2)] + x[(0,0)]*x[(1,1)]*x[(2,2)] + x[(0,3)]*x[(1,0)]*x[(3,1)] - x[(0,0)]*x[(1,3)]*x[(3,1)] - x[(1,3)]*x[(2,2)]*x[(3,1)] + x[(1,2)]*x[(2,3)]*x[(3,1)] + x[(0,3)]*x[(2,0)]*x[(3,2)] + x[(1,3)]*x[(2,1)]*x[(3,2)] - x[(0,0)]*x[(2,3)]*x[(3,2)] - x[(1,1)]*x[(2,3)]*x[(3,2)] - x[(0,1)]*x[(1,0)]*x[(3,3)] + x[(0,0)]*x[(1,1)]*x[(3,3)] - x[(0,2)]*x[(2,0)]*x[(3,3)] - x[(1,2)]*x[(2,1)]*x[(3,3)] + x[(0,0)]*x[(2,2)]*x[(3,3)] + x[(1,1)]*x[(2,2)]*x[(3,3)] - x[(0,3)]*x[(1,1)]*x[(3,0)] + x[(0,1)]*x[(1,3)]*x[(3,0)] - x[(0,3)]*x[(2,2)]*x[(3,0)] + x[(0,2)]*x[(2,3)]*x[(3,0)] + ((x[(0,0)] + x[(1,1)] + x[(3,3)])*x[(2,0)] - x[(0,0)]*x[(2,0)] - x[(1,0)]*x[(2,1)] - x[(2,3)]*x[(3,0)])*x[(0,2)] - (x[(0,1)]*x[(2,0)] - (x[(0,0)] + x[(1,1)] + x[(3,3)])*x[(2,1)] + x[(1,1)]*x[(2,1)] + x[(2,3)]*x[(3,1)])*x[(1,2)] + (x[(0,1)]*x[(1,0)] - x[(0,0)]*x[(1,1)] + (x[(0,0)] + x[(1,1)] + x[(3,3)])*x[(2,2)] - x[(0,0)]*x[(2,2)] - x[(1,1)]*x[(2,2)] + x[(1,3)]*x[(3,1)] - x[(0,0)]*x[(3,3)] - x[(1,1)]*x[(3,3)] - x[(2,2)]*x[(3,3)] + x[(0,3)]*x[(3,0)])*x[(2,2)] - (x[(0,3)]*x[(2,0)] + x[(1,3)]*x[(2,1)] - (x[(0,0)] + x[(1,1)] + x[(3,3)])*x[(2,3)] + x[(2,3)]*x[(3,3)])*x[(3,2)] ;
+    y[( 2 , 3 )]= ((x[(0,0)] + x[(1,1)] + x[(3,3)])*x[(2,0)] - x[(0,0)]*x[(2,0)] - x[(1,0)]*x[(2,1)] - x[(2,3)]*x[(3,0)])*x[(0,3)] - (x[(0,1)]*x[(2,0)] - (x[(0,0)] + x[(1,1)] + x[(3,3)])*x[(2,1)] + x[(1,1)]*x[(2,1)] + x[(2,3)]*x[(3,1)])*x[(1,3)] + (x[(0,1)]*x[(1,0)] - x[(0,0)]*x[(1,1)] + (x[(0,0)] + x[(1,1)] + x[(3,3)])*x[(2,2)] - x[(0,0)]*x[(2,2)] - x[(1,1)]*x[(2,2)] + x[(1,3)]*x[(3,1)] - x[(0,0)]*x[(3,3)] - x[(1,1)]*x[(3,3)] - x[(2,2)]*x[(3,3)] + x[(0,3)]*x[(3,0)])*x[(2,3)] - (x[(0,3)]*x[(2,0)] + x[(1,3)]*x[(2,1)] - (x[(0,0)] + x[(1,1)] + x[(3,3)])*x[(2,3)] + x[(2,3)]*x[(3,3)])*x[(3,3)] ;
+    y[( 3 , 0 )]= -(x[(1,0)]*x[(3,1)] + x[(2,0)]*x[(3,2)] - (x[(0,0)] + x[(1,1)] + x[(2,2)])*x[(3,0)] + x[(0,0)]*x[(3,0)])*x[(0,0)] + ((x[(0,0)] + x[(1,1)] + x[(2,2)])*x[(3,1)] - x[(1,1)]*x[(3,1)] - x[(2,1)]*x[(3,2)] - x[(0,1)]*x[(3,0)])*x[(1,0)] - (x[(1,2)]*x[(3,1)] - (x[(0,0)] + x[(1,1)] + x[(2,2)])*x[(3,2)] + x[(2,2)]*x[(3,2)] + x[(0,2)]*x[(3,0)])*x[(2,0)] + (x[(0,1)]*x[(1,0)] - x[(0,0)]*x[(1,1)] + x[(0,2)]*x[(2,0)] + x[(1,2)]*x[(2,1)] - x[(0,0)]*x[(2,2)] - x[(1,1)]*x[(2,2)] + (x[(0,0)] + x[(1,1)] + x[(2,2)])*x[(3,3)] - x[(0,0)]*x[(3,3)] - x[(1,1)]*x[(3,3)] - x[(2,2)]*x[(3,3)])*x[(3,0)] ;
+    y[( 3 , 1 )]= -(x[(1,0)]*x[(3,1)] + x[(2,0)]*x[(3,2)] - (x[(0,0)] + x[(1,1)] + x[(2,2)])*x[(3,0)] + x[(0,0)]*x[(3,0)])*x[(0,1)] + ((x[(0,0)] + x[(1,1)] + x[(2,2)])*x[(3,1)] - x[(1,1)]*x[(3,1)] - x[(2,1)]*x[(3,2)] - x[(0,1)]*x[(3,0)])*x[(1,1)] - (x[(1,2)]*x[(3,1)] - (x[(0,0)] + x[(1,1)] + x[(2,2)])*x[(3,2)] + x[(2,2)]*x[(3,2)] + x[(0,2)]*x[(3,0)])*x[(2,1)] + (x[(0,1)]*x[(1,0)] - x[(0,0)]*x[(1,1)] + x[(0,2)]*x[(2,0)] + x[(1,2)]*x[(2,1)] - x[(0,0)]*x[(2,2)] - x[(1,1)]*x[(2,2)] + (x[(0,0)] + x[(1,1)] + x[(2,2)])*x[(3,3)] - x[(0,0)]*x[(3,3)] - x[(1,1)]*x[(3,3)] - x[(2,2)]*x[(3,3)])*x[(3,1)] ;
+    y[( 3 , 2 )]= -(x[(1,0)]*x[(3,1)] + x[(2,0)]*x[(3,2)] - (x[(0,0)] + x[(1,1)] + x[(2,2)])*x[(3,0)] + x[(0,0)]*x[(3,0)])*x[(0,2)] + ((x[(0,0)] + x[(1,1)] + x[(2,2)])*x[(3,1)] - x[(1,1)]*x[(3,1)] - x[(2,1)]*x[(3,2)] - x[(0,1)]*x[(3,0)])*x[(1,2)] - (x[(1,2)]*x[(3,1)] - (x[(0,0)] + x[(1,1)] + x[(2,2)])*x[(3,2)] + x[(2,2)]*x[(3,2)] + x[(0,2)]*x[(3,0)])*x[(2,2)] + (x[(0,1)]*x[(1,0)] - x[(0,0)]*x[(1,1)] + x[(0,2)]*x[(2,0)] + x[(1,2)]*x[(2,1)] - x[(0,0)]*x[(2,2)] - x[(1,1)]*x[(2,2)] + (x[(0,0)] + x[(1,1)] + x[(2,2)])*x[(3,3)] - x[(0,0)]*x[(3,3)] - x[(1,1)]*x[(3,3)] - x[(2,2)]*x[(3,3)])*x[(3,2)] ;
+    y[( 3 , 3 )]= -x[(0,2)]*x[(1,1)]*x[(2,0)] + x[(0,1)]*x[(1,2)]*x[(2,0)] + x[(0,2)]*x[(1,0)]*x[(2,1)] - x[(0,0)]*x[(1,2)]*x[(2,1)] - x[(0,1)]*x[(1,0)]*x[(2,2)] + x[(0,0)]*x[(1,1)]*x[(2,2)] + x[(0,3)]*x[(1,0)]*x[(3,1)] - x[(0,0)]*x[(1,3)]*x[(3,1)] - x[(1,3)]*x[(2,2)]*x[(3,1)] + x[(1,2)]*x[(2,3)]*x[(3,1)] + x[(0,3)]*x[(2,0)]*x[(3,2)] + x[(1,3)]*x[(2,1)]*x[(3,2)] - x[(0,0)]*x[(2,3)]*x[(3,2)] - x[(1,1)]*x[(2,3)]*x[(3,2)] - x[(0,1)]*x[(1,0)]*x[(3,3)] + x[(0,0)]*x[(1,1)]*x[(3,3)] - x[(0,2)]*x[(2,0)]*x[(3,3)] - x[(1,2)]*x[(2,1)]*x[(3,3)] + x[(0,0)]*x[(2,2)]*x[(3,3)] + x[(1,1)]*x[(2,2)]*x[(3,3)] - x[(0,3)]*x[(1,1)]*x[(3,0)] + x[(0,1)]*x[(1,3)]*x[(3,0)] - x[(0,3)]*x[(2,2)]*x[(3,0)] + x[(0,2)]*x[(2,3)]*x[(3,0)] - (x[(1,0)]*x[(3,1)] + x[(2,0)]*x[(3,2)] - (x[(0,0)] + x[(1,1)] + x[(2,2)])*x[(3,0)] + x[(0,0)]*x[(3,0)])*x[(0,3)] + ((x[(0,0)] + x[(1,1)] + x[(2,2)])*x[(3,1)] - x[(1,1)]*x[(3,1)] - x[(2,1)]*x[(3,2)] - x[(0,1)]*x[(3,0)])*x[(1,3)] - (x[(1,2)]*x[(3,1)] - (x[(0,0)] + x[(1,1)] + x[(2,2)])*x[(3,2)] + x[(2,2)]*x[(3,2)] + x[(0,2)]*x[(3,0)])*x[(2,3)] + (x[(0,1)]*x[(1,0)] - x[(0,0)]*x[(1,1)] + x[(0,2)]*x[(2,0)] + x[(1,2)]*x[(2,1)] - x[(0,0)]*x[(2,2)] - x[(1,1)]*x[(2,2)] + (x[(0,0)] + x[(1,1)] + x[(2,2)])*x[(3,3)] - x[(0,0)]*x[(3,3)] - x[(1,1)]*x[(3,3)] - x[(2,2)]*x[(3,3)])*x[(3,3)] ;
+
+
+    return y*det;
+}
+

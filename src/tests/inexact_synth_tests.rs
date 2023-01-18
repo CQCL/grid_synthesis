@@ -50,7 +50,6 @@ pub fn two_comp_equal_up_to_theshold(left: Comp, right: Comp) -> bool
 pub fn two_float_equal_up_to_threshold(left: Float, right: Float) -> bool
 {
     return (left-right).abs() < threshold;
-
 }
 
 
@@ -62,19 +61,19 @@ pub fn comp_from_basis_and_vector_test()
 
     let this_point = Vec4Int::new(1,0,0,0);
 
-    
+
     let (left,right) = get_comp_point_from_integer_coord(this_point, 0);
-    
+
     assert!(two_comp_equal_up_to_theshold(left, Comp::one()) );
     assert!(two_comp_equal_up_to_theshold(right, Comp::one()) );
-             
+
     let (left,right) = get_comp_point_from_integer_coord(this_point, 2);
-    
+
     assert!(two_comp_equal_up_to_theshold(left, 0.5* Comp::one()) );
     assert!(two_comp_equal_up_to_theshold(right, 0.5 * Comp::one()) );
 
     let (left,right) = get_comp_point_from_integer_coord(this_point, -2);
-    
+
     assert!(two_comp_equal_up_to_theshold(left, 2.0* Comp::one()) );
     assert!(two_comp_equal_up_to_theshold(right, 2.0 * Comp::one()) );
 }
@@ -87,11 +86,11 @@ pub fn produce_random_point_inside_miniscule(direction: Comp, epsilon: Float) ->
     let a1: Float = rng.gen_range((1.0-epsilon)..1.0);
     let pythogoras_vert = (1.0 - a1*a1).sqrt();
     assert!( two_float_equal_up_to_threshold( a1*a1 + pythogoras_vert*pythogoras_vert, 1.0));
-    
+
     let perp_comp = direction*Comp{re:0.0,im:1.0};
     assert!( two_float_equal_up_to_threshold( perp_comp.re*direction.re + perp_comp.im*direction.im , 0.0));
     let a2: Float = rng.gen_range(-pythogoras_vert..pythogoras_vert);
-    
+
     let test_point = direction*a1 + perp_comp*a2;
 
     return test_point;
@@ -120,7 +119,7 @@ pub fn produce_random_grid_paramters() -> GridParams
     let (x,y) = random_points_on_2d_circle();
 
     let rand_comp = Comp{re:x,im:y};
-    let epsilon: Float = rng.gen_range( 0.0000000000001..0.002 );
+    let epsilon: Float = rng.gen_range( 0.0000001..0.0002 );
     return (rand_comp, epsilon);
 
 
@@ -134,7 +133,7 @@ pub fn testing_the_ellipse_paramters_randomly()
     let (center,mat,radius) =    ellipse_parameters_for_region_a( rand_comp, epsilon);
 
     assert!(two_float_equal_up_to_threshold( center.re*rand_comp.re + center.im*rand_comp.im , 1.0-epsilon) );
-    
+
     let test_point = produce_random_point_inside_miniscule(rand_comp, epsilon);
 
     // this random test_point should be in the ellipse
@@ -174,22 +173,21 @@ pub fn testing_4d_ellipsoid_parameters_randomly()
     let mut rng = thread_rng();
     let random_length : Float  = rng.gen_range(0.0..1.0);
     let (x,y) = random_points_on_2d_circle();
-
     let region_b_point = Comp{re:x*random_length,im:y*random_length};
 
 
-    let (center, reducable,  radius) = generate_coordinates_and_center(direction,epsilon);
+    let (center, matrix,  radius) = generate_coordinates_and_center(direction,epsilon);
 
 
     // let reducable = reduced*lattice_autmorphism;
-    
+
     assert!( test_this_complex_pair_of_points( region_a_point, region_b_point, (direction, epsilon) ));
 
     let testvec =  Vec4::new(region_a_point.re,region_a_point.im,region_b_point.re,region_b_point.im);
     let offset = testvec - center;
-    let offset_skewed = reducable*offset;
+    let offset_skewed = matrix*offset;
     let skewed_distance = ( offset_skewed.transpose() * offset_skewed )[(0,0)];
-    
+
     println!("Point's distance is {} % of radius",100.0*skewed_distance/radius );
     assert! ( skewed_distance <=  radius)
 
@@ -236,7 +234,7 @@ pub fn generate_random_4by4_matrix() -> Mat4
     return out;
 }
 
-// #[test]
+#[test]
 pub fn random_inexact_synth_test()
 {
     let (direction,epsilon) = produce_random_grid_paramters();

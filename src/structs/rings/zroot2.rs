@@ -22,6 +22,7 @@ use std::fmt::Formatter;
 
 // Setting up my boundaries
 use crate::structs::rings::Int;
+use crate::structs::rings::Float;
 use crate::structs::rings::LogDepInt;
 
 // Num traits
@@ -278,23 +279,68 @@ impl Rem for Zroot2
 impl Div for Zroot2 
 {
     type Output = Self;
+
+     // This is an imprecise div implementation that takes floating point 
+     // approximation to. Please try to use exact arithmetics if possible
+    //fn div(self, other: Self) -> Self
+    //{
+        
+    //    let mut s0 = self.0 as Float ;
+    //    let mut s1 = self.1 as Float ;
+    //    let mut o0 = other.0 as Float ;
+    //    let mut o1 = other.1 as Float ;
+    //    let scale = s0.abs().max(s1.abs().max( o1.abs().max( o0.abs() )   ));
+
+    //    s0 = s0/scale;
+    //    s1 = s1/scale;
+    //    o1 = o1/scale;
+    //    o0 = o0/scale;
+    //    // Zroot2 is norm-Euclidean
+    //    // Therefore a division algorithm is very much possible for Zroot2
+    //    let nor = o0*o0-2.0*o1*o1 ;
+    //    if nor!=0.0
+    //    {
+    //        // WARNING: This is bad mathematics 
+    //        //          because when self/other is not exactly in Zroot2
+    //        //          the output of this will be self = q*other + r
+    //        //          where absolute value of r.norm() is less than
+    //        //          absolute value of other.norm().
+    //        //
+    //        //          Basically, this does Euclidean division
+    //        //          and finds q given above
+            
+
+    //        // A previous version used self*other.conj()
+
+    //        let n0 = s0*o0 - 2.0*s1*o1;
+    //        let n1 = s1*o0 - s0*o1;
+
+    //        return Zroot2( (n0/nor).round() as Int,  (n1/nor).round() as Int );
+
+    //    }
+    //    else 
+    //    {
+    //        println!("Wanted to divide {} with {}",self,other);
+    //        panic!("Division by zero error");
+    //    }
+
+    //}
+
+    // This is a div implementation assuming you have exact integer arithmetic
+    // in practice, this works bad because taking squares loses precision
+    // an imprecise float version is above, but it also works bad and loses
+    // the precision we want for exact computations of gcd and splitting of 
+    // prime ideals
     fn div(self, other: Self) -> Self
     {
+
         // Zroot2 is norm-Euclidean
         // Therefore a division algorithm is very much possible for Zroot2
-        // Will look in to this: TODO
         let mut nor = other.norm();
-        if nor==1 || nor==-1
+        
+        if nor!=0
         {
-            let norself = Self{
-                0: nor,
-                1: 0
-            };
-            return self*other.conj()*norself;
-        }
-        else if nor!=0
-        {
-            // WARNING: This is bad mathematics is bad mathematics 
+            // WARNING: This is bad mathematics 
             //          because when self/other is not exactly in Zroot2
             //          the output of this will be self = q*other + r
             //          where absolute value of r.norm() is less than
@@ -302,13 +348,15 @@ impl Div for Zroot2
             //
             //          Basically, this does Euclidean division
             //          and finds q given above
+            
+
+            // A previous version used self*other.conj()
+
             let numerator = self*other.conj();
             let denominator = nor;
 
 
             return Zroot2( nearest_integer(numerator.0,nor),  nearest_integer(numerator.1, nor) );
-
-            todo!();
 
         }
         else 

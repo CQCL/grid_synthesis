@@ -64,18 +64,18 @@ pub fn multiply_H_times_T_to_n( gamma: Mat, n: Int) -> Mat
     {     
         return apply_h_gate(gamma);
     }
-    
+
     else
     {
         let omega = mu_8();
         let sqrt2 = sqrt2();
-        
+
         let u1 = gamma.u;
         let t1 = gamma.t;
-        
+
         let u2 = ( u1+omega.pow(n)*t1 )/sqrt2;
         let t2 = ( u1-omega.pow(n)*t1 )/sqrt2;
-        
+
         return Mat{
             u: u2,
             t: t2
@@ -93,7 +93,7 @@ pub fn apply_gate_string_to_state( gate_string: String ,  gamma: Mat) -> Mat
     let rt2 = sqrt2();
     let omega = mu_8();
     let mut state = gamma;
-    
+
     // Why is it rev? We apply gates right to left in the string
     for i in gate_string.chars().rev() 
     {
@@ -107,7 +107,7 @@ pub fn apply_gate_string_to_state( gate_string: String ,  gamma: Mat) -> Mat
             state = apply_t_gate(state);
         }
     }
-    
+
     return state;
 }
 
@@ -162,11 +162,11 @@ pub fn exact_synth( gamma: ExactUniMat) -> (String)
     let (mut seq , to_be_looked_up) = partial_exact_synth_given_norm_1(gammamat);
 
     // println!("PARTIAL REDUCTION GAVE SEQUENCE = {}",seq );
-    
+
     // println!("WILL LOOK UP =  \n  {}", to_be_looked_up);
 
 
-    
+
     if to_be_looked_up != Mat::one()
     {
         let file_saved_at = "data/gates_with_small_t_count.dat";
@@ -195,7 +195,7 @@ pub fn exact_synth( gamma: ExactUniMat) -> (String)
     let difference = almost_answer.inv()*gamma;
 
     // println!("THE DIFFERENCE OF GATES IS  = \n {}", difference);
-    
+
     let tailing_t_gates = difference.omega_exp;
 
     // println!("TAILING T GATES =  {}", tailing_t_gates);
@@ -232,22 +232,22 @@ pub fn partial_exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
     // {
     //     panic!("I was promised norm 1");
     // }
-    
+
     // if gamma.u.norm_sqr().log_den != gamma.t.norm_sqr().log_den
     // {
     //     panic!("Mathematics is wrong");
     // }
-    
+
     let mut g: Mat;
     let mut h = gamma;
-    
+
 
     let mut nevercalled : bool;
     let mut i: Int;
 
     // This is what we want to reduce
     let mut sdeq= sde(h);
-    
+
 
     // println!("SDEQ VALUE = {}", sdeq);
 
@@ -267,7 +267,7 @@ pub fn partial_exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
 
 
             let sdeq_new= sde(g);
-            
+
             if sdeq_new==sdeq-1
             {
 
@@ -277,13 +277,13 @@ pub fn partial_exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
 
                 sdeq = sdeq_new-1;
                 h = g;
-                
-                
+
+
                 for j in 0..i
                 {
                     gate_string.push_str("T");
                 }
-                
+
                 gate_string.push_str("H");
             }
             i=i+1;
