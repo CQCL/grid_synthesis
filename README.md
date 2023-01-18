@@ -69,7 +69,7 @@ I am an intern. My job is to learn. I learnt a lot and that's one major accompli
 - A rewrite of `inexact_synth.rs` would be a good idea. The geometry problems are too nasty and attempts to fix it keeps making the code uglier. Perhaps do the good old grid operators?
 - Replace the `i128` in `src/structs/rings/mod.rs` with `BigInt` from `num::BigInt`. Remove borrowing the `Copy` trait in some structs as prompted by the compiler. Take care of the >1000 bugs that it throws thereafter.
 
-I estimate, it will take several weeks of work for someone who knows Rust well. For someone who is not well-verse like how I was when I came here, it will take another intern.
+I estimate, it will take several weeks of work for someone who knows Rust well. For someone who is not well-versed like how I was when I came here, it will take another internship.
 
 # References
 
