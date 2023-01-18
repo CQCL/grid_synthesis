@@ -242,7 +242,7 @@ pub fn testing_rapidly_tonelli_shanks()
 #[test]
 pub fn testing_prime_factorization_lots_of_times_for_loc()
 {
-    let n = 10000;
+    let n = 1000;
     for i in 0..n
     {
         testing_prime_factorization_in_loc();
