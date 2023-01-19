@@ -220,7 +220,7 @@ pub fn test_this_complex_pair_of_points( complex_point: Comp , complex_point_dot
 
 pub fn make_exact_gate_from(left: Loc ,right: Loc, left_scaled: Loc, right_scaled: Loc) -> ExactUniMat
 {
-    println!("sum_of_all_squares = {}", left*left + right*right +left_scaled*left_scaled + right_scaled*right_scaled );
+    // println!("sum_of_all_squares = {}", left*left + right*right +left_scaled*left_scaled + right_scaled*right_scaled );
     return ExactUniMat
     {
         mat: SUniMat{

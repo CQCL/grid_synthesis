@@ -209,8 +209,13 @@ impl Zomega
 }
 
 
+// This code here has been the culprit for a lot of integer overflows
+// This is basically because calculating norm is like calculating the 
+// fourth powers of some integers; I will try to make a floating point 
+// approximation of the Div operation that works when the integers are large
 impl Div for Zomega 
 {
+
     type Output = Self;
     fn div(self, other: Self) -> Self
     {

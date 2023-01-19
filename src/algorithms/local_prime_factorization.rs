@@ -93,7 +93,7 @@ pub fn power_mod_p(xorig: Int, m: Int, p: Int ) -> Int
             result *= x;
             result = result %p;
         }
-        x *= x;
+        x *= x%p;
         x = x%p;
         n >>= 1;
     }
