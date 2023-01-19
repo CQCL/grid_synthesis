@@ -38,6 +38,10 @@ you can browse happily.
 cargo llvm-cov --html 
 ```
 
+# Testing 
+Tests that fail will probably do so due to one of the following
+- Floating point weirdness.
+- Integer overflows
 
 # Plan of implementation
 
@@ -70,7 +74,7 @@ I will make a verbose description of the state of affairs.
 ## What doesn't work and why
 - The `Int` type use in `src/structs/rings/mod.rs` is a `i128` (which is still better than an `i64` used initially). But at some point, if I have $x=a+b\omega+c\omega^2+d\omega^3 \in \mathbb{Z}[\omega]$, where $\omega = e^{\tfrac{1}{4}i\pi}$ and if I want to compute $N(x)$, this would involve taking fourth powers of $a,b,c,d$. This is actually a very routine computation that is needed to calculate `gcd` in this ring and in the cases where it needs to be done, $a,b,c,d$ might already be coming from sums of squares of integers. `i128` is the largest integer type Rust allows and this means that working with integers bigger than 65536 could lead to overflows. Now there is a `BigInt` crate that could be called, but this does not implement that `Copy` trait, which is because a `BigInt` cannot have memory allocated during compile. Not using `Copy` makes doing arithmetics much harder and using `BigInt` would produce very ugly code with stuff like `random_integer+Int::one()` instead of `random_integer+1`. The fallout is that we are not able to get gate synthesis for values below $\varepsilon < 10^-3$.
 
-## Verdict
+## Proposed changes that I did not get time for
 - Replace the `i128` in `src/structs/rings/mod.rs` with `BigInt` from `num::BigInt`. Remove borrowing the `Copy` trait in some structs as prompted by the compiler. Take care of the >1000 bugs that it throws thereafter. An alternate way could be to write an `Int` struct that works like `i512` or something.
 - Once the integer overflow problem is pushed away, we would run into problems with prime factorization. The Ross-Selinger paper throws away lattice points for which prime factorization is too hard. Right now, this isn't a problem but when it happens, one of the two fixes are possible:
 	- Do as they do. Throw away primes for which factorization takes longer than average.

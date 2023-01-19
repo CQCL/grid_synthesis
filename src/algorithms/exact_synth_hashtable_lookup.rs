@@ -25,9 +25,8 @@ type State = ExactGate;
 
 
 type GateString = String; // String of H and T
-pub const GATE_STRING_LENGTH : usize = 30;  // This is the number of H and T gates to be multiplied
-                                            // This number is recommended to be 30
-                                            //
+pub const GATE_STRING_LENGTH : usize = 25;  // This is the number of H and T gates to be multiplied
+                                            // This number is recommended to be 24
 
 
 // Hash table. It will store gatestring and corresponding exact gate

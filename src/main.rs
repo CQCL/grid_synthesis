@@ -3,7 +3,7 @@
 // Cautions: Comments could look pretentious
 
 
-#![allow(warnings)]
+// #![allow(warnings)]
 
 pub mod structs;
 pub mod tests;
