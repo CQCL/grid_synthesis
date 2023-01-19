@@ -25,10 +25,13 @@ use std::fmt::Formatter;
 use crate::structs::sunimat::SUniMat;
 use crate::structs::rings::local_ring::Local;
 use crate::structs::rings::zroot2::Zroot2;
+use crate::structs::rings::Float;
 use num_complex::Complex;
 use crate::structs::rings::special_values::mu_8;
 use crate::structs::rings::special_values::onebyroot2comp;
 type KMMring = Complex<Local<Zroot2>>;
+
+use crate::algorithms::inexact_synth::SQRT2;
 
 // Unitary matrices. They are the form 
 // /                \
@@ -204,6 +207,22 @@ impl ExactUniMat
         {
             mat: input,
             omega_exp: 0
+        }
+    }
+
+    pub fn to_float_gate_upto_t_count(self) -> SUniMat::<Complex::<Float>>
+    {
+        return SUniMat::<Complex::<Float>>
+        {
+            u: Complex{
+                re: (  (self.mat.u.re.num.0 as Float) + SQRT2*( self.mat.u.re.num.1 as Float) )*SQRT2.pow(-self.mat.u.re.log_den),
+                im: (  (self.mat.u.im.num.0 as Float) + SQRT2*( self.mat.u.im.num.1 as Float) )*SQRT2.pow(-self.mat.u.im.log_den),
+            },
+            t: Complex{
+                re: (  (self.mat.t.re.num.0 as Float) + SQRT2*( self.mat.t.re.num.1 as Float) )*SQRT2.pow(-self.mat.t.re.log_den),
+                im: (  (self.mat.t.im.num.0 as Float) + SQRT2*( self.mat.t.im.num.1 as Float) )*SQRT2.pow(-self.mat.t.im.log_den),
+            },
+
         }
     }
 

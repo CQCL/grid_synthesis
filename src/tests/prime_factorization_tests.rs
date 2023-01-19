@@ -247,7 +247,7 @@ pub fn testing_prime_factorization_lots_of_times_for_loc()
     {
         testing_prime_factorization_in_loc();
     }
-
+    
     println!("local_prime_factorization worked {} times ",n );
 }
 
@@ -387,7 +387,7 @@ pub fn testing_if_sum_of_locs_work()
 {
 
     let mut rng = thread_rng();
-    let m = 15;
+    let m = 20;
 
 
     let mut u1 = Loc::from_base(Zroot2(rng.gen_range(-m..m),rng.gen_range(-m..m)));
@@ -401,11 +401,13 @@ pub fn testing_if_sum_of_locs_work()
 
     let random_exponent : LogDepInt = rng.gen_range(-10..10);
     u1.log_den += random_exponent;
-    // u1.log_den = -15;
 
     let random_add : LogDepInt = rng.gen_range(-5..5);
     u2.log_den += random_exponent + random_add; // if the difference between exponents is too large, you will meet with integer overflow
-    // u2.log_den = -15;
+    // let input = u1*u1+u2*u2;
+    
+    let input = u1*u1+u2*u2;
+    // let input = Loc::from_base( Zroot2(288230376428892695, -203809653324828192 ) )   ;
     
     // println!("u1 = {}", u1 );
     // println!("u2 = {}", u2 );
@@ -413,18 +415,27 @@ pub fn testing_if_sum_of_locs_work()
     // attempt_to_write_this_number_as_sum_of_two_squares_in_loc( Loc::one());
     // attempt_to_write_this_number_as_sum_of_two_squares_in_loc( sqrt2loc() - Loc::one() );
     // attempt_to_write_this_number_as_sum_of_two_squares_in_loc( sqrt2loc()  );
-    let out = attempt_to_write_this_number_as_sum_of_two_squares_in_loc(u1*u1 + u2*u2);
+    // let out = attempt_to_write_this_number_as_sum_of_two_squares_in_loc(u1*u1 + u2*u2);
+    //
+    let out = attempt_to_write_this_number_as_sum_of_two_squares_in_loc(input);
 
     if out == None
     {
         panic!("Input was a sum of squares");
     }
+    else
+    {
+        let (v1,v2) = out.unwrap();
+        assert!(v1*v1 + v2*v2 == input ) ;
+    }
+
+    
 }
 
 #[test]
 pub fn rapidly_testing_sum_of_locs()
 {
-    let n = 1000;
+    let n = 10000;
     for i in 0..n
     {
         testing_if_sum_of_locs_work();

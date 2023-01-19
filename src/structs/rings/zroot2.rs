@@ -354,8 +354,6 @@ impl Div for Zroot2
 
             let numerator = self*other.conj();
             let denominator = nor;
-
-
             return Zroot2( nearest_integer(numerator.0,nor),  nearest_integer(numerator.1, nor) );
 
         }

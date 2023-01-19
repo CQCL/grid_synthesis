@@ -125,21 +125,6 @@ where T: Zero+One,
 }
 
 impl<T> SUniMat<T>
-{
-    pub fn h_gate() -> Self 
-    {
-        todo!();
-    }
-
-    pub fn t_gate() -> Self
-    {
-        // TODO
-        todo!();
-    }
-
-}
-
-impl<T> SUniMat<T>
 where T: Mul<Output=T>+Add<Output=T>+Conj,
       T: Copy
 {

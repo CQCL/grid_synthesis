@@ -4,6 +4,7 @@ use crate::algorithms::inexact_synth::get_comp_point_from_integer_coord;
 use crate::algorithms::inexact_synth::ellipse_parameters_for_region_a;
 use crate::algorithms::inexact_synth::test_this_complex_pair_of_points;
 use crate::algorithms::inexact_synth::generate_coordinates_and_center;
+use crate::algorithms::exact_synth::exact_synth;
 
 
 
@@ -119,7 +120,7 @@ pub fn produce_random_grid_paramters() -> GridParams
     let (x,y) = random_points_on_2d_circle();
 
     let rand_comp = Comp{re:x,im:y};
-    let epsilon: Float = rng.gen_range( 0.0000001..0.0002 );
+    let epsilon: Float = rng.gen_range( 0.0000001..0.02 );
     return (rand_comp, epsilon);
 
 
@@ -242,7 +243,10 @@ pub fn random_inexact_synth_test()
     println!("(direction ,epsilon) = ({},{})",direction,epsilon );
 
     let answer = grid_problem(direction,epsilon);
-    println!("{}",answer );
+    println!("answer =\n {}",answer );
+    println!("as a float gate = \n{}",answer.to_float_gate_upto_t_count() );
+
+    println!("Gate sequence {}", exact_synth(answer) );
 
 }
 

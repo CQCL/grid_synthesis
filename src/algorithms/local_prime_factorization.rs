@@ -36,7 +36,7 @@ use crate::algorithms::inexact_synth::SQRT2;
 
 type Loc = Local::<Zroot2>;
 
-type FactorInt = u64;
+type FactorInt = u128;
 type FactorPowerInt = u32;
 
 
@@ -247,7 +247,7 @@ pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  
 
     for (prime, locprime,power) in factorvec
     {
-        // println!(" Thinking about prime {}", prime );
+        // println!(" --------- \n Thinking about prime {}", prime );
         // println!("power is {}", power );
         // println!("power%2 is {}", power%2 );
         // println!("locprime is {}", locprime );
@@ -437,7 +437,8 @@ pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  
 pub fn prime_factorization_of_loc( input: Local::<Zroot2> ) -> Vec::<( FactorInt, Loc, LogDepInt)>
 {
 
-    let num = input.num.norm().abs() as FactorInt;
+    // If this fails, then input is probably out of bound
+    let num : FactorInt= input.num.norm().abs().try_into().unwrap();
 
 
     // This line here can be replaced by any other prime factorization algorithm
@@ -452,9 +453,16 @@ pub fn prime_factorization_of_loc( input: Local::<Zroot2> ) -> Vec::<( FactorInt
         factorvecloc.pop();
     }
 
+    // println!("=========== \n FACTORING {}", input);
+    // println!("norm is {}", num );
+    // println!("norm is {}", input.num.0*input.num.0 - 2*input.num.1*input.num.1 );
 
     for (prime,power) in factorvec
     {
+        // println!(" --------- \n Thinking about prime {}", prime );
+        // println!("power is {}", power );
+        // println!("prime%8 is {}", prime%8 );
+
         // These are the cases where the prime in Z remains a prime in Zroot2
         if prime%8==3 || prime%8==5
         {
@@ -482,8 +490,13 @@ pub fn prime_factorization_of_loc( input: Local::<Zroot2> ) -> Vec::<( FactorInt
             let primezrt = compute_gcd(p,x);
             let primezrtconj = primezrt.conj();
 
+            // println!("primezrt found is {}",primezrt );
+
             let primezrtpowerininput = compute_gcd( input.num, pow(primezrt, power.try_into().unwrap() ) );
-            // let primezrtconjpowerininput = compute_gcd( input.num, pow(primezrtconj, power.try_into().unwrap() ) );
+            let primezrtconjpowerininput = compute_gcd( input.num, pow(primezrtconj, power.try_into().unwrap() ) );
+            //
+            // println!("primezrtpowerininput {}", primezrtpowerininput );
+            // println!("primezrtconjpowerininput {}", primezrtconjpowerininput );
 
             if primezrtpowerininput.norm().abs() != 1
             {
@@ -568,6 +581,7 @@ pub fn find_unit_square_root( unit : Zroot2) -> Option::<Zroot2>
     {
         println!("x1 x2 were {} {}",x0,x1 );
         println!("r1 r2 were {} {}",r1,r2 );
+        println!("The unit {} was not doubly positive", unit );
         return None;
     }
 }

@@ -146,10 +146,11 @@ pub fn apply_t_gate( gamma: Mat) -> Mat
 
 
 // The main deal
-pub fn exact_synth( gamma: ExactUniMat) -> (String) 
+pub fn exact_synth( gamma: ExactUniMat) -> String 
 { 
 
     let gammamat = gamma.mat; 
+
 
     // assert_eq!(gamma, ExactUniMat::from_string(&"HTHT".to_string() ) );
     // assert_eq!(gamma.omega_exp, 2);
@@ -228,10 +229,11 @@ pub fn partial_exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
 
     let mut gate_string = "".to_string();
 
-    // if gamma.det()!= Comp::one()
-    // {
-    //     panic!("I was promised norm 1");
-    // }
+    if gamma.det()!= Comp::one()
+    {
+        println!("gamma.det was {}", gamma.det());
+        panic!("I was promised norm 1");
+    }
 
     // if gamma.u.norm_sqr().log_den != gamma.t.norm_sqr().log_den
     // {
@@ -249,11 +251,11 @@ pub fn partial_exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
     let mut sdeq= sde(h);
 
 
-    // println!("SDEQ VALUE = {}", sdeq);
 
     // See Lemma 3 in 1206.5236v4 to see why sdeq > 3
     while sdeq>3
     {
+        // println!("SDEQ VALUE = {}", sdeq);
         nevercalled = true;
 
         // See Lemma 3 in 1206.5236v4 to see why 0<i<4

@@ -11,6 +11,7 @@ use crate::structs::rings::Localizable;
 use crate::structs::unimat::ExactUniMat;
 
 
+use crate::structs::rings::special_values::sqrt2loc;
 
 
 use crate::algorithms::local_prime_factorization::prime_factorization_of_loc;
@@ -21,6 +22,7 @@ use crate::algorithms::lll::gram_schmidt_orthogonalization;
 use crate::algorithms::exact_synth::exact_synth;
 
 use num_traits::Pow;
+use num_traits::pow;
 use num_traits::One;
 use nalgebra::linalg::QR;
 
@@ -218,11 +220,12 @@ pub fn test_this_complex_pair_of_points( complex_point: Comp , complex_point_dot
 
 pub fn make_exact_gate_from(left: Loc ,right: Loc, left_scaled: Loc, right_scaled: Loc) -> ExactUniMat
 {
+    println!("sum_of_all_squares = {}", left*left + right*right +left_scaled*left_scaled + right_scaled*right_scaled );
     return ExactUniMat
     {
         mat: SUniMat{
-            u: CompLoc{re: left_scaled, im: right},
-            t: CompLoc{re: left, im: right}
+            u: CompLoc{re: left_scaled, im: right_scaled},
+            t: CompLoc{re: left, im:  right}
         },
         omega_exp : 0
     };
@@ -259,30 +262,17 @@ pub fn attempt_to_figure_out_gate_given_that_this_point_is_feasible( this_point:
 {
 
     let get_coord =  extract_gate_coordinate_in_local_ring(this_point);
-
     if get_coord == None
     {
         return None;
     }
     else
     {
-        let (left,right) = get_coord.unwrap();
-
-        // println!("left = {}", left);
-        // println!("right = {}", right);
+        let (left_raw,right_raw) = get_coord.unwrap();
 
 
-        let left_scaled = Loc
-        {
-            num: left.num,
-            log_den: left.log_den + exactlogdep,
-        };
-
-        let right_scaled = Loc
-        {
-            num: right.num,
-            log_den: right.log_den + exactlogdep,
-        };
+        let left_scaled = left_raw * pow(Loc::one() / sqrt2loc(), exactlogdep.try_into().unwrap() );
+        let right_scaled = right_raw * pow(Loc::one() / sqrt2loc(), exactlogdep.try_into().unwrap() );
 
         let our_num = Loc::one() - left_scaled*left_scaled - right_scaled*right_scaled;
 
@@ -291,7 +281,6 @@ pub fn attempt_to_figure_out_gate_given_that_this_point_is_feasible( this_point:
         // Based on Lemma 6.1 of 1403.2975
         if (! is_doubly_positive( our_num )) 
         {
-            // println!("DOUBLY POSITIVE TEST FAILED FOR {}",our_num );
             return None;
         }
 
@@ -300,6 +289,18 @@ pub fn attempt_to_figure_out_gate_given_that_this_point_is_feasible( this_point:
         if sum_of_square != None
         {
             let (left,right) = sum_of_square.unwrap();
+
+            // DEBUG ZONE
+            if ( left*left+right*right != our_num )
+            {
+                println!("left = {}", left);
+                println!("right = {}", right);
+                println!("our_num = {}", our_num);
+                panic!("Sum of squares are wrong");
+            }
+            assert!( left*left+right*right + left_scaled * left_scaled + right_scaled * right_scaled == Loc::one() );
+            // END OF DEBUG ZONE
+
             return Some(make_exact_gate_from(left,right,left_scaled,right_scaled));
         }
         else
@@ -533,144 +534,22 @@ pub fn grid_problem_given_depth( exactlogdep: LogDepInt, (direction,epsilon) :Gr
     //    };
     //    // ------------------- END OF DEBUG ZONE
 
+
+
     //    // Instead of this, we could have a rust thread
     //    // stream out lattice points by communicating messages.
     //    // and in parallel another one testing that it works
     let possible_output =  test_integer_points_in_ball_around_integer_center_of_radius(new_radius, new_center_in_new_int, new_int_to_standard_int, exactlogdep,  (direction,epsilon));
-
-
     return possible_output;
 
 }
 
 
-// Old and buggy code
-//pub fn grid_problem_given_depth( exactlogdep: LogDepInt , (direction, epsilon_a ) : GridParams )-> Option::<ExactUniMat>
-//{
-
-//    let (center, ellipse_matrix , radius ) = generate_coordinates_and_center(direction,epsilon_a);
-//    let reducable = ellipse_matrix * integral_to_complex_mat ;
-
-
-//    // The ellipse above will be most likely be highly skewed. 
-//    // LLL algorithm makes new coordinates
-//    // with respect to which the lattice is more "upright"
-//    //
-//    // This is conceptually the same as the grid operators that they find in the 
-//    // Ross-Selinger paper. There's no reason to reinvent this wheel though.
-
-//    let (reduced, lattice_standard_to_new) = lll_reduce(reducable);
-//    let lattice_new_to_standard = mat4int_inverse(lattice_standard_to_new);
-
-
-//    // The description of the integer points changes when LLL is called
-//    // Now (x_1,x_2,y_1,y_2) no longer mean 
-//    //   (x_1 + sqrt(2) x_2) sqrt2 ^ exactlogdep + i (y_1 + sqrt(2) y_2) sqrt2 ^ exactlogdep
-//    // 
-//    // But they almost mean this, differing by a lattice automorphism which we can compute as
-//    // follows
-//    //  (x_1 ,x_2 ,y_1, y_2 )  = lattice_new_to_standard * (x_1new , x_2new, y_1new, y_2new)
-
-
-//    // DEBUG ZONE
-//    // println!("lattice_new_to_standard looks like : \n {}", lattice_new_to_standard );
-//    // println!("lattice_standard_to_new looks like : \n {}", lattice_standard_to_new );
-//    // println!("reduced {}",reduced );
-//    // println!("reducable {}",reducable );
-//    // END OF DEBUG ZONE
-
-
-//    // blow everything up by SQRT2 power exactlogdep
-//    let centerblownup = SQRT2.pow(exactlogdep)*center;
-//    let radiusblownup = (SQRT2.pow(2*exactlogdep)*radius.sqrt());
-
-//    // DEBUG ZONE
-//     let center_standard =  centerblownup * SQRT2.pow(-exactlogdep);
-//     let complex_point = Comp
-//     { 
-//         re: center_standard[0],
-//         im: center_standard[1],
-//     };
-//     println!("Center is at complex_point:  {}", complex_point);
-//     // println!("This should look close to {}",direction);
-//    // END OF DEBUG ZONE
-
-
-//    // Find a reasonable lattice point to start with
-//    // we then use this lattice point to find other feasible lattice points in the vicinity
-//    let reducedstar = gram_schmidt_orthogonalization(reduced);
-//    let (lattice_center_in_4d_space,center_in_new_coordinates) = nearest_plane( reduced , reducedstar , ellipse_matrix * centerblownup );
-//    let lattice_center_in_standard_coordinates = lattice_new_to_standard * center_in_new_coordinates;
-
-
-
-//    // DEBUG ZONE ====================
-//    // println!("lattice_new_to_standard {}",lattice_new_to_standard );
-//    // println!("lattice_center_in_4d_space {}",lattice_center_in_4d_space );
-//    // println!("ellipse_matrix * centerblownup {}", ellipse_matrix * centerblownup );
-//    // // println!("lattice_center_in_4d_space {}",  reducable *vec4int_to_vec4float( lattice_center_in_standard_coordinates ) );
-//    // println!("Lattice center is at complex_point:  {}", new_complex_point);
-//    // println!("This should look close to {}",direction);
-//    // END OF DEBUG ZONE ==============
-
-
-//    // Finding an appropriate radius
-//    let error_in_approximation = ( ellipse_matrix * centerblownup - lattice_center_in_4d_space ).norm() * SQRT2.pow(-exactlogdep);
-//    // let operator_norm = find_operator_norm(reduced);
-//    let vicinitysqrt = (radius + error_in_approximation);
-//    let vicinity = vicinitysqrt * vicinitysqrt;
-
-//    // ----------------------- DEBUG ZONE 
-//    println!("::: Error_in_approx {}", error_in_approximation );
-//    let region_a_point = crate::tests::inexact_synth_tests::produce_random_point_inside_miniscule( direction, epsilon_a);
-//    let mut rng = thread_rng();
-//    let random_length : Float  = rng.gen_range(0.0..1.0);
-//    let (x,y) = crate::tests::inexact_synth_tests::random_points_on_2d_circle();
-//    let region_b_point = Comp{re:x*random_length,im:y*random_length};
-
-//    // this random test_point should be in the ellipse
-//    let new_center =  integral_to_complex_mat * vec4int_to_vec4float(lattice_center_in_standard_coordinates)*SQRT2.pow(-exactlogdep);
-//    let new_complex_point = Comp
-//    { 
-//        re: new_center[0],
-//        im: new_center[1],
-//    };
-//    println!("new_center is at {}",new_complex_point );
-//    let testvec =  Vec4::new(region_a_point.re,region_a_point.im,region_b_point.re,region_b_point.im);
-//    let offset = testvec - new_center;
-//    let offset_skewed = ellipse_matrix*offset;
-//    let skewed_distance = ( offset_skewed.transpose() * offset_skewed )[(0,0)];
-//    if ( skewed_distance > vicinity )
-//    {
-
-//        println!("WARNING WARNING!" );
-//        println!("off by {}",skewed_distance/vicinity );
-//        let offset2 = testvec - center;
-//        let offset_skewed2 = ellipse_matrix*offset2;
-//        let skewed_distance2 = ( offset_skewed2.transpose() * offset_skewed2 )[(0,0)];
-//        if ( skewed_distance2 < radius ) 
-//        {
-//            println!("Where as the point without approximating the center is in the right vicinity");
-//            assert!( test_this_complex_pair_of_points(region_a_point, region_b_point, ( direction, epsilon_a) )  );
-//        }
-//        else 
-//        {
-//            println!("But not even the old test passes!");
-//        }
-//        panic!("FIX THIS BUG");
-//    };
-//    // ------------------- END OF DEBUG ZONE
-
-
-
-
-//}
-
 
 
 pub fn grid_problem( direction: Comp, epsilon_a: Float)-> ExactUniMat
 {
-    let problem_parameters = ( direction, epsilon_a);
+    let problem_parameters = ( direction, epsilon_a*epsilon_a/2.0);
 
     let mut answer: Option::<ExactUniMat>;
 
@@ -685,15 +564,24 @@ pub fn grid_problem( direction: Comp, epsilon_a: Float)-> ExactUniMat
         if answer != None
         {
             let gate = answer.unwrap();
+            
             println!("Found a candidate at depth {}",i );
             println!("which is \n {}", gate);
-            let seq = exact_synth( gate );
-            println!("FINAL SEQUENCE = {}", seq );
+
+            return(gate);
         }
         // println!("--------------- \n \n ");
     }
 
-    panic!("Nothing found under depth {}", maxdepth);
+    panic!("Nothing found under depth {}. Consider increasing maxdepth", maxdepth);
+}
+
+
+pub fn grid_problem_given_theta_and_epsilon( theta: Float, epsilon : Float ) -> ExactUniMat
+{
+    let x = Comp::new(0.0, theta);
+    return grid_problem( x.exp() , epsilon);
+
 }
 
 
