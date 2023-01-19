@@ -17,7 +17,7 @@ pub fn nearest_integer(top :Int, bottom: Int) -> Int
     {
         return Int::zero();
     }
-    else if ( top > Int::zero() && bottom > Int::zero() )     
+    else if  top > Int::zero() && bottom > Int::zero() 
     { 
         let twice = (top << 1)/bottom;
         if twice%2==Int::zero()
@@ -30,11 +30,11 @@ pub fn nearest_integer(top :Int, bottom: Int) -> Int
         }
 
     }
-    else if ( top < Int::zero() && bottom < Int::zero() ) 
+    else if  top < Int::zero() && bottom < Int::zero()
     {
         return nearest_integer(-top, -bottom);
     }
-    else if ( top > Int::zero() && bottom < Int::zero() ) 
+    else if  top > Int::zero() && bottom < Int::zero() 
     {
         return -nearest_integer(top, -bottom);
     }

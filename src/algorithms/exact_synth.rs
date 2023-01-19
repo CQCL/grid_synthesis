@@ -58,7 +58,7 @@ use crate::algorithms::exact_synth_hashtable_lookup::GateTable;
 use crate::algorithms::exact_synth_hashtable_lookup::read_hash_table;
 
 
-pub fn multiply_H_times_T_to_n( gamma: Mat, n: Int) -> Mat
+pub fn multiply_h_times_t_to_n( gamma: Mat, n: Int) -> Mat
 {
     if n==0
     {     
@@ -265,7 +265,7 @@ pub fn partial_exact_synth_given_norm_1( gamma: Mat) -> (String, Mat)
 
 
             sdeq= sde(h);
-            g = multiply_H_times_T_to_n(h,-i);
+            g = multiply_h_times_t_to_n(h,-i);
 
 
             let sdeq_new= sde(g);

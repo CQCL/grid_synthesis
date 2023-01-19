@@ -39,7 +39,7 @@ type Vec4Int = nalgebra::Matrix4x1<Int>;
 // LLL delta parameter
 // 0.75 is the standard 
 // we can experiment with other values
-pub const lll_delta : Float = 0.75;
+pub const LLL_DELTA : Float = 0.75;
 
 
 
@@ -195,7 +195,7 @@ pub fn lll_reduce_recursion( input: Mat4, intmat : Mat4Int ) -> ( Mat4, Mat4Int)
         let uij = b.column(i+1).dot(&bstar.column(i))/bstar.column(i).dot(&bstar.column(i)) ;
         let right = bstar.column(i) * uij + bstar.column(i+1);
 
-        if lll_delta * (left.dot(&left)) >= (right.dot(&right))
+        if LLL_DELTA * (left.dot(&left)) >= (right.dot(&right))
         {
             swap_columns(i,i+1,&mut b);
             swap_rows(i,i+1,&mut x);

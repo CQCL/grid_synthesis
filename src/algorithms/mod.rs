@@ -1,4 +1,4 @@
-#![allow(warnings)]
+// #![allow(warnings)]
 
 pub mod exact_synth;
 pub mod exact_synth_hashtable_lookup;

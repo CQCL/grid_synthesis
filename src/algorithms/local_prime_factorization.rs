@@ -340,12 +340,12 @@ pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  
         {
             if prime == 2
             {
-                power_of_sqrt2 = ( power >> 1 );
+                power_of_sqrt2 =  power >> 1 ;
                 // println!("adjusting power_of_sqrt2 to {}", power_of_sqrt2);
             }
             else 
             {
-                let powerby2 = (power >> 1);
+                let powerby2 = power >> 1;
 
                 // println!("powerby2 {}", powerby2);
                 
@@ -399,7 +399,7 @@ pub fn attempt_to_write_this_number_as_sum_of_two_squares_in_loc(our_num: Loc)  
     else
     {
         panic!("Our unit was not decomposable! This is mathematically impossible if input was doubly positive. Imperfect floats are probably the reason");
-        return None;
+        // return None;
     }
 
     // println!("zrt2_sqrt_unit = {}", zrt2_sqrt_unit.unwrap());
@@ -469,7 +469,7 @@ pub fn prime_factorization_of_loc( input: Local::<Zroot2> ) -> Vec::<( FactorInt
 
             // This is an inert prime when lifting from Z to Z[sqrt2]
             let primeloc = <Loc as NumCast >::from(prime).unwrap();
-            let powerby2 = (power >> 1);
+            let powerby2 = power >> 1;
             factorvecloc.push( (prime,primeloc,powerby2.try_into().unwrap() ) );
         }
 
@@ -594,7 +594,7 @@ pub fn floorlog( input: Float, base: Float) -> LogDepInt
 {
     let mut out = 0;
     let mut x = input.clone();
-    while (x >= base) 
+    while x >= base
     {
         out = out + 1;
         x = x / base;

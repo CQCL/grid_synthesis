@@ -3,7 +3,7 @@ use crate::algorithms::lll::swap_columns;
 use crate::algorithms::lll::nearest_plane;
 use crate::algorithms::lll::lll_reduce;
 use crate::algorithms::lll::size_reduce_given_gram_schmidt;
-use crate::algorithms::lll::lll_delta;
+use crate::algorithms::lll::LLL_DELTA;
 use crate::algorithms::inexact_synth::vec4int_to_vec4float;
 use crate::algorithms::inexact_synth::mat4int_to_mat4;
 use crate::algorithms::inexact_synth::mat4int_inverse;
@@ -230,7 +230,7 @@ pub fn test_lovasz_condition( b : Mat4) -> bool
         let uij = b.column(i+1).dot(&bstar.column(i))/bstar.column(i).dot(&bstar.column(i)) ;
         let right = bstar.column(i) * uij + bstar.column(i+1);
 
-        if lll_delta * (left.dot(&left)) >=  (right.dot(&right))
+        if LLL_DELTA * (left.dot(&left)) >=  (right.dot(&right))
         {
             return false;
         }

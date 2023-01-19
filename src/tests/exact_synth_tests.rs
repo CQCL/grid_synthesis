@@ -8,7 +8,7 @@ use crate::structs::sunimat::SUniMat;
 use crate::structs::rings::Int;
 use crate::structs::rings::Float;
 use crate::algorithms::exact_synth::apply_gate_string_to_state;
-use crate::algorithms::exact_synth::multiply_H_times_T_to_n;
+use crate::algorithms::exact_synth::multiply_h_times_t_to_n;
 use crate::algorithms::exact_synth::apply_t_gate;
 use crate::algorithms::exact_synth::apply_tinv_gate;
 use crate::algorithms::exact_synth::apply_h_gate;
@@ -87,11 +87,11 @@ pub fn comp_pow_test() {
 }
 
 #[test]
-pub fn multiply_H_times_T_to_n_test() {
+pub fn multiply_h_times_t_to_n_test() {
     let mut gamma = Mat::one();
     let n = 5;
 
-    let mat_2 = multiply_H_times_T_to_n(gamma, n);
+    let mat_2 = multiply_n_times_t_to_n(gamma, n);
 
     for i in 0..n {
         gamma = apply_t_gate(gamma);

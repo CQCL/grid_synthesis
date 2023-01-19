@@ -81,6 +81,7 @@ I will make a verbose description of the state of affairs.
 	- Make a parallel process for each lattice point at the point where factorization has to occur. When at least one point leads to a succesful gate find, stop adding new processes. The point of doing this is, we get a "second to optimal" $T$-count quickly and then some more optimal "T"-counts after the processes finish. I did not get time to implement this, but I don't think it should take more than a week or two to do this.
 - Almost all the overflow errors happen in `structs/rings/zomega.rs` at line 224. That's because we're taking norms which involves taking fourth powers. There might be a sleek way to do the same operation without this?
 - The Ross-Selinger paper suggests that once you get find a gate $U$ that is close to the $e^{i\theta Z}$, running `exact_synth` for both $U$ and $T^{-1} U T$ and take the one with the smaller $T$ count. This has only effects upto global phase and perhaps pytket will already do this optimization if needed. But writing this is pending since the final description of gate sequences is not clear (is it an array? Binary sequence? String?).
+- Apply the Rust warnings. I have turned off the warnings in the `main.rs`, `*/mod.rs` files because they were annoying. They can be fixed easily for someone inclined. I ran `cargo fix` and `cargo fix --clippy` a few times but I couldn't get them all. It mostly contains useless stuff like unused imports, redundant parantheses and uppercase/lowercase variable names.
 
 
 # References

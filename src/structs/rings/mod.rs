@@ -1,4 +1,4 @@
-#![allow(warnings)]
+// #![allow(warnings)]
 
 pub type Int = i128;
 pub type LogDepInt = i32;

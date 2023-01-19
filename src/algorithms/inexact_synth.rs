@@ -49,17 +49,17 @@ type Sunimatloc = SUniMat<Loc>;
 
 type GridParams = (Comp, Float);
 
-const integral_to_complex_mat: Mat4  = 
+const INTEGRAL_TO_COMPLEX_MAT: Mat4  = 
 Mat4::new( 1.0 ,   SQRT2  , 0.0  , 0.0,
     0.0 ,      0.0 , 1.0  ,  SQRT2 ,
     1.0 ,  -SQRT2  , 0.0  , 0.0,
     0.0 ,      0.0 , 1.0  , -SQRT2 );
 
-const complex_to_integral_mat: Mat4 = 
-Mat4::new( 0.5      ,      0.0 , 0.5      ,       0.0 ,
-    0.5/SQRT2,      0.0 ,-0.5/SQRT2,       0.0 ,
-    0.0      ,      0.5 , 0.0      ,       0.5 ,
-    0.0      ,0.5/SQRT2 , 0.0      ,-0.5/SQRT2 );
+// const COMPLEX_TO_INTEGRAL_MAT: Mat4 = 
+// Mat4::new( 0.5      ,      0.0 , 0.5      ,       0.0 ,
+//     0.5/SQRT2,      0.0 ,-0.5/SQRT2,       0.0 ,
+//     0.0      ,      0.5 , 0.0      ,       0.5 ,
+//     0.0      ,0.5/SQRT2 , 0.0      ,-0.5/SQRT2 );
 
 
 // See comments for output idea
@@ -485,7 +485,7 @@ pub fn grid_problem_given_depth( exactlogdep: LogDepInt, (direction,epsilon) :Gr
 
     // inflate the ellipse_4d_matrix
     // This takes integers directly to 4d-space without any SQRT2 multiplications
-    let int_to_4d_space = comp_to_4d_matrix * integral_to_complex_mat * SQRT2.pow(-exactlogdep);
+    let int_to_4d_space = comp_to_4d_matrix * INTEGRAL_TO_COMPLEX_MAT * SQRT2.pow(-exactlogdep);
 
     // lll-reduce the int_to_4d_space_matrix
     // This creates a new basis for our integer lattice, and also carries the lattice change of
@@ -516,7 +516,7 @@ pub fn grid_problem_given_depth( exactlogdep: LogDepInt, (direction,epsilon) :Gr
     // assert!( test_this_complex_pair_of_points(region_a_point, region_b_point, ( direction, epsilon) )  );
 
     // // this random test_point should be in the ellipse
-    // let new_center_comp =  integral_to_complex_mat * vec4int_to_vec4float( new_int_to_standard_int * new_center_in_new_int)*SQRT2.pow(-exactlogdep);
+    // let new_center_comp =  INTEGRAL_TO_COMPLEX_MAT * vec4int_to_vec4float( new_int_to_standard_int * new_center_in_new_int)*SQRT2.pow(-exactlogdep);
     // let new_complex_point = Comp
     // { 
     //     re: new_center_comp[0],
