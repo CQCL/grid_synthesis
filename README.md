@@ -1,3 +1,6 @@
+		url: *.credit-suisse.com/*
+		t(1.13.1)
+	t(1.13.1)
 # grid_synthesis
 
 
@@ -99,7 +102,7 @@ n_0 = ((x_0^2 + x_1^2 + x_2^2 + x_3^2)*x_0 - (x_0*x_1 + x_1*x_2 - x_0*x_3 + x_2*
 ```
 and then we want to return $\lfloor \frac{z_0}{n_0} \rceil + \lfloor \frac{z_1}{n_1} \rceil \omega + \lfloor \frac{z_1}{n_0} \rceil \omega^2 + \lfloor \frac{z_2}{n_0} \rceil \omega^3$ where $\lfloor\bullet \rceil$ means the nearest integer to $\bullet$.
 
-Feel free to write to me at `nihargargava@gmail.com` for any discussions, or just start an issue on this repo.
+Feel free to write to me at for any discussions, or just start an issue on this repo.
 
 # References
 
