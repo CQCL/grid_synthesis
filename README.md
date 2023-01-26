@@ -1,6 +1,3 @@
-		url: *.credit-suisse.com/*
-		t(1.13.1)
-	t(1.13.1)
 # grid_synthesis
 
 
