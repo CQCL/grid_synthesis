@@ -22,3 +22,8 @@ prime_factorization = "1.0.3" # Might replace it by a lookup table
 
 # For testing
 rand = "0.8.5"
+pyo3 = { version = "0.18.3", optional=true}
+
+
+[features]
+pyo3 = ["dep:pyo3"]
