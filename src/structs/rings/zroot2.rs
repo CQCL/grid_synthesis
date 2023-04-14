@@ -33,12 +33,18 @@ use num_traits::NumOps;
 use num_traits::NumCast;
 use num_traits::ToPrimitive;
 
+#[cfg(feature="pyo3")]
+use pyo3::prelude::*;
 
 // Quadratic number field with root 2
 // This struct assumes that you are going to localize it 
 // at sqrt(2)
 #[derive(Copy,Debug,Clone,PartialEq,PartialOrd,Hash,Eq)]
+#[cfg_attr(feature = "pyo3", pyclass)]
 pub struct Zroot2(pub Int,pub Int); //a+b\sqrt(2)
+
+
+
 
 // Rust must know how to diplay elements of this ring
 // Rust could learn some latex
@@ -411,7 +417,3 @@ impl NumCast for Zroot2
                         });
         }
 }
-
-
-
-

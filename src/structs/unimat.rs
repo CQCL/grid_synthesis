@@ -45,11 +45,13 @@ use crate::algorithms::inexact_synth::SQRT2;
 // that is, when the unitary is from Clifford+T gate set
 // then we know that omega is an 8th root of unity
 // so we can instead save a single u8 value mod 8
-
+#[cfg(feature="pyo3")]
+use pyo3::prelude::*;
 
 type ExpInt = u8;
 
 #[derive(Debug,Copy,Clone)]
+#[cfg_attr(feature = "pyo3", pyclass)]
 pub struct ExactUniMat
 {
     pub mat: SUniMat<KMMring>,       // This will save the u and t
@@ -236,8 +238,3 @@ impl PartialEq for ExactUniMat
         return self.mat == other.mat && self.omega_exp%8 == other.omega_exp%8;
     }
 }
-
-
-
-
-
